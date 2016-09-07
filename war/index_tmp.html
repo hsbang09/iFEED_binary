@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>iFEED GUI - login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script src="js/lib/jquery.js" type="text/javascript"></script>
+        <script src="js/lib/d3.js"></script>
+       <script src="https://apis.google.com/js/platform.js" async defer></script>
+       <meta name="google-signin-client_id" content="564804694787-lnsp9md3u0q8086nftbamu43drid6d4t.apps.googleusercontent.com">
+
+	<style>
+	
+	</style>
+
+    </head>
+    <body>
+        <div id="title" style="width:400px;margin:auto">
+            <h2>iFEED GUI - Login Page</h2>
+        </div>
+		
+        <br/>
+
+<!-- 		<a href="#" onclick="signOut();">Sign out</a> -->
+		
+
+       
+       
+       <script>
+
+            
+			function onSignIn(googleUser) {
+            	var id_token = googleUser.getAuthResponse().id_token;
+            	var profile = googleUser.getBasicProfile();
+		        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+		        console.log('Full Name: ' + profile.getName());
+		        console.log('Given Name: ' + profile.getGivenName());
+		        console.log('Family Name: ' + profile.getFamilyName());
+		        console.log("Image URL: " + profile.getImageUrl());
+		        console.log("Email: " + profile.getEmail());
+			  
+		        
+                $.ajax(
+                        {
+                            url: "loginServlet",
+                            type: "POST",
+                            data: {IDToken: id_token},
+                            async: false,
+                            success: function (data, textStatus, jqXHR)
+                            {
+                            	window.location.replace(data);
+                            },
+                            complete: function () {
+                            },
+                            error: function (jqXHR, textStatus, errorThrown)
+                            {
+                                alert("error");
+                            }
+                        });
+			}
+            
+		  	function signOut() {
+		    	var auth2 = gapi.auth2.getAuthInstance();
+			    auth2.signOut().then(function () {
+			      console.log('User signed out.');
+			    });
+		  	}
+
+
+			
+        </script>
+    </body>
+</html>

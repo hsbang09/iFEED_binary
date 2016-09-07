@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Driving Features</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <script src="js/libs/jquery/jquery.js" type="text/javascript"></script>
+        <script src="js/libs/d3.js"></script>
+    </head>
+    <body>
+        <div></div>
+        
+        <script src="js/relabel.js" type="text/javascript"></script>
+        <script src="js/satisfactionSummaryTable.js" type="text/javascript"></script>
+        
+        <script>
+            
+            var drivingFeatures = window.opener.sortedDrivingFeatures;
+            
+            var body = d3.select("body")
+                            .append("g");
+            var orbitList = [];
+            var instrList = [];
+            
+            
+            function getOrbitList() {
+                var orbitList
+                $.ajax({
+                    url: "resultsGUIServlet",
+                    type: "POST",
+                    data: {ID: "getOrbitList"},
+                    async: false,
+                    success: function (data, textStatus, jqXHR)
+                    {
+                        orbitList = JSON.parse(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        alert("error");
+                    }
+                });
+                return orbitList;
+            }
+            function getInstrumentList() {
+                var instrumentList
+                $.ajax({
+                    url: "resultsGUIServlet",
+                    type: "POST",
+                    data: {ID: "getInstrumentList"},
+                    async: false,
+                    success: function (data, textStatus, jqXHR)
+                    {
+                        instrumentList = JSON.parse(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        alert("error");
+                    }
+                });
+                return instrumentList;
+            }
+
+
+            orbitList = getOrbitList();
+            instrList = getInstrumentList();
+
+    
+            for (var i=0;i<drivingFeatures.length;i++){
+                var thisDF = drivingFeatures[i];
+                
+                body.append("p")
+                    .text("Lift: " + thisDF.lift.toFixed(5) + 
+                    " " + relabelDrivingFeatureName(thisDF.name) + " Supp: " + thisDF.supp.toFixed(5) + 
+                    " Conf(feature->selection): " + thisDF.conf.toFixed(5) + 
+                    " Conf(selection->feature): " + thisDF.conf2.toFixed(5));
+            
+            }
+            
+            
+        </script>
+    </body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Driving Features - Classification Tree</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <script src="js/lib/jquery.js" type="text/javascript"></script>
+        <script src="js/lib/d3.js"></script>
+        
+        <style>
+
+            .node circle {
+              cursor: pointer;
+              fill: #fff;
+              stroke: steelblue;
+              stroke-width: 1.5px;
+            }
+
+            .node text {
+              font-size: 11px;
+            }
+
+            path.link {
+              fill: none;
+              stroke: #ccc;
+              stroke-width: 1.5px;
+            }
+            
+            #treeInformation_div{
+                border: 1px black solid;
+                width: 40%;
+                height: 200px;
+                float: left;
+                margin-left: 20px;
+            }
+
+        </style>
+        
+    </head>
+    <body>
+        <h2>Driving Features: Classification Tree</h2>
+        <!--<script src="js/classificationTree.js" type="text/javascript"></script>-->
+        <!--<div id="treeInformation_div">-->
+        <script src="js/relabel.js" type="text/javascript"></script>    
+
+        
+        <script>
+            
+            var orbitList = [];
+            var instrList = [];
+            
+            
+            function getOrbitList() {
+                var orbitList
+                $.ajax({
+                    url: "resultsGUIServlet",
+                    type: "POST",
+                    data: {ID: "getOrbitList"},
+                    async: false,
+                    success: function (data, textStatus, jqXHR)
+                    {
+                        orbitList = JSON.parse(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        alert("error");
+                    }
+                });
+                return orbitList;
+            }
+            function getInstrumentList() {
+                var instrumentList
+                $.ajax({
+                    url: "resultsGUIServlet",
+                    type: "POST",
+                    data: {ID: "getInstrumentList"},
+                    async: false,
+                    success: function (data, textStatus, jqXHR)
+                    {
+                        instrumentList = JSON.parse(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        alert("error");
+                    }
+                });
+                return instrumentList;
+            }
+
+
+            orbitList = getOrbitList();
+            instrList = getInstrumentList();
+
+            
+            
+                    //   top  right bottem left
+            var margin = [20, 120, 20, 350],
+                width = 3280 - margin[1] - margin[3],
+                height = 800 - margin[0] - margin[2],
+                i = 0,
+                root;
+
+            var tree = d3.layout.tree()
+                .size([height, width]);
+
+            var diagonal = d3.svg.diagonal()
+                .projection(function(d) { return [d.y, d.x]; });
+
+            var vis = d3.select("body").append("svg")
+                .attr("width", width + margin[1] + margin[3])
+                .attr("height", height + margin[0] + margin[2])
+              .append("svg:g")
+                .attr("transform", "translate(" + margin[3] + "," + margin[0] + ")");
+            
+            var treeObj = window.opener.jsonObj_tree_nested;
+            draw_classificationTree(treeObj);
+
+            function draw_classificationTree(source){
+                
+                root = source;
+                root.x0 = height / 2;
+                root.y0 = 0;
+
+                function toggleAll(d) {
+                    if (d.children) {
+                        d.children.forEach(toggleAll);
+                        toggle(d);
+                      }
+                }
+                root.children.forEach(toggleAll);
+                // Initialize the display to show a few nodes.
+                toggle(root.children[0]);
+//                toggle(root.children[0].children[0]);
+                toggle(root.children[1]);
+//                toggle(root.children[9].children[0]);
+                update(root);   
+            }
+            
+
+            function update(source) {
+
+
+                var duration = d3.event && d3.event.altKey ? 5000 : 500;
+                // Compute the new tree layout.
+//                 var nodes = tree.nodes(root).reverse();
+               var nodes = tree.nodes(root);
+                // Normalize for fixed-depth.
+                nodes.forEach(function(d) { d.y = d.depth * 170; });
+                
+                // Update the nodes…
+                var node = vis.selectAll("g.node")
+                    .data(nodes, function(d) { return d.id || (d.id = ++i); });
+                // Enter any new nodes at the parent's previous position.
+                var nodeEnter = node.enter().append("svg:g")
+                    .attr("class", "node")
+                    .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+                    .on("click", function(d) { toggle(d);});
+                
+                nodeEnter.append("svg:circle")
+                    .attr("r", 1e-6)
+                     .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+                
+                nodeEnter.append("svg:text")
+                    .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+                    .attr("dy", ".40em")
+                    .style("font-size","12px")
+                    .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+                    .text("default")
+                    .style("fill-opacity", 1e-6);
+
+                // Transition nodes to their new position.
+                var nodeUpdate = node.transition()
+                    .duration(duration)
+                    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+                nodeUpdate.select("circle")
+                    .attr("r", 5.5)
+                    .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+        
+                nodeUpdate.select("text")
+                        .attr("x",function(d){
+                            if(d.children){ return -10; }
+                            else{ return 10; }
+                        })
+                    .attr("text-anchor", function(d) { 
+                        if(d.children){ return "end"; }
+                        else{ return "start"; }
+                    })
+                    .text(function(d) { 
+                        var out="";
+
+                        if(d.children){
+                        	out += relabelDrivingFeatureName(d.name);
+                        }else { // leafNode
+                        	if(d.num_b >= d.num_nb){
+                        		// classified as selected
+                        		var weight = d.num_b + d.num_nb;
+                        		var accuracy = d.num_b / weight;
+                        		out += "selected (" + accuracy.toFixed(2)*100 + "%) - Weight: " + weight;
+                        	}else{
+                        		// classified as not selected
+                        		var weight = d.num_b + d.num_nb;
+                        		var accuracy = d.num_nb / weight;
+                        		out += "not selected (" + accuracy.toFixed(2)*100 + "%) - Weight: " + weight;
+                        	}
+                        }
+                        
+                 
+//                         if(d.name.indexOf("selected")!==-1){
+//                             if(d.name.indexOf("not")===-1){ // selected
+//                                 var num = d.classifiedAsSelected/d.weight;
+//                                 out += d.name + "("+ num.toFixed(2)*100 +"%) - Weight: " + d.weight ;
+                                  
+//                             }else{ // not selected
+//                                 var num = (d.weight - d.classifiedAsSelected)/d.weight;
+//                                 out += d.name + "("+ num.toFixed(2)*100 +"%) - Weight: " + d.weight ;
+//                             }
+//                         } else{
+//                             if(d.children){
+//                                 out = relabelDrivingFeatureName(d.name);
+//                             }else{
+//                                 if(d.classifiedAsSelected > d.weight/2){ // selected
+//                                     var num = d.classifiedAsSelected/d.weight;
+//                                     out = "selected (" + num.toFixed(2)*100 +"%) - Weight: " + d.weight ;
+//                                 } else{
+//                                     var num = (d.weight - d.classifiedAsSelected)/d.weight;
+//                                     out += "not selected ("+ num.toFixed(2)*100 +"%) - Weight: " + d.weight ;
+//                                 }
+//                             }
+//                         }
+//                         return out;
+                        
+                        
+                        
+                        return out;
+                        
+                        
+                    })
+                    .style("font-size",20)
+                    .style("fill-opacity", 1);
+             
+                // Transition exiting nodes to the parent's new position.
+                var nodeExit = node.exit().transition()
+                    .duration(duration)
+                    .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+                    .remove();
+      
+                nodeExit.select("circle")
+                    .attr("r", 1e-6);
+
+                nodeExit.select("text")
+                    .style("fill-opacity", 1e-6);
+         
+                // Update the links…
+                var link = vis.selectAll("path.link")
+                    .data(tree.links(nodes), function(d) { return d.target.id; });
+
+                var path_scale = d3.scale.pow().exponent(0.5);
+                path_scale.range([2,12])
+                          	.domain([1,treeObj.numDat]);
+
+
+                // Enter any new links at the parent's previous position.
+                link.enter().insert("svg:path", "g")
+                    .attr("class", "link")
+                    .attr("d", function(d) {
+                      var o = {x: source.x0, y: source.y0};
+                      return diagonal({source: o, target: o});
+                    })
+                    .style("stroke",function(d){
+                        if(d.target.cond === true){
+                            return "#99FFB4";
+                        } else{
+                            return "#FF99CE";
+                        }
+                    })
+                    .style("stroke-width",function(d){
+                        return path_scale(d.target.numDat);
+                    })
+                    .style("fill-opacity", 0.94)
+                  .transition()
+                    .duration(duration)
+                    .attr("d", diagonal);
+    
+                // Transition links to their new position.
+                link.transition()
+                    .duration(duration)
+                    .attr("d", diagonal);
+
+                // Transition exiting nodes to the parent's new position.
+                link.exit().transition()
+                    .duration(duration)
+                    .attr("d", function(d) {
+                      var o = {x: source.x, y: source.y};
+                      return diagonal({source: o, target: o});
+                    })
+                    .remove();
+
+                // Stash the old positions for transition.
+                nodes.forEach(function(d) {
+                  d.x0 = d.x;
+                  d.y0 = d.y;
+                });
+            }
+
+
+
+            // Toggle children.
+            function toggle(d) {
+                if (d.children) {
+                  d._children = d.children;
+                  d.children = null;
+                } else {
+                  d.children = d._children;
+                  d._children = null;
+                }
+                update(d);
+            }
+            
+
+        </script>
+    </body>
+</html>

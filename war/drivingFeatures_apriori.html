@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Driving Features</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <script src="js/libs/jquery/jquery.js" type="text/javascript"></script>
+        <script src="js/libs/d3.js"></script>
+    </head>
+    <body>
+        
+        <h4>Designs with science score > 0.15 and cost < 5000 are deemed good designs</h4>
+        <script>
+            
+            var drivingFeatures = window.opener.cars;
+            var body = d3.select("body")
+                            .append("g");
+                    
+            for (var i=0;i<drivingFeatures.length;i++){
+                var thisDF = drivingFeatures[i];
+                
+                
+                body.append("p")
+                    .text(function(d){
+                        
+                        if(thisDF.name.indexOf("bad")===-1){
+                            return  "Feature: [" + thisDF.name + "] Supp: " + thisDF.supp.toFixed(5) + 
+                    " Conf(feature->good design): " + thisDF.conf.toFixed(5) + 
+                    " Conf(good design->feature): " + thisDF.conf2.toFixed(5)  + " Lift: " + thisDF.lift.toFixed(5);
+                        }else{
+                            return  "Feature: [" + thisDF.name + "] Supp: " + thisDF.supp.toFixed(5) + 
+                    " Conf(feature->bad design): " + thisDF.conf.toFixed(5) + 
+                    " Conf(bad design->feature): " + thisDF.conf2.toFixed(5)  + " Lift: " + thisDF.lift.toFixed(5);
+                        }
+
+                        
+                    });
+            
+            
+            }
+            
+            
+        </script>
+        
+        
+        
+    </body>
+</html>
