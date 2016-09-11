@@ -272,36 +272,10 @@ and open the template in the editor.
         </div>
         <br/>
         
-		<a href="#" onclick="signOut();" style="margin-bottom: 10px; float:right">Quit experiment and sign out</a>	
-		
-		<div id="logIn_window" style="width:100%;">
-	        <div style="width:400px;margin:auto">
-	        	Please log in to start:
-	        </div>
-	        
-	        <br/>
-			<div id="signin_div" class="g-signin2" data-onsuccess="onSignIn" style="width:400px;margin:auto"></div>
-		</div>
-		
-		<div id="clockdiv">
-			  <div>
-			    <span class="minutes"></span>
-			    <div class="smalltext">Minutes</div>
-			  </div>
-			  <div>
-			    <span class="seconds"></span>
-			    <div class="smalltext">Seconds</div>
-			  </div>
-		</div>
-		
-		
-		
-        <div id="resultFileURLInput">
-        
-<!--             <input id="resultFileURL" type="text" name="resultFileURL" value="0"/> -->
-<!--             <input id="resultFileURL_newData" type="submit" value="Click to start experiment" disabled="True" /> -->
-<!--            <input id="resultFileURL_addData" type="submit" value="Add to existing data" />-->
 
+        <div id="resultFileURLInput">
+<!--             <input id="resultFileURL" type="text" name="resultFileURL" value="0"/> -->
+            <input id="resultFileURL_newData" type="submit" value="Click to start experiment"/>
         </div>
         <br/>
 
@@ -462,102 +436,8 @@ and open the template in the editor.
             var getClassificationTree_numOfArchs = [];
             var getDrivingFeatures_thresholds = [];
             
-//             var timeMeasurement_drivingFeature_bar = 0;
-//             var timeMeasurement_classificationTree = 0;
-            
-            
-           
-            
-            
-			function onSignIn(googleUser) {
-            	id_token = googleUser.getAuthResponse().id_token;
-		        var firstLoginTime = Date.parse(new Date());
-		        var credential;
-                $.ajax(
-                        {
-                            url: "loginServlet",
-                            type: "POST",
-                            data: {ID: "login", IDToken: id_token, loginTime:firstLoginTime},
-                            async: false,
-                            success: function (data, textStatus, jqXHR)
-                            {
-                            	d3.select("[id=logIn_window]").remove();
-								credential = data;
-                            },
-                            error: function (jqXHR, textStatus, errorThrown)
-                            {
-                                alert("error");
-                            }
-                        });
-                if(credential!=="accessDenied"){  // access granted
-                	testType = credential[0];
-                	remainingTime = + credential.slice(2);
-                	
-//                  testType = "0";
-                    newDataFromResultFile();
-                }else{ // access not granted
-                	signOut();
-                }
-			}
 			
-		    function renderButton() {
-		        gapi.signin2.render('my-signin2', {
-		          'scope': 'profile',
-		          'width': 240,
-		          'height': 50,
-		          'longtitle': true,
-		          'theme': 'dark',
-		          'onsuccess': onSuccess,
-		          'onfailure': onFailure
-		        });
-		    }
-			
-            
-            function session_timeout(){
-
-            	var out;
-                $.ajax(
-                        {
-                            url: "loginServlet",
-                            type: "POST", 
-                            data: {ID: "sessionTimeout", IDToken: id_token, cnt_df:buttonClickCount_drivingFeatures,
-                            	cnt_ct:buttonClickCount_classificationTree,
-                            	cnt_fo:buttonClickCount_filterOptions,
-                            	cnt_af:buttonClickCount_applyFilter,
-                            	cnt_ud:buttonClickCount_addUserDefFilter,
-                            	cnt_ar:numOfArchViewed,
-                            	cnt_db:numOfDrivingFeatureViewed,
-                            	numArch_df: JSON.stringify(getDrivingFeatures_numOfArchs),
-                            	numArch_ct: JSON.stringify(getClassificationTree_numOfArchs),
-                            	threshold_df: JSON.stringify(getDrivingFeatures_thresholds),
-                            	userdef:JSON.stringify(userDefFilters)},
-                            async: false,
-                            success: function (data, textStatus, jqXHR)
-                            {
-								out = data;
-                            },
-                            error: function (jqXHR, textStatus, errorThrown)
-                            {
-                                alert("error");
-                            }
-                        }
-            	);
-                return out;
-            }
-            
-		  	function signOut() {
-		    	var auth2 = gapi.auth2.getAuthInstance();
-			    auth2.signOut().then(function () {
-			      console.log('User signed out.');
-			    });
-			    if(session_timed_out===true){ // the time ran out
-			    	d3.select('body').append('h2').text('You have logged out. Thank you for participating in the study. Now you can close the window')
-			    			.style("width","400px")
-			    			.style("margin","auto");
-			    }else{  // the experiment was stopped by the user before the time ran out
-				    window.location.replace("session_end.html");
-			    }
-		  	}
+ 
 
             try {
 
@@ -618,16 +498,6 @@ and open the template in the editor.
                     	reset_drawing_scatterPlot();
                     	draw_scatterPlot(architectures);
                     	d3.select("[id=basicInfoBox_div]").select("g").remove();
-                    	
-                    	var startTime = Date.parse(new Date());
-                    	startTime = +startTime;
-//                     	
-                    	if(+remainingTime < 0){
-                    		signOut();
-                    		return;
-                    	}
-						var deadline = new Date(startTime + remainingTime);
-                     	initializeClock('clockdiv', deadline);
                     },
                     error: function (jqXHR, textStatus, errorThrown)
                     {
@@ -638,9 +508,10 @@ and open the template in the editor.
             }
             
             
-
-
+            d3.select("[id=resultFileURL_newData]").on("click", newDataFromResultFile);
             
+            
+
             function extractInfoFromBitString(bitString) {
                 var jsonObj_arch
                 $.ajax({
@@ -867,66 +738,6 @@ and open the template in the editor.
                 return d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_clicked]").size();
             }
 
-
-            function getTimeRemaining(endtime){
-            	  var t = Date.parse(endtime) - Date.parse(new Date());
-// 				  var t = endtime - Date.parse(new Date());
-            	  var seconds = Math.floor( (t/1000) % 60 );
-            	  var minutes = Math.floor( (t/1000/60) % 60 );
-//             	  var hours = Math.floor( (t/(1000*60*60)) % 24 );
-//             	  var days = Math.floor( t/(1000*60*60*24) );
-            	  return {
-            	    'total': t,
-//             	    'days': days,
-//             	    'hours': hours,
-            	    'minutes': minutes,
-            	    'seconds': seconds
-            	  };
-           	}
-            
-            function initializeClock(id, endtime){
-          	  	var clock = document.getElementById(id);
-//           	  	var daysSpan = clock.querySelector('.days');
-// 	          	var hoursSpan = clock.querySelector('.hours');
-	          	var minutesSpan = clock.querySelector('.minutes');
-	          	var secondsSpan = clock.querySelector('.seconds');
-
-	          	function updateClock(){
-          	    	var t = getTimeRemaining(endtime);
-
-// 	          	    daysSpan.innerHTML = t.days;
-// 	          	    hoursSpan.innerHTML = t.hours;
-	          	    minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
-	          	  	secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
-          		  	if(t.total<=0){
-           		    	clearInterval(timeinterval);
-           		    	session_timed_out = true;
-           		    	d3.select('body').selectAll('div').remove();
-//            		    	d3.select('body').select('a').remove();
-           		    	key_number = session_timeout();
-           		    	
-       		    		var img = $('<img />', {src : 'https://brand.cornell.edu/images/cornelllogo-stacked.png'});
-       		    		img.appendTo('body');
-       		    		d3.select('body').select('img').style("width","150px").style('margin','40px');
-        	
-           		    	d3.select('body').append('h1')
-           		    		.text('The session ended').style("width","1200px").style("margin","auto");
-           		    	d3.select('body').append('h2')
-           		    		.text('IMPORTANT: Please save the key number below and insert in Mechanical Turk & Survey Monkey')
-           		    		.style("width","1200px").style("margin","auto");;
-           		    	d3.select('body').append('h2')
-           		    		.text("Key number: "+ key_number).style("width","1200px").style("margin","auto");
-           		    	d3.select('body').append('h2')
-       		    			.text("Now follow the link to solve problem: https://www.surveymonkey.com/r/NZRT5BL").style("width","1200px").style("margin","auto");
-           		    	d3.select('body').append('div').style("width","100%").style("height","30px");
-          		  	}
-       			}
-
-           		updateClock(); // run function once at first to avoid delay
-           		var timeinterval = setInterval(updateClock,1000);
-           }
-            
-            
 //             d3.select("[id=resultFileURL_newData]").on("click", newDataFromResultFile);
 //            d3.select("[id=resultFileURL_addData]").on("click", addDataFromResultFile);
             

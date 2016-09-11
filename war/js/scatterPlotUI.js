@@ -208,31 +208,9 @@ function draw_scatterPlot(source) {
     d3.select("[id=openFilterOptions]")[0][0].disabled = false;
 	d3.select("[id=scatterPlot_option]")[0][0].disabled=false;
     
-    if(testType==="1"){
-        d3.select("[id=getDrivingFeaturesSetting_div]").remove();
-        d3.select("[id=drivingFeaturesAndSensitivityAnalysis_div]").append("div")
-                .attr("id","getDrivingFeaturesSetting_div")
-                .append("button")
-                .attr("id","openFilterOptions")
-                .text("Open Filter Options");
-        d3.select("[id=scatterPlot_option]").remove();
-    }
-    else if(testType==="2"){
-        d3.select("[id=getClassificationTreeButton]").remove();
-    } else if(testType==="3"){
-    } else if(testType==="4"){
-        d3.select("[id=lift_threshold_input]")[0][0].value = 0;
-        d3.select("[id=getDrivingFeaturesSetting_div]").select("[id=getClassificationTreeButton]").remove();
-        d3.select("[id=scatterPlot_option]").remove();
-//        d3.select("[id=dfsort_options]").remove();
-    }
-    
 
-    if(testType==="4"){
-        d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures_automated);
-    } else{
-        d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
-    }
+	d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
+
 //    d3.select("[id=satisfactionScoreSummaryButton]").on("click", loadSatisfactionSummaryPage);
     d3.select("[id=getClassificationTreeButton]").on("click",getClassificationTree);
     d3.select("[id=selectArchsWithinRangeButton]").on("click", selectArchsWithinRange);
