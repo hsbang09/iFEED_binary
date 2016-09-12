@@ -5,3 +5,7 @@
 /test-classes/
 .classpath
 .project
+/war/WEB-INF/appengine-generated/
+/war/WEB-INF/classes/
+/war/WEB-INF/deploy/
+/war/idetc_2016_2/
