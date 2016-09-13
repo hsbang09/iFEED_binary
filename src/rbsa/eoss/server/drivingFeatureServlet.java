@@ -219,6 +219,7 @@ public class drivingFeatureServlet extends HttpServlet {
             DFs = dfsGen.getDrivingFeatures();
             
             String sortingCriteria = request.getParameter("sortBy");
+            int sortingCrieteria_int = Integer.parseInt(sortingCriteria);
             ArrayList<DrivingFeature> sortedDFs;
             sortedDFs = new ArrayList<>();
             for (DrivingFeature df:DFs){
@@ -232,27 +233,11 @@ public class drivingFeatureServlet extends HttpServlet {
                     continue;
                 } 
                 
-                if(sortingCriteria.equalsIgnoreCase("lift")){
-                    value = df.getLift();
-                    maxVal = sortedDFs.get(0).getLift();
-                    minVal = sortedDFs.get(sortedDFs.size()-1).getLift();
-                } else if(sortingCriteria.equalsIgnoreCase("supp")){
-                    value = df.getSupport();
-                    maxVal = sortedDFs.get(0).getSupport();
-                    minVal = sortedDFs.get(sortedDFs.size()-1).getSupport();
-                } else if(sortingCriteria.equalsIgnoreCase("confave")){
-                    value = (double) (df.getConfidence() + df.getConfidence2())/2;
-                    maxVal = (double) (sortedDFs.get(0).getConfidence() + sortedDFs.get(0).getConfidence2())/2;
-                    minVal = (double) (sortedDFs.get(sortedDFs.size()-1).getConfidence() + sortedDFs.get(sortedDFs.size()-1).getConfidence2())/2;
-                } else if(sortingCriteria.equalsIgnoreCase("conf1")){
-                    value = df.getConfidence();
-                    maxVal = sortedDFs.get(0).getConfidence();
-                    minVal = sortedDFs.get(sortedDFs.size()-1).getConfidence();
-                } else if(sortingCriteria.equalsIgnoreCase("conf2")){
-                    value = df.getConfidence2();
-                    maxVal = sortedDFs.get(0).getConfidence2();
-                    minVal = sortedDFs.get(sortedDFs.size()-1).getConfidence2();
-                }
+
+                value = df.getMetrics()[sortingCrieteria_int];
+                maxVal = sortedDFs.get(0).getMetrics()[sortingCrieteria_int];
+                minVal = sortedDFs.get(sortedDFs.size()-1).getMetrics()[sortingCrieteria_int];
+                
                 
                 if (value >= maxVal){
                     sortedDFs.add(0,df);
@@ -263,23 +248,10 @@ public class drivingFeatureServlet extends HttpServlet {
                             
                             double refval = 0.0;
                             double refval2 = 0.0;
-                            if(sortingCriteria.equalsIgnoreCase("lift")){
-                                refval = sortedDFs.get(j).getLift();
-                                refval2 = sortedDFs.get(j+1).getLift();
-                            } else if(sortingCriteria.equalsIgnoreCase("supp")){
-                                refval = sortedDFs.get(j).getSupport();
-                                refval2 = sortedDFs.get(j+1).getSupport();
-                            } else if(sortingCriteria.equalsIgnoreCase("confave")){
-                                refval = (double) (sortedDFs.get(j).getConfidence() + sortedDFs.get(j).getConfidence2())/2;
-                                refval2 = (double) (sortedDFs.get(j+1).getConfidence() + sortedDFs.get(j+1).getConfidence2())/2;
-                            } else if(sortingCriteria.equalsIgnoreCase("conf1")){
-                                refval = sortedDFs.get(j).getConfidence();
-                                refval2 = sortedDFs.get(j+1).getConfidence();
-                            } else if(sortingCriteria.equalsIgnoreCase("conf2")){
-                                refval = sortedDFs.get(j).getConfidence2();
-                                refval2 = sortedDFs.get(j+1).getConfidence2();
-                            }
-                            
+
+                            refval = sortedDFs.get(j).getMetrics()[sortingCrieteria_int];
+                            refval2 = sortedDFs.get(j+1).getMetrics()[sortingCrieteria_int];
+
                             if(value <= refval && value > refval2){
                                 sortedDFs.add(j+1,df);
                                 break;
@@ -292,136 +264,6 @@ public class drivingFeatureServlet extends HttpServlet {
             outputString = jsonObj;
    
         } 
-
-
-//        
-        else if(requestID.equalsIgnoreCase("automaticFeatureGeneration")){
-            
-            
-            double support_threshold = Double.parseDouble(request.getParameter("supp"));
-            double confidence_threshold = Double.parseDouble(request.getParameter("conf"));
-            double lift_threshold = Double.parseDouble(request.getParameter("lift")); 
-             
-            String selectedArchs_raw = request.getParameter("selected");
-          //["000000001101010111010011010010000110001010100011101000001011","101011000010000010010011011010100110100000101000100101001011","001001001000110001010001110111000000111111100010000000110010"]
-            selectedArchs_raw = selectedArchs_raw.substring(1, selectedArchs_raw.length()-1);
-          //"000010011101011000110000110000100000110110000100100010011010","010000100001010000000111100110000100110111001101001110010100"
-            String nonSelectedArchs_raw = request.getParameter("nonSelected");
-            nonSelectedArchs_raw = nonSelectedArchs_raw.substring(1, nonSelectedArchs_raw.length()-1);
-            
-            String[] selectedArchs_split = selectedArchs_raw.split(",");
-            String[] nonSelectedArchs_split = nonSelectedArchs_raw.split(",");
-            
-            ArrayList<String> selectedArchs = new ArrayList<>();
-            ArrayList<String> allArchs = new ArrayList<>();
-
-            for (String selectedArchs_split1:selectedArchs_split) {
-                String bitString = selectedArchs_split1.substring(1, selectedArchs_split1.length() - 1);
-                selectedArchs.add(bitString);
-                allArchs.add(bitString);
-                if(bitString.length()!=60){
-                    System.out.println("something's wrong: bitString length not 60");
-                }
-            }
-            for (String nonSelectedArchs_split1:nonSelectedArchs_split) {
-                String bitString = nonSelectedArchs_split1.substring(1, nonSelectedArchs_split1.length() - 1);
-                allArchs.add(bitString);
-                if(bitString.length()!=60){
-                    System.out.println("something's wrong: bitString length not 60");
-                }
-            }
-            ArrayList<int[][]> selected_pop = new ArrayList<>();
-            ArrayList<int[][]> pop = new ArrayList<>();
-
-            for(String allArchs1:allArchs){
-                pop.add(bitString2IntMat(allArchs1));
-            }
-            for(String selectedArchs1:selectedArchs){
-                selected_pop.add(bitString2IntMat(selectedArchs1));
-            }
-            
-
-            
-            Apriori apriori = new Apriori(selected_pop, pop, support_threshold,confidence_threshold,lift_threshold);
-            apriori.runApriori();
-            
-            DFs = apriori.getCARs();
-            
-            String sortingCriteria = request.getParameter("sortBy");
-            ArrayList<DrivingFeature> sortedDFs;
-            sortedDFs = new ArrayList<>();
-            for (DrivingFeature df:DFs){
-            
-                double value = 0.0;
-                double maxVal = 1000000.0;
-                double minVal = -1.0;
-                
-                if (sortedDFs.isEmpty()){
-                    sortedDFs.add(df);
-                    continue;
-                } 
-                
-                if(sortingCriteria.equalsIgnoreCase("lift")){
-                    value = df.getLift();
-                    maxVal = sortedDFs.get(0).getLift();
-                    minVal = sortedDFs.get(sortedDFs.size()-1).getLift();
-                } else if(sortingCriteria.equalsIgnoreCase("supp")){
-                    value = df.getSupport();
-                    maxVal = sortedDFs.get(0).getSupport();
-                    minVal = sortedDFs.get(sortedDFs.size()-1).getSupport();
-                } else if(sortingCriteria.equalsIgnoreCase("confave")){
-                    value = (double) (df.getConfidence() + df.getConfidence2())/2;
-                    maxVal = (double) (sortedDFs.get(0).getConfidence() + sortedDFs.get(0).getConfidence2())/2;
-                    minVal = (double) (sortedDFs.get(sortedDFs.size()-1).getConfidence() + sortedDFs.get(sortedDFs.size()-1).getConfidence2())/2;
-                } else if(sortingCriteria.equalsIgnoreCase("conf1")){
-                    value = df.getConfidence();
-                    maxVal = sortedDFs.get(0).getConfidence();
-                    minVal = sortedDFs.get(sortedDFs.size()-1).getConfidence();
-                } else if(sortingCriteria.equalsIgnoreCase("conf2")){
-                    value = df.getConfidence2();
-                    maxVal = sortedDFs.get(0).getConfidence2();
-                    minVal = sortedDFs.get(sortedDFs.size()-1).getConfidence2();
-                }
-                
-                if (value >= maxVal){
-                    sortedDFs.add(0,df);
-                } else if(value <= minVal){
-                    sortedDFs.add(df);
-                } else {
-                        for (int j=0;j<sortedDFs.size();j++){
-                            
-                            double refval = 0.0;
-                            double refval2 = 0.0;
-                            if(sortingCriteria.equalsIgnoreCase("lift")){
-                                refval = sortedDFs.get(j).getLift();
-                                refval2 = sortedDFs.get(j+1).getLift();
-                            } else if(sortingCriteria.equalsIgnoreCase("supp")){
-                                refval = sortedDFs.get(j).getSupport();
-                                refval2 = sortedDFs.get(j+1).getSupport();
-                            } else if(sortingCriteria.equalsIgnoreCase("confave")){
-                                refval = (double) (sortedDFs.get(j).getConfidence() + sortedDFs.get(j).getConfidence2())/2;
-                                refval2 = (double) (sortedDFs.get(j+1).getConfidence() + sortedDFs.get(j+1).getConfidence2())/2;
-                            } else if(sortingCriteria.equalsIgnoreCase("conf1")){
-                                refval = sortedDFs.get(j).getConfidence();
-                                refval2 = sortedDFs.get(j+1).getConfidence();
-                            } else if(sortingCriteria.equalsIgnoreCase("conf2")){
-                                refval = sortedDFs.get(j).getConfidence2();
-                                refval2 = sortedDFs.get(j+1).getConfidence2();
-                            }
-                            
-                            if(value <= refval && value > refval2){
-                                sortedDFs.add(j+1,df);
-                                break;
-                            }
-                        } 
-                }
-            }
-        
-            String jsonObj = gson.toJson(sortedDFs);
-            outputString = jsonObj;
-      
-        	
-        }
 
 
 

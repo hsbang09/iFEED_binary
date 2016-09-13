@@ -40,14 +40,9 @@ function getDrivingFeatures() {
         nonSelectedBitStrings.push(tmpBitString);
     }
 
-    sortedDFs = generateDrivingFeatures(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
-    display_drivingFeatures(sortedDFs,"lift");
+    sortedDFs = generateDrivingFeatures(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"1");
+    display_drivingFeatures(sortedDFs,"1");
 }
-
-
-
-
-
 
 
 
@@ -80,6 +75,7 @@ function sortDrivingFeatures(drivingFeatures,sortBy){
 	
 	var newlySorted = [];
 	newlySorted.length=0;
+	sortBy = + sortBy;
 	
 	for (var i=0;i<drivingFeatures.length;i++){
 		
@@ -92,30 +88,11 @@ function sortDrivingFeatures(drivingFeatures,sortBy){
 			newlySorted.push(thisDF);
 			continue;
 		}
-		
-	       
-        if(sortBy=="lift"){
-            value = thisDF.lift;
-            maxval = newlySorted[0].lift;
-            minval = newlySorted[newlySorted.length-1].lift;
-        } else if(sortBy=="supp"){
-            value = thisDF.supp;
-            maxval = newlySorted[0].supp;
-            minval = newlySorted[newlySorted.length-1].supp;
-        } else if(sortBy=="confave"){
-            value = (thisDF.conf + thisDF.conf2)/2;
-            maxval = (newlySorted[0].conf + newlySorted[0].conf2)/2;
-            minval = (newlySorted[newlySorted.length-1].conf+newlySorted[newlySorted.length-1].conf2)/2;
-        } else if(sortBy=="conf1"){
-            value = thisDF.conf;
-            maxval = newlySorted[0].conf;
-            minval = newlySorted[newlySorted.length-1].conf;
-        } else if(sortBy=="conf2"){
-            value = thisDF.conf2;
-            maxval = newlySorted[0].conf2;
-            minval = newlySorted[newlySorted.length-1].conf2;
-        }
-		
+
+        value = thisDF.metrics[sortBy];
+        maxval = newlySorted[0].metrics[sortBy];
+        minval = newlySorted[newlySorted.length-1].metrics[sortBy];
+
 		if(value>=maxval){
 			newlySorted.splice(0,0,thisDF);
 		} else if (value<=minval){
@@ -124,26 +101,11 @@ function sortDrivingFeatures(drivingFeatures,sortBy){
 			for (var j=0;j<newlySorted.length;j++){
 				var refval=0; var refval2=0;
 				
-				if(sortBy=="lift"){
-					refval=newlySorted[j].lift;
-					refval2=newlySorted[j+1].lift;
-				} else if(sortBy=="supp"){
-					refval=newlySorted[j].supp;
-					refval2=newlySorted[j+1].supp;
-				} else if(sortBy=="confave"){
-					refval=(newlySorted[j].conf+newlySorted[j].conf2)/2
-					refval2=(newlySorted[j+1].conf+newlySorted[j+1].conf2)/2
-				} else if(sortBy=="conf1"){
-					refval=newlySorted[j].conf;
-					refval2=newlySorted[j+1].conf;
-				} else if(sortBy=="conf2"){
-					refval=newlySorted[j].conf2;
-					refval2=newlySorted[j+1].conf2;
-				}
+				refval=newlySorted[j].metrics[sortBy];
+				refval2=newlySorted[j+1].metrics[sortBy];
 				if(value <=refval && value > refval2){
 					newlySorted.splice(j+1,0,thisDF); break;
 				}
-		
 			}
 		}
 	}         
@@ -913,9 +875,8 @@ function applyFilter_complement(){
 
 
 
+var ARM_metric = ["Support","Lift","Confidence {feature}->{selection}","Confidence {selection}->{feature}"]
 
-
-               
 var xScale_df;
 var yScale_df;
 var xAxis_df;
@@ -929,16 +890,12 @@ function display_drivingFeatures(source,sortby) {
     var drivingFeatureNames = [];
     var drivingFeatureTypes = [];
     i_drivingFeatures=0;
-    var lifts=[];
-    var supps=[];
-    var conf1s=[];
-    var conf2s=[];
+    var sorting_metric = [];
+    // Change the type of the variable into integer
+    sortby =  + sortby;
 
     for (var i=0;i<size;i++){
-        lifts.push(source[i].lift);
-        supps.push(source[i].supp);
-        conf1s.push(source[i].conf);
-        conf2s.push(source[i].conf2);
+        sorting_metric.push(source[i].metrics[sortby]);
         drivingFeatures.push(source[i]);
         if(source[i].preset===true){
             drivingFeatureNames.push(source[i].name);
@@ -955,33 +912,16 @@ function display_drivingFeatures(source,sortby) {
     width_df = 800 - 35 - margin_df.left - margin_df.right,
     height_df = 430 - 20 - margin_df.top - margin_df.bottom;
 
-//    xScale_df = d3.scale.ordinal()
-//            .rangeBands([0, width_df]);
     xScale_df = d3.scale.linear()
             .range([0, width_df]);
     yScale_df = d3.scale.linear().range([height_df, 0]);
     xScale_df.domain([0,drivingFeatures.length-1]);
     
     
-    var minval;
-    if(sortby==="lift"){
-        minval = d3.min(lifts);
-        yScale_df.domain([d3.min(lifts), d3.max(lifts)]);
-    } else if(sortby==="supp"){
-        minval = d3.min(supps);
-        yScale_df.domain([d3.min(supps), d3.max(supps)]);
-    }else if(sortby==="confave"){
-        var min_tmp = (d3.min(conf1s) + d3.min(conf2s))/2;
-        minval = min_tmp;
-        var max_tmp = (d3.max(conf1s) + d3.max(conf2s))/2;
-        yScale_df.domain([min_tmp, max_tmp]);
-    }else if(sortby==="conf1"){
-        minval = d3.min(conf1s);
-        yScale_df.domain([d3.min(conf1s), d3.max(conf1s)]);
-    }else if(sortby==="conf2"){
-        minval = d3.min(conf2s);
-        yScale_df.domain([d3.min(conf2s), d3.max(conf2s)]);
-    }
+    // Save the minimum value of the metric (e.g. lift, support, confidence)
+    var minval = d3.min(sorting_metric);
+    yScale_df.domain([d3.min(sorting_metric), d3.max(sorting_metric)]);
+
 
     xAxis_df = d3.svg.axis()
             .scale(xScale_df)
@@ -1054,17 +994,7 @@ function display_drivingFeatures(source,sortby) {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text(function(d){
-                if(sortby==="lift"){
-                    return "Lift";
-                } else if(sortby==="supp"){
-                    return "Support";
-                }else if(sortby==="confave"){
-                    return "Average Confidence";
-                }else if(sortby==="conf1"){
-                    return "Confidence {feature}->{selection}"
-                }else if(sortby==="conf2"){
-                    return "Confidence {selection}->{feature}"
-                }
+            	return ARM_metric[sortby];
             });
 
     var objects = svg_df.append("svg")
@@ -1100,31 +1030,11 @@ function display_drivingFeatures(source,sortby) {
                 return 0;
             })
             .attr("width", xScale_df(1))
-            .attr("y", function(d) { 
-                if(sortby==="lift"){
-                    return yScale_df(d.lift); 
-                } else if(sortby==="supp"){
-                    return yScale_df(d.supp); 
-                }else if(sortby==="confave"){
-                    return yScale_df((d.conf+d.conf2)/2); 
-                }else if(sortby==="conf1"){
-                    return yScale_df(d.conf); 
-                }else if(sortby==="conf2"){
-                    return yScale_df(d.conf2); 
-                }
+            .attr("y", function(d) {
+            	return yScale_df(+ d.metrics[sortby]);
             })
             .attr("height", function(d) { 
-                if(sortby==="lift"){
-                    return height_df - yScale_df(d.lift); 
-                } else if(sortby==="supp"){
-                    return height_df - yScale_df(d.supp); 
-                }else if(sortby==="confave"){
-                    return height_df - yScale_df((d.conf+d.conf2)/2); 
-                }else if(sortby==="conf1"){
-                    return height_df - yScale_df(d.conf); 
-                }else if(sortby==="conf2"){
-                    return height_df - yScale_df(d.conf2); 
-                }
+            	return height_df - yScale_df(+ d.metrics[sortby]);
             })
             .attr("transform",function(d){
                 var xCoord = xScale_df(d.id);
@@ -1173,10 +1083,7 @@ function display_drivingFeatures(source,sortby) {
                     var tmp= d.id;
                     var name = relabelDrivingFeatureName(d.name);
                     var type = d.type;
-                    var lift = d.lift;
-                    var supp = d.supp;
-                    var conf = d.conf;
-                    var conf2 = d.conf2;
+                    var metrics = d.metrics;
 
                     d3.selectAll("[class=bar]").filter(function(d){
                         if(d.id===tmp){
@@ -1187,13 +1094,11 @@ function display_drivingFeatures(source,sortby) {
                     }).style("stroke-width",1.5)
                             .style("stroke","black");
 
-
-                    
-                    
-                    
                     if(type=="present" || type=="absent" || type=="inOrbit" ||type=="notInOrbit"||type=="together2"||
                     		type=="togetherInOrbit2"||type=="separate2"||type=="together3"||type=="togetherInOrbit3"||
                     		type=="separate3"||type=="emptyOrbit"||type=="numOrbits"){
+                    	// Preset filter
+                    	
                     	
                     	var type_modified;
                     	var filterInputs = [];
@@ -1222,6 +1127,7 @@ function display_drivingFeatures(source,sortby) {
                     		filterInputs.push(arg);
                     	}
                             
+                    	
                         d3.selectAll("[class=dot]")[0].forEach(function (d) {
                         	var bitString = d.__data__.archBitString;
                     		if (presetFilter2(type_modified,bitString,filterInputs,false)){
@@ -1277,28 +1183,18 @@ function display_drivingFeatures(source,sortby) {
                                                 'class': 'tooltip'
                                             });
                     var textdiv = fo_div.selectAll("div")
-                            .data([{name:name,supp:supp,conf:conf,conf2:conf2,lift:lift}])
+                            .data([{name:name,metrics:metrics}])
                             .enter()
                             .append("div");
                           
 //                    
                     textdiv.html(function(d){
                     	
-                    	if(testType==="4"){
-                    		if(type==="good"){
-                                var output= d.name + " (cost<5000 & science>0.15)<br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
-                                "<br> conf {feature} -> {selection}: " + d.conf.toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.conf2.toFixed(4) +
-                                "";
-                    		}else{
-                                var output= d.name + " (cost>5000 || science<0.15)<br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
-                                "<br> conf {feature} -> {selection}: " + d.conf.toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.conf2.toFixed(4) +
-                                "";
-                    		}
-                    	}else{
-                            var output= d.name + "<br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
-                            "<br> conf {feature} -> {selection}: " + d.conf.toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.conf2.toFixed(4) +
-                            "";
-                    	}
+
+                        var output= d.name + "<br> lift: " + d.metrics[1].toFixed(4) + "<br> support: " + d.metrics[0].toFixed(4) + 
+                        "<br> conf {feature} -> {selection}: " + d.metrics[2].toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.metrics[3].toFixed(4) +
+                        "";
+                    	
                         return output;
                     }).style("color", "#F7FF55");                         
 
@@ -1337,30 +1233,28 @@ function display_drivingFeatures(source,sortby) {
 
 
     
-    if(testType==="4"){
-    }else{
-        // draw legend
-        var legend_df = objects.selectAll(".legend")
-                        .data(color_drivingFeatures.domain())
-                        .enter().append("g")
-                        .attr("class", "legend")
-                        .attr("transform", function(d, i) { return "translate(0," + (i * 20) + ")"; });
 
-            // draw legend colored rectangles
-        legend_df.append("rect")
-                .attr("x", 655)
-                .attr("width", 18)
-                .attr("height", 18)
-                .style("fill", color_drivingFeatures);
+    // draw legend
+    var legend_df = objects.selectAll(".legend")
+                    .data(color_drivingFeatures.domain())
+                    .enter().append("g")
+                    .attr("class", "legend")
+                    .attr("transform", function(d, i) { return "translate(0," + (i * 20) + ")"; });
 
-            // draw legend text
-        legend_df.append("text")
-                .attr("x", 655)
-                .attr("y", 9)
-                .attr("dy", ".35em")
-                .style("text-anchor", "end")
-                .text(function(d) { return d;});
-    }
+        // draw legend colored rectangles
+    legend_df.append("rect")
+            .attr("x", 655)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", color_drivingFeatures);
+
+        // draw legend text
+    legend_df.append("text")
+            .attr("x", 655)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) { return d;});
     
 
     d3.select("[id=instrumentOptions]")
@@ -1373,8 +1267,6 @@ function display_drivingFeatures(source,sortby) {
 
 function dfsort(){
     var sortby = d3.select("[id=dfsort_options]")[0][0].value;
-//    "lift","supp","conf(ave)","conf(feature->selection)","conf(selection->feature)"
-
     var sortedDrivingFeatures = sortDrivingFeatures(sortedDFs,sortby);
     sortedDFs=sortedDrivingFeatures;
     display_drivingFeatures(sortedDrivingFeatures,sortby);
@@ -1391,9 +1283,6 @@ function openFilterOptions(){
                 
    
    
-   
-   
-
 
 function presetFilter2(filterName,bitString,inputs,neg){
     var filterInput1;
