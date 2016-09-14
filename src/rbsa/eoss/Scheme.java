@@ -19,11 +19,11 @@ import rbsa.eoss.local.Params;
 public class Scheme implements Comparator{
     
     private String name;//present, absent, inOrbit, notInOrbit, together2, togetherInOrbit2, 
-    //separete2, together3, togetherInOrbit3, separete3, emptyOrbit, numOrbits
+    //separete2, together3, togetherInOrbit3, separete3, emptyOrbit, numOrbitUsed
     private int instrument;
     private int orbit;
     private int instrument2, instrument3;
-    private int numOrbits;
+    private int numOrbitUsed;
     private final int ninstr;
     private final int norb;
 //    private ArrayList<String> presetFeatureNames;
@@ -42,7 +42,7 @@ public class Scheme implements Comparator{
 //        presetFeatureNames.add("togetherInOrbit3");
 //        presetFeatureNames.add("separate3");
 //        presetFeatureNames.add("emptyOrbit");
-//        presetFeatureNames.add("numOrbits");
+//        presetFeatureNames.add("numOrbitUsed");
 //        presetFeatureNames.add("subsetOfInstruments");
         norb = Params.orbit_list.length;
         ninstr = Params.instrument_list.length;
@@ -120,7 +120,7 @@ public class Scheme implements Comparator{
             }
             return 1;
         }
-        else if (name.equals("numOrbits")) {
+        else if (name.equals("numOrbitUsed")) {
             int coincident = 0;
             int count = 0;
             for (int i = 0; i < data.length; ++i) {
@@ -132,7 +132,7 @@ public class Scheme implements Comparator{
                }
                if(empty==true) count++;
             }
-            if (numOrbits == data.length - count) return 1;
+            if (numOrbitUsed == data.length - count) return 1;
             return 0;
         }
         else {
@@ -183,12 +183,12 @@ public class Scheme implements Comparator{
         this.instrument3 = instrument3;
     }
 
-    public int getNumOrbits() {
-        return numOrbits;
+    public int getNumOrbitUsed() {
+        return numOrbitUsed;
     }
 
-    public void setNumOrbits(int numOrbits) {
-        this.numOrbits = numOrbits;
+    public void setNumOrbitUsed(int numOrbitUsed) {
+        this.numOrbitUsed = numOrbitUsed;
     }
     
 
@@ -568,9 +568,9 @@ public class Scheme implements Comparator{
             }
             s.setName("emptyOrbit");
             s.setOrbit(orb);
-        } else if(filterName.equalsIgnoreCase("numOrbits")){
-            s.setName("numOrbits");
-            s.setNumOrbits(Integer.parseInt(params.get(0)));
+        } else if(filterName.equalsIgnoreCase("numOrbitUsed")){
+            s.setName("numOrbitUsed");
+            s.setNumOrbitUsed(Integer.parseInt(params.get(0)));
         } else if(filterName.equalsIgnoreCase("subsetOfInstruments")){ 
             
             int orb = -1;

@@ -365,17 +365,16 @@ function applyUserDefFilter_single(expression,prev,logic,bitString){
         }
     } else {
 
-    	var neg = false;
+
     	if(filterType.indexOf("~")!=-1){
     		filterType = filterType.substring(1);
-    		neg = true;
     	}
     	if(filterType === "present" || filterType === "absent" || 
                 filterType === "inOrbit" || filterType === "notInOrbit" || 
                 filterType === "together" || filterType === "togetherInOrbit" || 
                 filterType === "separate" || filterType === "emptyOrbit" || 
                 filterType==="numOrbitUsed" || filterType==="subsetOfInstruments"){
-			if(presetFilter2(filterType,bitString,params,neg)){
+			if(presetFilter2(filterType,bitString,params)){
 				output = true;
 			} else{
 				output = false;
@@ -405,34 +404,62 @@ function applyUserDefFilter_single(expression,prev,logic,bitString){
 
 
 function saveNewFilter(){
-    var name = d3.select("[id=userDefinedFilter_name]")[0][0].value;
-    
-    if(name.length==0){
-    	var filterExpression = d3.select("[id=filter_expression]");
-        filterExpression.text("Error: name required to save!");
-        userDefFilterExpressionHistory.push("error");
-    	return;
+	
+    var filterType = d3.select("[id=dropdown_presetFilters]")[0][0].value;
+    if (filterType == "subsetOfInstruments"){
+    	
+        var filterInput1 = "";
+        var filterInput2 = "";
+        var filterInput3 = "";
+        if(d3.select("[id=filter_input1_textBox]")[0][0]==null){
+            filterInput1="Error: no input";
+        } else{
+            filterInput1 = d3.select("[id=filter_input1_textBox]")[0][0].value;
+        }
+        if(d3.select("[id=filter_input2_textBox]")[0][0]==null){
+            filterInput2="";
+        } else{
+            filterInput2 = ";" + d3.select("[id=filter_input2_textBox]")[0][0].value;
+        }
+        if(d3.select("[id=filter_input3_textBox]")[0][0]==null){
+            filterInput3="";
+        } else{
+            filterInput3 = ";" + d3.select("[id=filter_input3_textBox]")[0][0].value;
+        }
+        var name = "subsetOfInstruments" + "[" + filterInput1 + filterInput2 + filterInput3 + "]";
+		var expression =  "subsetOfInstruments" + "(" + filterInput1 + filterInput2 + filterInput3 + ")";
+    	userDefFilters.push({name:name,expression:expression});
     }
-    
-    var filterExpression = d3.select("[id=filter_expression]").text();
-    userDefFilters.push({name:name,expression:filterExpression});
-    console.log(name + " " + filterExpression);
-    filterDropdownOptions.push({value:name,text:name});
-    
-    var filterDropdownMenu = d3.select("[id=dropdown_presetFilters]");
-    filterDropdownMenu.selectAll("option").remove();
-    filterDropdownMenu.selectAll("option")
-                        .data(filterDropdownOptions)
-                        .enter()
-                        .append("option")
-                        .attr("value",function(d){
-                                return d.value;
-                        })
-                        .text(function(d){
-                                return d.text;
-                        });
+    else{
+        var name = d3.select("[id=userDefinedFilter_name]")[0][0].value;
+        
+        if(name.length==0){
+        	var filterExpression = d3.select("[id=filter_expression]");
+            filterExpression.text("Error: name required to save!");
+            userDefFilterExpressionHistory.push("error");
+        	return;
+        }
+        
+        var filterExpression = d3.select("[id=filter_expression]").text();
+        userDefFilters.push({name:name,expression:filterExpression});
+        console.log(name + " " + filterExpression);
+        filterDropdownOptions.push({value:name,text:name});
+        
+        var filterDropdownMenu = d3.select("[id=dropdown_presetFilters]");
+        filterDropdownMenu.selectAll("option").remove();
+        filterDropdownMenu.selectAll("option")
+                            .data(filterDropdownOptions)
+                            .enter()
+                            .append("option")
+                            .attr("value",function(d){
+                                    return d.value;
+                            })
+                            .text(function(d){
+                                    return d.text;
+                            });
 
-    buttonClickCount_addUserDefFilter += 1;
+        buttonClickCount_addUserDefFilter += 1;
+    }
 }
 
 function calculateLiftSuppConf2(feature_selected,feature_non_selected,selected,non_selected){

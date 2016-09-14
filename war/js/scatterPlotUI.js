@@ -207,7 +207,7 @@ function draw_scatterPlot(source) {
     d3.select("[id=getClassificationTreeButton]")[0][0].disabled = false;
     d3.select("[id=openFilterOptions]")[0][0].disabled = false;
 	d3.select("[id=scatterPlot_option]")[0][0].disabled=false;
-    
+	d3.select("[id=select_complement]")[0][0].disabled=false;
 
 	d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
 
@@ -224,6 +224,7 @@ function draw_scatterPlot(source) {
     d3.selectAll("[class=dot]")[0].forEach(function(d,i){
         d3.select(d).attr("paretoRank",-1);
     });
+    d3.select("[id=select_complement]").on("click",selectComplement);
 //    d3.select("[id=resultFileURL_newData]")[0][0].disabled = true;
 
     orbits = getOrbitList();
@@ -298,6 +299,31 @@ function selectArchsWithinRange() {
             return false;
         }
     })
+            .attr("class", "dot")
+            .style("fill", function (d) {
+                if (d.status == "added") {
+                    return "#188836";
+                } else if (d.status == "justAdded") {
+                    return "#20FE5B";
+                } else {
+                    return "#000000";
+                }
+            });
+
+    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
+}
+
+function selectComplement(){
+
+    var clickedArchs = d3.selectAll("[class=dot_clicked]");
+    var unClickedArchs = d3.selectAll("[class=dot]");
+
+
+    unClickedArchs
+            .attr("class", "dot_clicked")
+            .style("fill", "#0040FF");
+
+    clickedArchs
             .attr("class", "dot")
             .style("fill", function (d) {
                 if (d.status == "added") {

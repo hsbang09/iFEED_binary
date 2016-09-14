@@ -280,9 +280,6 @@ and open the template in the editor.
         <br/>
 
         <div id="requestButtons">
-<!--             <div id="satisfactionScoreSummaryButton_div"> -->
-                <!--<button type="button" id="satisfactionScoreSummaryButton">Satisfaction Score Decomposition</button>-->
-<!--             </div> -->
             <button id="scatterPlot_option" class="zoom" disabled="True" style="float:left;margin-left:5px;">Enable drag-selection</button>
            
            <div id="numOfArchs" style="float:left; margin-left:580px;">
@@ -302,10 +299,11 @@ and open the template in the editor.
                     <input id="selectArchsWithinRange_minScience" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxScience" type="text" value="1"/>
                     <br/>
                     <button type="button" id="selectArchsWithinRangeButton" disabled="True" style="margin-top:5px; width:170px">Select archs within range</button>
+                    <button type="button"  id="select_complement" disabled="True" style="margin-top:5px;width: 170px;">Select complement</button>
                     <button type="button"  id="cancel_selection" disabled="True" style="margin-top:5px;width: 170px;">Cancel all selections</button>
                     <button type="button"  id="hide_selection" disabled="True" style="margin-top:5px;width: 170px;">Hide selections</button>
                     <button type="button"  id="show_all_archs" disabled="True" style="margin-top:5px;width: 170px;">Show all architectures</button>
-           
+
                     <div id="numOfSelectedArchs" style="float:left; margin-top:10px">
                         Num of selected Archs: 
                         <input type="text" id="numOfSelectedArchs_inputBox" value="0" style="width:50px; height: 17px; margin-left: 1px;margin-top:5px"/>
@@ -321,12 +319,7 @@ and open the template in the editor.
                         Lift:&nbsp;<input id="lift_threshold_input" type="text" value="1" style="width:135px; margin-top: 3px;"/>
                     </div>
                     <button type="button" disabled="True" id="getDrivingFeaturesButton">Get driving features</button>
-                    <select id="dfsort_options" style="width:170px; margin-bottom: 7px">
-                        <option value="1">Lift</option>
-                        <option value="0">Support</option>
-                        <option value="2">Conf (feature->selection)</option>
-                        <option value="3">Conf (selection->feature)</option>
-                    </select>
+                    <select id="dfsort_options" style="width:170px; margin-bottom: 7px"></select>
                     <button type="button" disabled="True"  id="getClassificationTreeButton">Build classification tree</button>
                     <button type="button" disabled="True"  id="openFilterOptions">Open Filter Options</button>
                     
@@ -435,9 +428,14 @@ and open the template in the editor.
             var getClassificationTree_numOfArchs = [];
             var getDrivingFeatures_thresholds = [];
             
-			
+            var ARM_metrics = ["Support",
+                               "Lift",
+                               "Confidence (feature -> selection)",
+                               "Added value (feature -> selection)",
+                               "Cosine",
+                               "Leverage",
+                               "Conviction (feature -> selection)"]
  
-
             try {
 
             function newDataFromResultFile(){
