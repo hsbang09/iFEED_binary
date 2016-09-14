@@ -5,7 +5,6 @@
  */
 
 
-
 function selectNewFilterOption(){
 
 
@@ -112,7 +111,7 @@ function newFilter_addFeature(){
                     			selectedOption == "notInOrbit" || selectedOption == "together" || 
                     			selectedOption == "togetherInOrbit" || selectedOption == "separate" || 
                     			selectedOption == "emptyOrbit" || selectedOption=="numOrbitUsed" || 
-                    			selectedOption=="subsetOfInstruments"){
+                    			selectedOption=="subsetOfInstruments" || selectedOption=="numOfInstruments"){
                     		
                     		 var newExpression = prevExpression + selectedOption + "(" + filterInput1 + filterInput2 + filterInput3 + ")";
 
@@ -373,7 +372,8 @@ function applyUserDefFilter_single(expression,prev,logic,bitString){
                 filterType === "inOrbit" || filterType === "notInOrbit" || 
                 filterType === "together" || filterType === "togetherInOrbit" || 
                 filterType === "separate" || filterType === "emptyOrbit" || 
-                filterType==="numOrbitUsed" || filterType==="subsetOfInstruments"){
+                filterType==="numOrbitUsed" || filterType==="subsetOfInstruments"||
+                filterType==="numOfInstruments"){
 			if(presetFilter2(filterType,bitString,params)){
 				output = true;
 			} else{
@@ -428,6 +428,25 @@ function saveNewFilter(){
         }
         var name = "subsetOfInstruments" + "[" + filterInput1 + filterInput2 + filterInput3 + "]";
 		var expression =  "subsetOfInstruments" + "(" + filterInput1 + filterInput2 + filterInput3 + ")";
+    	userDefFilters.push({name:name,expression:expression});
+    }else if(filterType=="numOfInstruments"){
+    	
+        var filterInput1 = "";
+        var filterInput2 = "";
+
+        if(d3.select("[id=filter_input1_textBox]")[0][0]==null){
+            filterInput1="null"
+        } else{
+            filterInput1 = d3.select("[id=filter_input1_textBox]")[0][0].value;
+        }
+        if(d3.select("[id=filter_input2_textBox]")[0][0]==null){
+            filterInput2="";
+        } else{
+            filterInput2 = ";" + d3.select("[id=filter_input2_textBox]")[0][0].value;
+        }
+
+        var name = "subsetOfInstruments" + "[" + filterInput1 + filterInput2 + "]";
+		var expression =  "subsetOfInstruments" + "(" + filterInput1 + filterInput2 + ")";
     	userDefFilters.push({name:name,expression:expression});
     }
     else{

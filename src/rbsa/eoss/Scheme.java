@@ -356,25 +356,16 @@ public class Scheme implements Comparator{
         String[] orbit_list = Params.orbit_list;
   
         
-        boolean neg = false;
         if(filterName.contains("~")){
-        	neg = true;
         	filterName = filterName.substring(1);
         }
         
         
         if(filterName.equalsIgnoreCase("true")){
-            if(neg){
-            	return false;
-            }else{
             	return true;
-            }
+
         } else if(filterName.equalsIgnoreCase("false")){
-           if(neg){
-        	   return true;
-           }else{
         	   return false;
-           }
         }
         
         else if(filterName.equalsIgnoreCase("present")){
@@ -574,7 +565,7 @@ public class Scheme implements Comparator{
         } else if(filterName.equalsIgnoreCase("subsetOfInstruments")){ 
             
             int orb = -1;
-            
+
             for(int i=0;i<norb;i++){
                 if(orbit_list[i].equalsIgnoreCase(relabelback(params.get(0)))){
                     orb = i;
@@ -605,22 +596,57 @@ public class Scheme implements Comparator{
                 }
             }
             
-            if(neg){return !(cnt <= max && cnt >= min);} else{
-            	return cnt <= max && cnt >= min;
+
+        	return cnt <= max && cnt >= min;
+   
+        } else if(filterName.equalsIgnoreCase("numOfInstruments")){ 
+
+            int orb = -1;
+            if (params.get(0).equalsIgnoreCase("null")){
+            	// orbit is not specified
+            }else{
+                for(int i=0;i<norb;i++){
+                    if(orbit_list[i].equalsIgnoreCase(relabelback(params.get(0)))){
+                        orb = i;
+                        break;
+                    }
+                }
             }
+            
+            int min;int max;
+            min = Integer.parseInt(params.get(1).split(",")[0]);
+            max = Integer.parseInt(params.get(1).split(",")[1]);
+
+            int cnt = 0;
+            
+            if(orb==-1){
+                for (int i=0;i<norb;i++) {
+                	for (int j=0;j<ninstr;j++){
+                        if(data[i][j]==1){
+                            cnt++;
+                        }
+                	}
+                }
+            }
+            else{
+	        	for (int j=0;j<ninstr;j++){
+	                if(data[orb][j]==1){
+	                    cnt++;
+	                }
+	        	}
+            }
+        	return cnt <= max && cnt >= min;
         }
-        
-        
+
         if(s.getName()==null){
         	System.out.println(filterName);
         }
-        
 
 //        if(tmpcnt==0){System.out.println("getName: " + s.getName());}
 //        if(tmpcnt==0){System.out.println("getInst: " + s.getInstrument());}
-        if(neg){return !(s.compare(data, "") == 1);}else{
-        	return s.compare(data, "") == 1;
-        }
+
+    	return s.compare(data, "") == 1;
+
     }
     
     
