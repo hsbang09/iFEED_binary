@@ -89,10 +89,12 @@ public class DrivingFeaturesGenerator {
             if (s.compare(e, "") == 1) cnt_F = cnt_F+1.0;
         }
     	
+        double cnt_NS = cnt_all-cnt_S;
+        double cnt_NF = cnt_all-cnt_F;
+        double cnt_S_NF = cnt_S-cnt_SF;
+        double cnt_F_NS = cnt_F-cnt_SF;
         
-
-        
-    	double[] metrics = new double[7];
+    	double[] metrics = new double[10];
     	
     	
         double support = cnt_SF/cnt_all;
@@ -113,20 +115,35 @@ public class DrivingFeaturesGenerator {
         	convictionFS = (1-support_S)/(1-conf_given_F);  // Conviction (feature -> selection)
 //        	convictionSF = (1-support_F)/(1-conf_given_S); // conviction (selection -> feature)
     	}
-
     	
-    	double all_confidence;
-    	double casual_confidence;
-    	double casual_support;
-    	double certainty_factor;
-    	double chi_squated;
-    	double cross_support_ratio;
-    	double collective_strength;
-    	double coverage;
-    	double descriptive_confirmed_confidence;
-    	double difference_of_confidence;
-    	double example_and_counter_example_rate;
-    	double gini_index;
+    	
+    	double odds_ratio = 0.0;
+    	if (cnt_S_NF != 0  && cnt_F_NS != 0){
+        	odds_ratio = cnt_SF*(cnt_all - cnt_S - cnt_F + cnt_SF)/(cnt_S_NF*cnt_F_NS);
+    	}
+    	double gini = 0.0;
+    	if(cnt_F!=0 && cnt_NF!=0){
+        	gini = support_F*(Math.pow(cnt_SF/cnt_F,2)+Math.pow(cnt_F_NS/cnt_F,2)) + 
+        			(1-support_F)*(Math.pow(cnt_S_NF/cnt_NF,2)+Math.pow((cnt_all-cnt_F-cnt_S+cnt_SF)/cnt_NF,2)) - 
+        			Math.pow(support_S,2) - Math.pow((1-support_S),2);
+    	}
+    	double certainty_factor = 0.0;
+    	if (1-support_S != 0){
+    		certainty_factor = (cnt_SF/cnt_F - support_S) / (1-support_S);
+    	}
+    	
+    	
+//    	double all_confidence;
+//    	double casual_confidence;
+//    	double casual_support;
+//    	double chi_squated;
+//    	double cross_support_ratio;
+//    	double collective_strength;
+//    	double coverage;
+//    	double descriptive_confirmed_confidence;
+//    	double difference_of_confidence;
+//    	double example_and_counter_example_rate;
+
     	
     	
     	metrics[0] = support;
@@ -135,9 +152,9 @@ public class DrivingFeaturesGenerator {
     	metrics[3] = cosine;
     	metrics[4] = leverage;
     	metrics[5] = convictionFS;
-
-    	
-    	
+    	metrics[6] = odds_ratio;
+    	metrics[7] = gini;
+    	metrics[8] = certainty_factor;
 
     	return metrics;
     }

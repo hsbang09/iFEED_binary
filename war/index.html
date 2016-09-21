@@ -433,11 +433,23 @@ and open the template in the editor.
             var ARM_metrics = ["Support",
                                "Lift",
                                "Confidence (feature -> selection)",
-                               "Added value (feature -> selection)",
                                "Cosine",
                                "Leverage",
-                               "Conviction (feature -> selection)"]
+                               "Conviction (feature -> selection)",
+                               "Odds ratio",
+                               "Gini Index (feature -> selection)",
+                               "Certainty Factor (feature -> selection)"]
  
+//         	metrics[0] = support;
+//         	metrics[1] = lift;
+//         	metrics[2] = conf_given_F;
+//         	metrics[3] = cosine;
+//         	metrics[4] = leverage;
+//         	metrics[5] = convictionFS;
+//         	metrics[6] = odds_ratio;
+//         	metrics[7] = gini;
+//         	metrics[8] = certainty_factor;
+            
             try {
 
             function newDataFromResultFile(){
