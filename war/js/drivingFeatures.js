@@ -1187,9 +1187,6 @@ function display_drivingFeatures(source,sortby) {
                     }).style("stroke-width",1.5)
                             .style("stroke","black");
 
-
-                    
-                    
                     
                     if(type=="present" || type=="absent" || type=="inOrbit" ||type=="notInOrbit"||type=="together2"||
                     		type=="togetherInOrbit2"||type=="separate2"||type=="together3"||type=="togetherInOrbit3"||
