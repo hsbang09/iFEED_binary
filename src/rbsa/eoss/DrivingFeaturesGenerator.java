@@ -94,7 +94,7 @@ public class DrivingFeaturesGenerator {
         double cnt_S_NF = cnt_S-cnt_SF;
         double cnt_F_NS = cnt_F-cnt_SF;
         
-    	double[] metrics = new double[10];
+    	double[] metrics = new double[5];
     	
     	
         double support = cnt_SF/cnt_all;
@@ -108,29 +108,29 @@ public class DrivingFeaturesGenerator {
     	double cosine = support/Math.sqrt(support_F * support_S);
     	double leverage = support - support_F * support_S;
     	
-    	double convictionFS=0.0;
-//    	double convictionSF=0.0;
-    	if (conf_given_F==1 || conf_given_S ==1){
-    	}else{
-        	convictionFS = (1-support_S)/(1-conf_given_F);  // Conviction (feature -> selection)
-//        	convictionSF = (1-support_F)/(1-conf_given_S); // conviction (selection -> feature)
-    	}
+//    	double convictionFS=0.0;
+////    	double convictionSF=0.0;
+//    	if (conf_given_F==1 || conf_given_S ==1){
+//    	}else{
+//        	convictionFS = (1-support_S)/(1-conf_given_F);  // Conviction (feature -> selection)
+////        	convictionSF = (1-support_F)/(1-conf_given_S); // conviction (selection -> feature)
+//    	}
     	
     	
-    	double odds_ratio = 0.0;
-    	if (cnt_S_NF != 0  && cnt_F_NS != 0){
-        	odds_ratio = cnt_SF*(cnt_all - cnt_S - cnt_F + cnt_SF)/(cnt_S_NF*cnt_F_NS);
-    	}
-    	double gini = 0.0;
-    	if(cnt_F!=0 && cnt_NF!=0){
-        	gini = support_F*(Math.pow(cnt_SF/cnt_F,2)+Math.pow(cnt_F_NS/cnt_F,2)) + 
-        			(1-support_F)*(Math.pow(cnt_S_NF/cnt_NF,2)+Math.pow((cnt_all-cnt_F-cnt_S+cnt_SF)/cnt_NF,2)) - 
-        			Math.pow(support_S,2) - Math.pow((1-support_S),2);
-    	}
-    	double certainty_factor = 0.0;
-    	if (1-support_S != 0){
-    		certainty_factor = (cnt_SF/cnt_F - support_S) / (1-support_S);
-    	}
+//    	double odds_ratio = 0.0;
+//    	if (cnt_S_NF != 0  && cnt_F_NS != 0){
+//        	odds_ratio = cnt_SF*(cnt_all - cnt_S - cnt_F + cnt_SF)/(cnt_S_NF*cnt_F_NS);
+//    	}
+//    	double gini = 0.0;
+//    	if(cnt_F!=0 && cnt_NF!=0){
+//        	gini = support_F*(Math.pow(cnt_SF/cnt_F,2)+Math.pow(cnt_F_NS/cnt_F,2)) + 
+//        			(1-support_F)*(Math.pow(cnt_S_NF/cnt_NF,2)+Math.pow((cnt_all-cnt_F-cnt_S+cnt_SF)/cnt_NF,2)) - 
+//        			Math.pow(support_S,2) - Math.pow((1-support_S),2);
+//    	}
+//    	double certainty_factor = 0.0;
+//    	if (1-support_S != 0){
+//    		certainty_factor = (cnt_SF/cnt_F - support_S) / (1-support_S);
+//    	}
     	
     	
 //    	double all_confidence;
@@ -151,10 +151,10 @@ public class DrivingFeaturesGenerator {
     	metrics[2] = conf_given_F;
     	metrics[3] = cosine;
     	metrics[4] = leverage;
-    	metrics[5] = convictionFS;
-    	metrics[6] = odds_ratio;
-    	metrics[7] = gini;
-    	metrics[8] = certainty_factor;
+//    	metrics[5] = convictionFS;
+//    	metrics[6] = odds_ratio;
+//    	metrics[7] = gini;
+//    	metrics[8] = certainty_factor;
 
     	return metrics;
     }

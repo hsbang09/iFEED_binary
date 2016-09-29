@@ -12,7 +12,7 @@ import rbsa.eoss.local.Params;
  *
  * @author Bang
  */
-public class Apriori {
+public class Apriori2 {
     
     private int numItems;
     private int numTransactions;
@@ -36,17 +36,22 @@ public class Apriori {
     
     
     
-    public Apriori(ArrayList<int[][]> selected_input, ArrayList<int[][]> pop_input, double supp, double conf, double lift){
+    public Apriori2(ArrayList<int[][]> selected_input, ArrayList<int[][]> pop_input, double supp, double conf, double lift){
 
     	ArrayList<boolean[]> selected = intMatrix2BoolArray(selected_input);
     	ArrayList<boolean[]> pop = intMatrix2BoolArray(pop_input);
+    	
     	
         transactions = pop;
         selectedSize = selected.size();
         classLabels = new boolean[pop.size()];
         numItems = transactions.get(0).length;
         numTransactions = transactions.size();
-
+        
+//        System.out.println("numItems: " + numItems);
+//        System.out.println("numTrans: " + numTransactions);
+//        System.out.println("selected: " + selectedSize);
+        int tmpcnt=0;
         
         for(int i=0;i<pop.size();i++){
             boolean[] thisTrans = pop.get(i);
@@ -66,20 +71,57 @@ public class Apriori {
                 }
             }
             classLabels[i] = foundMatch;
+            if(foundMatch){tmpcnt++;}
         }
+        
+//        System.out.println("matchingCount: " + tmpcnt);
+        
         this.supp = supp;
         this.conf = conf;
         this.lift = lift;
         CARs = new ArrayList<>();
-        
     }
     
+//    public Apriori(ArrayList<boolean[]> pop, ArrayList<boolean[]> selected, double supp, double conf, double lift){
+//
+//        transactions = pop;
+//        selectedSize = selected.size();
+//        classLabels = new boolean[pop.size()];
+//        numItems = transactions.get(0).length;
+//        numTransactions = transactions.size();
+//        
+//        for(int i=0;i<pop.size();i++){
+//            boolean[] thisTrans = pop.get(i);
+//            boolean foundMatch = false;
+//            
+//            for(boolean[] selected1:selected){
+//                boolean match = true;
+//                for(int j=0;j<thisTrans.length;j++){
+//                    if(thisTrans[j]!=selected1[j]){
+//                        match = false;
+//                        break;
+//                    }
+//                }
+//                if(match){
+//                    foundMatch = true;
+//                    break;
+//                }
+//            }
+//            classLabels[i] = foundMatch;
+//        }
+//        
+//        this.supp = supp;
+//        this.conf = conf;
+//        this.lift = lift;
+//        CARs = new ArrayList<>();
+//    }
     
     
     public void runApriori(){
         
         ArrayList<CAR> CAR_firstOrder = createCAROfSize1();
         frontier = CAR_firstOrder;
+        
         
         while(frontier.size() > 0){
             ArrayList<CAR> tmp = new ArrayList<>();
@@ -117,15 +159,42 @@ public class Apriori {
                 frontier = new ArrayList<>();
             }
         }
+//        printCARs();
     }
     
     
-
+//    public ArrayList<String> printCARs(){
+//        ArrayList<String> outputStrings = new ArrayList<>();
+//        
+//        String[] instrList = Params.instrument_list;
+//        String[] orbitList = Params.orbit_list;
+//        String[] newOrbitList = {"1000","2000","3000","4000","5000"};
+//        String[] newInstrList = {"A","B","C","D","E","F","G","H","I","J","K","L"};
+//        
+//        for(int i=0;i<CARs.size();i++){
+//            
+//            
+//                    .text("Lift: " + thisDF.lift.toFixed(5) + 
+//                    " " + relabelDrivingFeatureName(thisDF.name) + " Supp: " + thisDF.supp.toFixed(5) + 
+//                    " Conf(feature->selection): " + thisDF.conf.toFixed(5) + 
+//                    " Conf(selection->feature): " + thisDF.conf2.toFixed(5));
+//            
+//            
+//            
+//            DrivingFeature thisCAR = CARs.get(i);
+//            outputStrings.add(thisCAR.getName() + " Supp:" + thisCAR.gets);
+//            
+//            
+//            System.out.println(out + "-> " + thisCAR.getClassLabel());
+//            outputStrings.add(out + "-> " + thisCAR.getClassLabel());
+//        }
+//        return outputStrings;
+//    }
+    
     
     public ArrayList<DrivingFeature> getCARs(){
         return CARs;
     }
-    
     
     
     private ArrayList<CAR> createNewCandidatesFromPrevious(ArrayList<CAR> prev){
@@ -134,6 +203,7 @@ public class Apriori {
         
         for(int i=0;i<prev.size();i++){
             for(int j=i+1;j<prev.size();j++){
+                
                 int[] cond1 = prev.get(i).getCondset();
                 int[] cond2 = prev.get(j).getCondset();
                 boolean cond1cl = classLabels[i];
