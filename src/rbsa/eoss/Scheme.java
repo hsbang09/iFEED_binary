@@ -30,20 +30,7 @@ public class Scheme implements Comparator{
     int tmpcnt;
     
     public Scheme(){
-//        presetFeatureNames = new ArrayList<>();
-//        presetFeatureNames.add("present");
-//        presetFeatureNames.add("absent");
-//        presetFeatureNames.add("inOrbit");
-//        presetFeatureNames.add("notInOrbit");
-//        presetFeatureNames.add("together2");
-//        presetFeatureNames.add("togetherInOrbit2");
-//        presetFeatureNames.add("separate2");
-//        presetFeatureNames.add("together3");
-//        presetFeatureNames.add("togetherInOrbit3");
-//        presetFeatureNames.add("separate3");
-//        presetFeatureNames.add("emptyOrbit");
-//        presetFeatureNames.add("numOrbitUsed");
-//        presetFeatureNames.add("subsetOfInstruments");
+
         norb = Params.orbit_list.length;
         ninstr = Params.instrument_list.length;
         tmpcnt = 0;
