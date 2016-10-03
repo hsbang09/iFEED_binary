@@ -12,6 +12,7 @@ public class DrivingFeaturesParams {
 												"SSO-800-SSO-DD", "SSO-800-SSO-PM"};
 	public static String csv_path;
 	
+	public static int max_number_of_instruments = 17;
 	
 	public DrivingFeaturesParams(){
 		

@@ -38,6 +38,8 @@ public class DrivingFeaturesGenerator2 {
     private ArrayList<int[][]> behavioral;
     private ArrayList<int[][]> non_behavioral;
     
+    private int max_num_of_instruments;
+    
     private int[][] dataFeatureMat;
    
     private ArrayList<DrivingFeature> drivingFeatures;
@@ -58,6 +60,7 @@ public class DrivingFeaturesGenerator2 {
         this.lift_threshold=DrivingFeaturesParams.lift_threshold;
         this.csv_path=DrivingFeaturesParams.csv_path;
         this.drivingFeatures = new ArrayList<>();
+        this.max_num_of_instruments=DrivingFeaturesParams.max_number_of_instruments;
         
         parseCSV(csv_path);
     }
@@ -162,7 +165,7 @@ public class DrivingFeaturesGenerator2 {
                 drivingFeatures.add(new DrivingFeature(featureName,"present", param, metrics));
             }
         }
-        
+        scheme.resetArg();
         scheme.setName("absent");
         for (int i = 0; i < ninstr; ++i) {
             scheme.setInstrument (i);
@@ -174,6 +177,7 @@ public class DrivingFeaturesGenerator2 {
                 drivingFeatures.add(new DrivingFeature(featureName,"absent", param, metrics));
             }
         }
+        scheme.resetArg();
         scheme.setName("inOrbit");
         for (int i = 0; i < norb; ++i) {
             for (int j = 0; j < ninstr; ++j) {
@@ -189,6 +193,7 @@ public class DrivingFeaturesGenerator2 {
                 }
             }
         }
+        scheme.resetArg();
         scheme.setName("notInOrbit");
         for (int i = 0; i < norb; ++i) {
             for (int j = 0; j < ninstr; ++j) {
@@ -204,6 +209,7 @@ public class DrivingFeaturesGenerator2 {
                 } 
             }
         }
+        scheme.resetArg();
         scheme.setName("together2");
         for (int i = 0; i < ninstr; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -218,7 +224,8 @@ public class DrivingFeaturesGenerator2 {
                     drivingFeatures.add(new DrivingFeature(featureName,"together2", param, metrics));
                 }
             }
-        }            
+        }    
+        scheme.resetArg();
         scheme.setName("togetherInOrbit2");
         for (int i = 0; i < norb; ++i) {
             for (int j = 0; j < ninstr; ++j) {
@@ -239,6 +246,7 @@ public class DrivingFeaturesGenerator2 {
                 }
             }
         }
+        scheme.resetArg();
         scheme.setName("separate2");
         for (int i = 0; i < ninstr; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -254,6 +262,7 @@ public class DrivingFeaturesGenerator2 {
                     }
             }            
         }
+        scheme.resetArg();
         scheme.setName("together3");
         for (int i = 0; i < ninstr; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -274,6 +283,7 @@ public class DrivingFeaturesGenerator2 {
                 }
             }            
         }
+        scheme.resetArg();
         scheme.setName("togetherInOrbit3");
         for (int i = 0; i < norb; ++i) {
             for (int j = 0; j < ninstr; ++j) {
@@ -299,6 +309,7 @@ public class DrivingFeaturesGenerator2 {
                 }
             }
         }
+        scheme.resetArg();
         scheme.setName("separate3");
         for (int i = 0; i < ninstr; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -319,6 +330,7 @@ public class DrivingFeaturesGenerator2 {
                 }
             }
         }
+        scheme.resetArg();
         scheme.setName("emptyOrbit");
         for (int i = 0; i < norb; ++i) {
             scheme.setOrbit(i);
@@ -330,9 +342,10 @@ public class DrivingFeaturesGenerator2 {
                 drivingFeatures.add(new DrivingFeature(featureName,"emptyOrbit", param, metrics));
             }
         }
+        scheme.resetArg();
         scheme.setName("numOrbitUsed");
         for (int i = 1; i < norb+1; i++) {
-            scheme.setNumOrbitUsed(i);
+            scheme.setCount(i);
             double[] metrics = computeMetrics(scheme);
             if (checkThreshold(metrics)) {
                 String[] param = new String[1];
@@ -341,9 +354,35 @@ public class DrivingFeaturesGenerator2 {
                 drivingFeatures.add(new DrivingFeature(featureName,"numOrbitUsed", param, metrics));
             }
         }
+        scheme.resetArg();
+        scheme.setName("numInstruments"); 
+        // Total number of instruments
+        for (int i = 1; i < max_num_of_instruments; i++) {
+            scheme.setCount(i);
+            scheme.setOrbit(-1);
+            scheme.setInstrument(-1);
+            double[] metrics = computeMetrics(scheme);
+            if (checkThreshold(metrics)) {
+            	// add to driving features
+            }
+        }
+        scheme.resetArg();
+        scheme.setName("numInstruments"); 
+        // Number of each instrument
+        for (int i=0;i<ninstr;i++){
+        	for (int j=0;j<norb;j++){
+        		scheme.setInstrument(i);
+	            scheme.setCount(j);
+	            scheme.setOrbit(-1);
+	            double[] metrics = computeMetrics(scheme);
+	            if (checkThreshold(metrics)) {
+	            	// add to driving features
+	            }
+        	}
+        }
+        
 
-//        
-//        getDataFeatureMat();
+       
         return drivingFeatures;
     }
     

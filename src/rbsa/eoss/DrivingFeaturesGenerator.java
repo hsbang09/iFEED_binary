@@ -345,7 +345,7 @@ public class DrivingFeaturesGenerator {
         }
         scheme.setName("numOrbitUsed");
         for (int i = 1; i < norb+1; i++) {
-            scheme.setNumOrbitUsed(i);
+            scheme.setCount(i);
             double[] metrics = computeMetrics(scheme);
             if (metrics[0] > supp_threshold && metrics[1]> lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                 String[] param = new String[1];

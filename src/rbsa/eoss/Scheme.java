@@ -20,10 +20,10 @@ public class Scheme implements Comparator{
     
     private String name;//present, absent, inOrbit, notInOrbit, together2, togetherInOrbit2, 
     //separete2, together3, togetherInOrbit3, separete3, emptyOrbit, numOrbitUsed
-    private int instrument;
-    private int orbit;
-    private int instrument2, instrument3;
-    private int numOrbitUsed;
+    private int instrument=-1;
+    private int orbit=-1;
+    private int instrument2=-1, instrument3=-1;
+    private int count=-1;
     private final int ninstr;
     private final int norb;
 //    private ArrayList<String> presetFeatureNames;
@@ -108,8 +108,7 @@ public class Scheme implements Comparator{
             return 1;
         }
         else if (name.equals("numOrbitUsed")) {
-            int coincident = 0;
-            int count = 0;
+            int cnt = 0;
             for (int i = 0; i < data.length; ++i) {
                boolean empty= true;
                for (int j=0; j< data[i].length;j++){
@@ -117,16 +116,49 @@ public class Scheme implements Comparator{
                        empty= false;
                    }
                }
-               if(empty==true) count++;
+               if(empty==true) cnt++;
             }
-            if (numOrbitUsed == data.length - count) return 1;
+            if (count == data.length - cnt) return 1;
             return 0;
         }
+        else if (name.equals("numInstruments")){
+            int cnt = 0;
+            for (int i = 0; i < data.length; ++i) {
+				for (int j=0; j< data[i].length;j++){
+					
+					if (orbit!=-1 && orbit!=i){ // count for specific orbits
+						continue;
+					}  
+					if (instrument==-1){ // Count all instruments
+						if(data[i][j]==1){
+							cnt++;
+						}
+					}else{ // Count specific instrument
+						if(j == instrument && data[i][j]==1){
+							cnt++;
+						}
+					}
+					   
+				}
+            }
+            if (count == cnt) return 1;
+            return 0;
+        }
+       
         else {
             if(userDefFilter_eval(name,data)) return 1;
             return 0;
         }
                 
+    }
+     
+    public void resetArg(){
+        name = "";
+        instrument=-1;
+        orbit=-1;
+        instrument2=-1;
+        instrument3=-1;
+        count=-1;
     }
 
 
@@ -170,12 +202,12 @@ public class Scheme implements Comparator{
         this.instrument3 = instrument3;
     }
 
-    public int getNumOrbitUsed() {
-        return numOrbitUsed;
+    public int getCount() {
+        return this.count;
     }
 
-    public void setNumOrbitUsed(int numOrbitUsed) {
-        this.numOrbitUsed = numOrbitUsed;
+    public void setCount(int number) {
+        this.count = number;
     }
     
 
@@ -548,7 +580,7 @@ public class Scheme implements Comparator{
             s.setOrbit(orb);
         } else if(filterName.equalsIgnoreCase("numOrbitUsed")){
             s.setName("numOrbitUsed");
-            s.setNumOrbitUsed(Integer.parseInt(params.get(0)));
+            s.setCount(Integer.parseInt(params.get(0)));
         } else if(filterName.equalsIgnoreCase("subsetOfInstruments")){ 
             
             int orb = -1;
