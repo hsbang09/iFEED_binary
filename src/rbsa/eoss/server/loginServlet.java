@@ -73,7 +73,7 @@ import rbsa.eoss.server.resultsGUIServlet.archEvalResults;
  */
 public class loginServlet extends HttpServlet {
 	
-	int time_given = 1 * 40 * 60 * 1000;
+	int time_given = 1 * 30 * 60 * 1000;
 
 //    ArrayList<String> userEmails = new ArrayList<>();
 //    HashMap<String,String> experimentCond = new HashMap<>();
