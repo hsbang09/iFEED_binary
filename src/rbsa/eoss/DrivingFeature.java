@@ -12,6 +12,7 @@ package rbsa.eoss;
  
 public class DrivingFeature{
         
+		private int index;
         private String name; // specific names
         private String type; // inOrbit, together, separate, present, absent, etc.
         private String[] param;
@@ -37,6 +38,29 @@ public class DrivingFeature{
             this.metrics = metrics;
             this.preset = true;
         }
+        public DrivingFeature(int index,String name, String type){
+            this.name = name;
+            this.type = type;
+            this.preset = false;
+            this.index=index;
+        }
+        public DrivingFeature(int index,String name, String type, double[] metrics){
+        	this.index=index;
+        	this.name = name;
+            this.type = type;
+            this.metrics = metrics;
+            this.preset = false;
+        }
+        public DrivingFeature(int index,String name, String type, String[] param, double[] metrics){
+        	this.index=index;
+        	this.name = name;
+            this.type = type;
+            this.param = param;
+            this.metrics = metrics;
+            this.preset = true;
+        }
+        
+        public int getIndex(){return index;}
         public String getType(){return type;}
         public String getName(){return name;}
         public String[] getParam(){return param;}
