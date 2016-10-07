@@ -218,6 +218,8 @@ public class drivingFeatureServlet extends HttpServlet {
             ArrayList<DrivingFeature> DFs;
             DFs = dfsGen.getDrivingFeatures();
             
+            System.out.println(DFs.size());
+            
             String sortingCriteria = request.getParameter("sortBy");
             int sortingCrieteria_int = Integer.parseInt(sortingCriteria);
             ArrayList<DrivingFeature> sortedDFs;

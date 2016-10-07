@@ -2,6 +2,7 @@ package rbsa.eoss;
 
 import java.util.ArrayList;
 
+
 public class StatApriori {
 
 	int[][] dataMat;
@@ -10,8 +11,6 @@ public class StatApriori {
 	public StatApriori(int[][] dataMat){
 		
 		this.dataMat = dataMat;
-	
-	
 	
 	}
 	
@@ -22,17 +21,38 @@ public class StatApriori {
 	public void runStatApriori(ArrayList<DrivingFeature> inputDF){
 		
 		// Define the initial set of features
-		ArrayList<setOfFeatures> S = generateInitialSets(setInitialAttributes(inputDF,0));
+		ArrayList<DrivingFeature> initAttrs = setInitialAttributes(inputDF);
+		ArrayList<setOfFeatures> S = generateInitialSets(initAttrs);
 		
-		// Define frontier. Frontier is the set of features that are non-minimum and PS
+		// Define frontier. Frontier is the set of features whose level is l
 		ArrayList<setOfFeatures> frontier = new ArrayList<>(); 
 		
 		for (setOfFeatures s:S){
 			frontier.add(s.copy());
 		}
+		
 		int l = 1;
+		// While there are features there are non-minimum and PS
 		while(frontier.size() > 0){
+			
+			// Generate new candidates
+			ArrayList<setOfFeatures> candidates = new ArrayList<>();
+			
+			for(setOfFeatures branch:frontier){				
+				int[] indices = branch.getIndices();
 				
+				for(DrivingFeature attr:initAttrs){
+					if(!contains(indices, attr.getIndex())){
+						// If this branch doesn't contain this attribute, create a new candidate
+						setOfFeatures newFeat = branch.copy();
+						newFeat.addNewFeature(attr);
+						candidates.add(newFeat);
+					}
+				}
+				
+				
+				
+			}
 			
 			
 			
@@ -43,14 +63,26 @@ public class StatApriori {
 	}
 	
 	
+	public boolean contains(int[] arr, int i){
+		for(int a:arr){
+			if(a==i){
+				return true; 
+			}
+		}
+		return false;
+	}
 	
-	public ArrayList<DrivingFeature> setInitialAttributes(ArrayList<DrivingFeature> inputDF, int index){
+	
+	public ArrayList<DrivingFeature> setInitialAttributes(ArrayList<DrivingFeature> inputDF){
 		ArrayList<DrivingFeature> initialAttributes;
 		initialAttributes = new ArrayList<>();
 		
+		// Use support to sort driving features
+		int index = 0;
+		
 		//Copy first element
 		initialAttributes.add(inputDF.remove(0));
-		// Sort driving features
+		// Sort driving features in ascending order of support value (frequency)
 		for(DrivingFeature df:inputDF){
 			double val = df.getMetrics()[index];
 			if (val <= initialAttributes.get(0).getMetrics()[index]){
@@ -69,6 +101,7 @@ public class StatApriori {
 				}
 			}
 		}
+		// Return the sorted driving features 
 		return initialAttributes;
 	}
 	
@@ -89,11 +122,23 @@ public class StatApriori {
 		
 		private ArrayList<DrivingFeature> features;
         private double[] metrics=null;
+        private int[] indices;
 		
         public setOfFeatures(ArrayList<DrivingFeature> feat){
         	this.features = feat;
+        	indices = new int[feat.size()];
+        	for(int i=0;i<features.size();i++){
+        		indices[i] = this.features.get(i).getIndex();
+        	}
         }
         
+        public void addNewFeature(DrivingFeature df){
+        	this.features.add(df);
+        }
+
+        public int[] getIndices(){
+        	return this.indices;
+        }
         
         public setOfFeatures copy(){
         	ArrayList<DrivingFeature> temp = new ArrayList<>();
@@ -138,27 +183,20 @@ public class StatApriori {
         		
         	}
 
-//            double cnt_NS = cnt_all-cnt_S;
-//            double cnt_NF = cnt_all-cnt_F;
-//            double cnt_S_NF = cnt_S-cnt_SF;
-//            double cnt_F_NS = cnt_F-cnt_SF;
-            
         	double[] metrics = new double[2];
-        	
             double support = cnt_SF/cnt_all;
-//            double support_F = cnt_F/cnt_all;
-//            double support_S = cnt_S/cnt_all;
             double lift = (cnt_SF/cnt_S) / (cnt_F/cnt_all);
-//            double conf_given_F = (cnt_SF)/(cnt_F);   // confidence (feature -> selection)
-//            double conf_given_S = (cnt_SF)/(cnt_S);   // confidence (selection -> feature)
 
+            
         	metrics[0] = support;
         	metrics[1] = lift;
         	this.metrics = metrics;
         	return metrics;
         }
         
-        
+        public ArrayList<DrivingFeature> getFeatures(){
+        	return this.features;
+        }
         
         
         
