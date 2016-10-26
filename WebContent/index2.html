@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<script src="js/annyang/dist/annyang.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/speechkitt.min.js"></script>
+<script>
+if (annyang) {
+  // Add our commands to annyang
+  /*
+  annyang.addCommands({
+    'hello': function() { alert('Hello world!'); }
+  });
+
+
+  // Tell KITT to use annyang
+  SpeechKITT.annyang();
+
+  // Define a stylesheet for KITT to use
+  SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
+
+  // Render KITT's interface
+  SpeechKITT.vroom();
+  */
+  
+	// Let's define a command.
+	/*
+	 annyang.addCallback('error', function() {
+ console.log('There was an error!');
+  });
+  annyang.addCallback('soundstart', function() {
+	  console.log('sound detected');
+	});
+
+	annyang.addCallback('result', function() {
+	  console.log('sound stopped');
+	});
+  annyang.addCallback('errorPermissionBlocked', function() {
+	  console.log('There was an errorPermissionBlocked!');
+	   });
+  annyang.addCallback('errorPermissionDenied', function() {
+	  console.log('There was an errorPermissionDenied!');
+	   });
+  annyang.addCallback('errorNetwork', function() {
+	  console.log('There was an errorPermissionDenied!');
+  });
+  annyang.addCallback('soundstart', function() {
+	  console.log('sound detected');
+	});
+
+	annyang.addCallback('result', function() {
+	  console.log('sound stopped');
+	});
+  
+	*/
+	
+ 
+  
+	  // Add our commands to annyang
+	 /* 
+	 annyang.addCallback('result', function(phrases) {
+		  console.log("I think the user said: ", phrases[0]);
+		  console.log("But then again, it could be any of the following: ", phrases);
+		});
+	
+	
+	*/
+	 annyang.addCommands({
+  	   'hello': function() { alert('Hello world!'); }
+  	  });
+	 SpeechKITT.annyang();
+	    // Define a stylesheet for KITT to use
+	    SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
+
+	    // Render KITT's interface
+	    SpeechKITT.vroom(); // SpeechKITT.render() does the same thing, but isn't as much fun!
+	       
+		
+	  // Start listening
+	  //annyang.debug();
+	  //annyang.start();
+	  
+}
+
+</script>
+
+</body>
+</html>

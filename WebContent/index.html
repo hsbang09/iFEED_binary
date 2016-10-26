@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+<head>
+<title>iFEED GUI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="js/lib/jquery.js" type="text/javascript"></script>
+<script src="js/lib/d3.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<meta name="google-signin-client_id"
+	content="564804694787-lnsp9md3u0q8086nftbamu43drid6d4t.apps.googleusercontent.com">
+
+<style>
+#title {
+	float: left;
+	margin-left: 30px;
+	margin-top: 15px;
+	width: 80%;
+}
+
+#scatterPlotFigure {
+	border: 1px black double;
+	width: 960px;
+	height: 540px;
+	float: left;
+	margin-right: 10px;
+	margin-left: 0px;
+	margin-top: 0px;
+}
+
+#drivingFeaturesAndSensitivityAnalysis_div {
+	float: left;
+	width: 200px;
+	height: 540px;
+	border: 1px black double;
+	overflow: scroll;
+}
+
+#firstLineOfFigs {
+	margin-left: 30px;
+	margin-bottom: 10px;
+	width: 95%;
+	height: 540px;
+	float: left;
+}
+
+#secondLineOfFigs {
+	float: left;
+	margin-top: 5px;
+	margin-left: 30px;
+	width: 100%;
+}
+
+#requestButtons {
+	width: 95%;
+	float: left;
+	margin-left: 30px;
+	margin-top: 10px;
+	margin-bottom: 5px;
+	height: 30px;
+}
+
+#basicInfoBox_div {
+	float: left;
+	border: 1px black double;
+	width: 1162px;
+	height: 430px;
+	overflow: scroll;
+	margin-left: 0px;
+	margin-top: 0px;
+	font-family: 'Helvetica Neue', Helvetica;
+	font-weight: 300;
+	padding: 5px;
+}
+
+#resultFileURL {
+	width: 650px;
+}
+
+#resultFileURLInput {
+	float: left;
+	margin-left: 30px;
+	margin-top: 8px;
+	width: 90%;
+	height: 30px;
+}
+
+#satisfactionScoreSummaryButton_div {
+	float: left;
+}
+
+#getDrivingFeaturesSetting_div {
+	float: left;
+	margin-left: 5px;
+	margin-top: 15px;
+}
+
+#fixScatterPlotWindowButton_div {
+	float: left;
+	margin-left: 10px;
+}
+
+#selectArchsWithinRange_div {
+	float: left;
+	margin-left: 5px;
+	margin-top: 7px;
+}
+
+#selectArchsWithinRange_minCost {
+	margin-top: 3px;
+	margin-bottom: 3px;
+	width: 65px;
+}
+
+#selectArchsWithinRange_maxCost {
+	width: 65px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+#selectArchsWithinRange_minScience {
+	margin-top: 3px;
+	margin-bottom: 3px;
+	width: 65px;
+}
+
+#selectArchsWithinRange_maxScience {
+	width: 65px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+#dropdown_presetDesignFeatures {
+	margin-top: 7px;
+}
+
+#getDrivingFeaturesButton {
+	margin-top: 12px;
+	margin-bottom: 7px;
+	width: 170px;
+}
+
+#getClassificationTreeButton {
+	margin-bottom: 7px;
+	width: 170px;
+}
+
+#openFilterOptions {
+	margin-bottom: 7px;
+	width: 170px;
+}
+
+.axis path, .axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+.dot {
+	stroke: #000;
+	stroke-width: 0;
+}
+
+.grid .tick {
+	stroke: lightgrey;
+	opacity: 0.7;
+}
+
+.grid path {
+	stroke-width: 0;
+}
+
+#arch_cell {
+	border: 1px solid black;
+	padding: 10px;
+	vertical-align: central;
+}
+
+#inst_cell {
+	border: 1px solid black;
+	padding: 3px;
+	vertical-align: central;
+	text-align: center;
+	font-family: 'Helvetica Neue', Helvetica;
+	font-weight: 300;
+	padding: 5px;
+	font-size: 15px;
+}
+
+#evalNewArch {
+	margin-top: 4px;
+	margin-bottom: 14px;
+}
+
+.toggle-button {
+	background-color: white;
+	margin-top: 1px;
+	border-radius: 20px;
+	border: 2px solid #232323;
+	height: 18px;
+	cursor: pointer;
+	width: 43px;
+	position: absolute;
+	display: inline-block;
+	user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+}
+
+.toggle-button button {
+	cursor: pointer;
+	outline: 0;
+	display: block;
+	position: absolute;
+	left: 1px;
+	top: 2px;
+	border-radius: 100%;
+	width: 18px;
+	height: 20px;
+	background-color: white;
+	float: left;
+	margin: -3px 0 0 -3px;
+	border: 2px solid #232323;
+	transition: left 0.3s;
+}
+
+.toggle-button-selected {
+	background-color: #83B152;
+	border: 2px solid #232323;
+}
+
+.toggle-button-selected button {
+	left: 26px;
+	top: 0;
+	margin: -1px 0 0 0;
+	border: 2px solid #232323;
+	width: 18px;
+	height: 21px;
+	box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+#filter_inputs {
+	width: 95%;
+	float: left;
+	margin-left: 2px;
+	margin-top: 8px;
+}
+
+#filter_input1_textBox {
+	width: 180px;
+	margin-left: 5px;
+	margin-right: 2px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+#filter_input2_textBox {
+	width: 180px;
+	margin-left: 5px;
+	margin-right: 2px;
+	margin-top: 10px;
+}
+
+#filter_input3_textBox {
+	width: 180px;
+	margin-left: 5px;
+	margin-right: 2px;
+	margin-top: 10px;
+}
+
+#filter_expression {
+	color: black;
+	border: 1px black solid;
+	height: 60px;
+	width: 80%;
+	float: left;
+	margin-left: 5px;
+	overflow: scroll;
+}
+
+#clockdiv {
+	font-family: sans-serif;
+	color: #fff;
+	display: inline-block;
+	font-weight: 100;
+	text-align: left;
+	font-size: 30px;
+	margin-top: 5px;
+	float: right;
+}
+
+#clockdiv>div {
+	padding: 10px;
+	border-radius: 3px;
+	background: #E2E2E2;
+	display: inline-block;
+}
+
+#clockdiv div>span {
+	padding: 15px;
+	border-radius: 3px;
+	background: #787878;
+	display: inline-block;
+}
+
+.smalltext {
+	color: #787878;
+	padding-top: 5px;
+	font-size: 16px;
+}
+</style>
+
+
+</head>
+<body>
+	<div id="title">
+		<h2>iFEED GUI</h2>
+	</div>
+	<br />
+
+
+	<div id="resultFileURLInput">
+		<!--             <input id="resultFileURL" type="text" name="resultFileURL" value="0"/> -->
+		<input id="resultFileURL_newData" type="submit"
+			value="Click to start experiment" />
+	</div>
+	<br />
+
+	<div id="requestButtons">
+		<button id="scatterPlot_option" class="zoom" disabled="True"
+			style="float: left; margin-left: 5px;">Enable drag-selection</button>
+
+		<div id="numOfArchs" style="float: left; margin-left: 580px;">
+			Number of Architectures: <input type="text" id="numOfArchs_inputBox"
+				value="0" style="width: 50px; height: 20px; margin-left: 1px;" />
+		</div>
+	</div>
+
+
+	<div id="firstLineOfFigs">
+		<figure id="scatterPlotFigure"></figure>
+		<div id="drivingFeaturesAndSensitivityAnalysis_div">
+			<div id="selectArchsWithinRange_div">
+				Cost range: <br /> <input id="selectArchsWithinRange_minCost"
+					type="text" value="0" />&nbsp; ~&nbsp; <input
+					id="selectArchsWithinRange_maxCost" type="text" value="inf" /> <br />
+				Science Benefit range: <br /> <input
+					id="selectArchsWithinRange_minScience" type="text" value="0" />&nbsp;
+				~&nbsp; <input id="selectArchsWithinRange_maxScience" type="text"
+					value="1" /> <br />
+				<button type="button" id="selectArchsWithinRangeButton"
+					disabled="True" style="margin-top: 5px; width: 170px">Select
+					archs within range</button>
+				<button type="button" id="select_complement" disabled="True"
+					style="margin-top: 5px; width: 170px;">Select complement</button>
+				<button type="button" id="cancel_selection" disabled="True"
+					style="margin-top: 5px; width: 170px;">Cancel all
+					selections</button>
+				<button type="button" id="hide_selection" disabled="True"
+					style="margin-top: 5px; width: 170px;">Hide selections</button>
+				<button type="button" id="show_all_archs" disabled="True"
+					style="margin-top: 5px; width: 170px;">Show all
+					architectures</button>
+
+				<div id="numOfSelectedArchs" style="float: left; margin-top: 10px">
+					Num of selected Archs: <input type="text"
+						id="numOfSelectedArchs_inputBox" value="0"
+						style="width: 50px; height: 17px; margin-left: 1px; margin-top: 5px" />
+				</div>
+
+			</div>
+
+			<div id="getDrivingFeaturesSetting_div">
+				Threshold Setup <br />
+				<div style="margin-top: 5px;">
+					Support: &nbsp;<input id="support_threshold_input" type="text"
+						value="0.02" style="width: 105px; margin-top: 3px;" />
+					Confidence:&nbsp;<input id="confidence_threshold_input" type="text"
+						value="0.3" style="width: 85px; margin-top: 3px;" /> Lift:&nbsp;<input
+						id="lift_threshold_input" type="text" value="1"
+						style="width: 135px; margin-top: 3px;" />
+				</div>
+				<button type="button" disabled="True" id="getDrivingFeaturesButton">Get
+					driving features</button>
+				<select id="dfsort_options" style="width: 170px; margin-bottom: 7px"></select>
+				<button type="button" disabled="True"
+					id="getClassificationTreeButton">Build classification tree</button>
+				<button type="button" disabled="True" id="openFilterOptions">Open
+					Filter Options</button>
+
+			</div>
+
+		</div>
+	</div>
+
+	<br />
+
+	<div id="secondLineOfFigs">
+		<div id="basicInfoBox_div"></div>
+	</div>
+
+
+	<script src="js/scatterPlotUI.js" type="text/javascript"></script>
+	<script src="js/drivingFeatures.js" type="text/javascript"></script>
+	<!-- <script src="js/classificationTree.js" type="text/javascript"></script>  -->
+	<script src="js/userDefinedFilter.js" type="text/javascript"></script>
+	<script src="js/relabel.js" type="text/javascript"></script>
+	<script src="js/annyang.min.js"></script>
+
+	<script
+		src="//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/speechkitt.min.js"></script>
+
+
+	<script>
+
+
+	 annyang.addCallback('result', function(phrases) {
+		  console.log("I think the user said: ", phrases[0]);
+		  for(i = 0; i < phrases.length; i++){
+			  if(phrases[i] == "hide selections"){
+				  hideSelection();
+				 
+		  }
+			  if(phrases[i] == "open filter options"){
+				  openFilterOptions();
+				 
+		  }
+			  if(phrases[i] == "cancel all selections"){
+				  cancelDotSelections();
+				 
+		  }
+			  if(phrases[i] == "show all architectures" || phrases[i] == "select all architectures"){
+				  show_all_archs();
+				 
+		  }
+			  if(phrases[i] == "select architectures within range" || phrases[i] == "show architectures within range"){
+				  selectArchsWithinRange();
+				 
+		  }
+			  if(phrases[i] == "select complement"){
+				  selectComplement();
+				 
+		  }
+			  
+			
+			  
+		  }
+			 
+		  console.log("But then again, it could be any of the following: ", phrases);
+		});
+	 
+	 
+	
+
+  SpeechKITT.annyang();
+
+  // Define a stylesheet for KITT to use
+  SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
+
+  // Render KITT's interface
+  SpeechKITT.vroom(); // SpeechKITT.render() does the same thing, but isn't as much fun!
+ 
+	
+    	  
+    	 
+            var testType;
+            var remainingTime;
+            
+            
+            var original_bitString;
+            var modified_bitString;
+            var selected_bitString;
+            var selected_bitString2;
+
+
+            var margin = {top: 20, right: 20, bottom: 30, left: 60},
+            width = 960 - margin.left - margin.right,
+                    height = 540 - margin.top - margin.bottom;
+
+            
+            var json_arch;
+            var svg,
+                    objects;
+            var xValue, xScale, xMap, xAxis, xBuffer, yBuffer,
+                    yValue, yScale, yMap, yAxis;
+
+
+            
+            var color_drivingFeatures = d3.scale.category10();        
+            var i_drivingFeatures=0;
+            var filter_arch;
+            var modified_filterArch;
+            
+            var orbits, instruments, ninstr, norb;
+
+
+            var translate_tmp = [0,0];
+            var scale_tmp = 0;
+            var translate_tmp_local = [0,0];
+            var scale_tmp_local = 0;
+            
+            var filterDropdownOptions = [{value:"not_selected",text:"Preset Filters"},{value:"paretoFront",text:"Pareto front"},
+                {value:"present",text:"Present"},{value:"absent",text:"Absent"},{value:"inOrbit",text:"In orbit"},
+                {value:"notInOrbit",text:"Not in orbit"},{value:"together",text:"Together"},
+                {value:"togetherInOrbit",text:"Together in orbit"},{value:"separate",text:"Separate"},
+                {value:"emptyOrbit",text:"Empty orbit"},{value:"numOrbitUsed",text:"Number of orbit used"},
+                {value:"subsetOfInstruments",text:"Num of instruments in a subset"},
+                {value:"numOfInstruments", text: "Number of instruments"},
+                {value:"defineNewFilter",text:"Define new filter"}];
+            
+            var userDefFilterExpressionHistory = [];
+            userDefFilterExpressionHistory.length=0;
+            var userDefFilters = [];
+            
+            var orbitList = [];
+            var instrList = [];
+            
+            var jsonObj_tree;
+            var jsonObj_tree_nested;
+   
+            var id_token;
+            var session_timed_out = false;
+            var key_number=-12345678;
+            
+            // Scatter plot variables
+            
+            	var architectures; // old: jsonObj_scatterPlot
+                var newArchs = [];  newArchs.length = 0;    
+            
+            // Driving features variables
+            
+				var sortedDFs;
+            
+            // Classification Tree variables
+            
+            var classificationTree_window;
+            
+            
+            var buttonClickCount_drivingFeatures = 0;
+            var buttonClickCount_classificationTree = 0;
+            var buttonClickCount_filterOptions = 0;
+            var buttonClickCount_applyFilter = 0;
+            var buttonClickCount_addUserDefFilter = 0;
+            var numOfArchViewed =0;
+            var numOfDrivingFeatureViewed = 0;
+            var getDrivingFeatures_numOfArchs = [];
+            var getClassificationTree_numOfArchs = [];
+            var getDrivingFeatures_thresholds = [];
+            
+            var ARM_metrics = ["Support",
+                               "Lift",
+                               "Confidence (feature -> selection)",
+                               "Cosine",
+                               "Leverage",
+                               "Conviction (feature -> selection)",
+                               "Odds ratio",
+                               "Gini Index (feature -> selection)",
+                               "Certainty Factor (feature -> selection)"]
+ 
+//         	metrics[0] = support;
+//         	metrics[1] = lift;
+//         	metrics[2] = conf_given_F;
+//         	metrics[3] = cosine;
+//         	metrics[4] = leverage;
+//         	metrics[5] = convictionFS;
+//         	metrics[6] = odds_ratio;
+//         	metrics[7] = gini;
+//         	metrics[8] = certainty_factor;
+            
+            try {
+
+            function newDataFromResultFile(){
+                var filePath = "/results/1.rs";
+                
+                $.ajax(
+                        {
+                            url: "resultsGUIServlet",
+                            type: "POST",
+                            data: {ID: "resultFileURL_newData", filePath:filePath},
+                            async: false,
+                            success: function (data, textStatus, jqXHR)
+                            {
+
+                            	architectures = JSON.parse(data);
+                            },
+                            complete: function () {
+                                reset_drawing_scatterPlot();
+//                                 draw_scatterPlot(architectures);
+                                orbitList = getOrbitList();
+                                instrList = getInstrumentList();
+                            },
+                            error: function (jqXHR, textStatus, errorThrown)
+                            {
+                                alert("error");
+                            }
+                        });
+                       addDataFromResultFile();
+
+            }
+            
+            function addDataFromResultFile(){
+                var filePath = "/results/3.rs";
+                
+                var selectedArchs = d3.selectAll("[class=dot_clicked]");
+                var numOfSelectedArchs = selectedArchs.size();
+//                 var bitStrings = [];
+//                 bitStrings.length = 0;
+                
+//                 for (var i = 0; i < numOfSelectedArchs; i++) {
+//                     var tmpBitString = booleanArray2String(selectedArchs[0][i].__data__.archBitString);
+//                     bitStrings.push(tmpBitString);
+//                 } //bitStrings: JSON.stringify(bitStrings)
+
+                $.ajax({
+                	url: "resultsGUIServlet",
+                	type: "POST",
+                	data: {ID: "resultFileURL_addData",filePath:filePath},
+                	async: false,
+               		success: function (data, textStatus, jqXHR){
+                    	var tmp_architectures = JSON.parse(data);
+                    	for(var i=0;i<tmp_architectures.length;i++){
+                    		architectures.push(tmp_architectures[i]);
+                    	}
+                    },
+                    complete: function () {
+                    	reset_drawing_scatterPlot();
+                    	draw_scatterPlot(architectures);
+                    	d3.select("[id=basicInfoBox_div]").select("g").remove();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                    	alert("error");
+                    }
+                });
+
+            }
+            
+            
+            d3.select("[id=resultFileURL_newData]").on("click", newDataFromResultFile);
+            
+            
+
+            function extractInfoFromBitString(bitString) {
+                var jsonObj_arch
+                $.ajax({
+                    url: "resultsGUIServlet",
+                    type: "POST",
+                    data: {ID: "extractInfoFromBitString", bitString: bitString},
+                    async: false,
+                    success: function (data, textStatus, jqXHR)
+                    {
+                        jsonObj_arch = JSON.parse(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                        alert("error");
+                    }
+                });
+                return jsonObj_arch;
+            }
+            
+            function booleanArray2String(bitString) {
+                var bitString_string = "";
+                for (var i = 0; i < bitString.length; i++) {
+                    var bool;
+                    if (bitString[i] == true) {
+                        bool = 1;
+                    } else {
+                        bool = 0;
+                    }
+                    bitString_string = bitString_string + bool;
+                }
+                return bitString_string;
+            }
+            function string2BooleanArray(bitString_string) {
+                var bitString = [];
+                bitString.length = 0;
+                for (var i = 0; i < bitString_string.length; i++) {
+                    if (bitString_string.charAt(i) == "0") {
+                        bitString.push(true);
+                    } else {
+                        bitString.push(false);
+                    }
+                }
+                return bitString;
+            }
+
+            function draw_archBasicInfoTable(bitString) {
+
+                json_arch = extractInfoFromBitString(bitString);
+                var norb = json_arch.length;
+                var maxNInst = 0;
+                var totalNInst = 0;
+
+                for (var i = 0; i < norb; i++) {
+                    var nInst = json_arch[i].children.length;
+                    totalNInst = totalNInst + nInst;
+                    if (nInst > maxNInst) {
+                        maxNInst = nInst;
+                    }
+                }
+
+                d3.select("[id=basicInfoBox_div]")
+                        .select("g").select("table").remove();
+
+                var archInfoBox = d3.select("[id=basicInfoBox_div]")
+                        .select("g");
+
+                var table = archInfoBox.append("table")
+                        .attr("id", "archInfoTable");
+
+                var columns = [];
+                columns.push({columnName: "orbit"});
+                for (var i = 0; i < maxNInst; i++) {
+                    var tmp = i + 1;
+                    columns.push({columnName: "Inst " + tmp});
+                }
+
+                // create table header
+                table.append('thead').append('tr')
+                        .selectAll('th')
+                        .data(columns).enter()
+                        .append('th')
+                        .attr("width", function (d) {
+                            if (d.columnName == "orbit") {
+                                return "120px";
+                            } else {
+                                return "70px";
+                            }
+                        })
+                        .text(function (d) {
+                            return d.columnName;
+                        })
+                        .style("font-size", "12px");
+                ;
+
+                // create table body
+                table.append('tbody')
+                        .selectAll('tr')
+                        .data(json_arch).enter()
+                        .append('tr')
+                        .attr("name", function (d) {
+                            return d.orbit;
+                        })
+                        .selectAll('td')
+                        .data(function (row, i) {
+                            var thisRow = [];
+                            var orbitObj = {type: "orbit", content: json_arch[i].orbit};
+                            thisRow.push(orbitObj);
+                            for (var j = 0; j < json_arch[i].children.length; j++) {
+                                var instObj = {type: "instrument", content: json_arch[i].children[j], orbit: json_arch[i].orbit};
+                                thisRow.push(instObj);
+                            }
+                            return thisRow;
+                        }).enter()
+                        .append('td')
+                        .attr("name", function (d) {
+                            d.content;
+                        })
+                        .style("background-color", function (d) {
+                            if (d.type == "orbit") {
+                                return "#D0D0D0";
+                            }
+                        })
+                        .attr("id", "arch_cell")
+                        .attr("width", function (d, i) {
+                            if (d.type == "orbit") {
+                                return "120px";
+                            } else {
+                                return "70px";
+                            }
+                        })
+                        .text(function (d) {
+                            return relabel(d.content);
+                        })
+                        .style("font-size", "13px");
+
+
+            }
+                function getOrbitList() {
+                    var orbitList
+                    $.ajax({
+                        url: "resultsGUIServlet",
+                        type: "POST",
+                        data: {ID: "getOrbitList"},
+                        async: false,
+                        success: function (data, textStatus, jqXHR)
+                        {
+                            orbitList = JSON.parse(data);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown)
+                        {
+                            alert("error");
+                        }
+                    });
+                    return orbitList;
+                }
+                function getInstrumentList() {
+                    var instrumentList
+                    $.ajax({
+                        url: "resultsGUIServlet",
+                        type: "POST",
+                        data: {ID: "getInstrumentList"},
+                        async: false,
+                        success: function (data, textStatus, jqXHR)
+                        {
+                            instrumentList = JSON.parse(data);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown)
+                        {
+                            alert("error");
+                        }
+                    });
+                    return instrumentList;
+                }
+
+
+
+
+
+                
+                function getNinstr() {
+                    var output;
+                    $.ajax({
+                        url: "resultsGUIServlet",
+                        type: "POST",
+                        data: {ID: "getNinstr"},
+                        async: false,
+                        success: function (data, textStatus, jqXHR)
+                        {
+                            output = data;
+                        },
+                        error: function (jqXHR, textStatus, errorThrown)
+                        {
+                            alert("error");
+                        }
+                    });
+                    return output;
+                }
+                function getNorb() {
+                    var output;
+                    $.ajax({
+                        url: "resultsGUIServlet",
+                        type: "POST",
+                        data: {ID: "getNorb"},
+                        async: false,
+                        success: function (data, textStatus, jqXHR)
+                        {
+                            output = data;
+                        },
+                        error: function (jqXHR, textStatus, errorThrown)
+                        {
+                            alert("error");
+                        }
+                    });
+                    return output;
+                }
+
+            
+            function numOfArchs(){
+                var leng1 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot]").size();
+                var leng2 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_clicked]").size();
+                return leng1+leng2;
+            }
+            function numOfSelectedArchs(){
+                return d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_clicked]").size();
+            }
+
+//             d3.select("[id=resultFileURL_newData]").on("click", newDataFromResultFile);
+//            d3.select("[id=resultFileURL_addData]").on("click", addDataFromResultFile);
+            
+            
+
+            } catch (err) {
+                console.log(err.message);
+            }
+
+
+			
+        </script>
+</body>
+</html>
