@@ -255,7 +255,9 @@ function draw_scatterPlot(source) {
 
     calculateParetoRanking();
     drawParetoFront();
-   
+    
+    
+    selection_changed = true;
 }
 
 
@@ -332,6 +334,7 @@ function selectArchsWithinRange() {
             });
 
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
+    selection_changed = true;
 }
 
 function cancelDotSelections(){
@@ -351,6 +354,7 @@ function cancelDotSelections(){
     d3.select("[id=instrumentOptions]")
             .select("table").remove();        
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
+    selection_changed = true;
 }
 
 function hideSelection(){
@@ -363,6 +367,7 @@ function hideSelection(){
             .select("table").remove();        
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
     d3.select("[id=numOfArchs_inputBox]").attr("value",numOfArchs());
+    selection_changed = true;
 }
 function show_all_archs(){
 
@@ -383,6 +388,7 @@ function show_all_archs(){
             .select("table").remove();        
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
     d3.select("[id=numOfArchs_inputBox]").attr("value",numOfArchs());
+    selection_changed = true;
 }
 
 
@@ -453,6 +459,7 @@ function dot_click(d) {
 
     }
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
+    selection_changed = true;
 }
 
 
@@ -654,6 +661,7 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
 
            // remove selection frame
         svg_tmp.selectAll( "rect.selection").remove();
+        selection_changed = true;
     })
     }               
 }
@@ -726,25 +734,7 @@ function drawParetoFront(){
             .attr("y2",function(d){
                 return d.y2;
             });
-//                                    var dots = objects.selectAll(".dot")
-//                            .data(source)
-//                            .enter().append("circle")
 
-//var svg_tmp = d3.select("[id=scatterPlotFigure]").select("svg")
-//                    objects = svg.append("svg")
-//                            .attr("class", "objects")  
-
-// 2var svgContainer = d3.select("body").append("svg")
-// 3                                    .attr("width", 200)
-// 4                                    .attr("height", 200);
-// 5
-// 6//Draw the line
-// 7var circle = svgContainer.append("line")
-// 8                         .attr("x1", 5)
-// 9                         .attr("y1", 5)
-//10                         .attr("x2", 50)
-//11                         .attr("y2", 50);
-//                    }
 }
 
 function calculateParetoRanking(){      

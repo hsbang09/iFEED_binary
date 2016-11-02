@@ -11,6 +11,12 @@
 
 
 function getDrivingFeatures() {
+	
+	if(selection_changed == false && sortedDFs != null){
+		display_drivingFeatures(sortedDFs,"lift");
+		return;
+	}
+	
     var support_threshold = d3.select("[id=support_threshold_input]")[0][0].value;
     var confidence_threshold = d3.select("[id=confidence_threshold_input]")[0][0].value;
     var lift_threshold = d3.select("[id=lift_threshold_input]")[0][0].value;
@@ -42,6 +48,7 @@ function getDrivingFeatures() {
 
     sortedDFs = generateDrivingFeatures(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
     display_drivingFeatures(sortedDFs,"lift");
+    selection_changed = false;
 }
 
 
@@ -991,13 +998,9 @@ function display_drivingFeatures(source,sortby) {
             .scale(yScale_df)
             .orient("left");
 
-    var drivingFeaturesDisplayBox = d3.select("[id=drivingFeaturesAndSensitivityAnalysis_div]");
-
     d3.select("[id=basicInfoBox_div]").select("g").remove();
     var infoBox = d3.select("[id=basicInfoBox_div]")
             .append("g");
-
-
 
     var svg_df = infoBox.append("svg")
             .attr("width", width_df + margin_df.left + margin_df.right)

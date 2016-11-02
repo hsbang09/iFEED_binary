@@ -129,7 +129,6 @@ and open the template in the editor.
                 margin-bottom: 3px;
             }
 
-
             #dropdown_presetDesignFeatures{
                 margin-top: 7px;
             }
@@ -146,6 +145,24 @@ and open the template in the editor.
                 margin-bottom: 7px;
                 width: 170px;
             }
+            
+            
+			.node circle {
+			  cursor: pointer;
+			  fill: #fff;
+			  stroke: steelblue;
+			  stroke-width: 0px;
+			}
+			
+			.node text {
+			  font-size: 11px;
+			}
+			
+			path.treeLink {
+			  fill: none;
+			  stroke: #ccc;
+			  stroke-width: 1.5px;
+			}
 
             .axis path,
             .axis line {
@@ -430,8 +447,9 @@ and open the template in the editor.
             var orbitList = [];
             var instrList = [];
             
-            var jsonObj_tree;
+            var jsonObj_tree=null;
             var jsonObj_tree_nested;
+            var selection_changed = true;
    
             var id_token;
             var session_timed_out = false;
@@ -444,7 +462,7 @@ and open the template in the editor.
             
             // Driving features variables
             
-				var sortedDFs;
+				var sortedDFs=null;
             
             // Classification Tree variables
             
@@ -473,31 +491,37 @@ and open the template in the editor.
             	id_token = googleUser.getAuthResponse().id_token;
 		        var firstLoginTime = Date.parse(new Date());
 		        var credential;
-                $.ajax(
-                        {
-                            url: "loginServlet",
-                            type: "POST",
-                            data: {ID: "login", IDToken: id_token, loginTime:firstLoginTime},
-                            async: false,
-                            success: function (data, textStatus, jqXHR)
-                            {
-                            	d3.select("[id=logIn_window]").remove();
-								credential = data;
-                            },
-                            error: function (jqXHR, textStatus, errorThrown)
-                            {
-                                alert("error");
-                            }
-                        });
-                if(credential!=="accessDenied"){  // access granted
-                	testType = credential[0];
-                	remainingTime = + credential.slice(2);
+//                 $.ajax(
+//                         {
+//                             url: "loginServlet",
+//                             type: "POST",
+//                             data: {ID: "login", IDToken: id_token, loginTime:firstLoginTime},
+//                             async: false,
+//                             success: function (data, textStatus, jqXHR)
+//                             {
+//                             	d3.select("[id=logIn_window]").remove();
+// 								credential = data;
+//                             },
+//                             error: function (jqXHR, textStatus, errorThrown)
+//                             {
+//                                 alert("error");
+//                             }
+//                         });
+//                 if(credential!=="accessDenied"){  // access granted
+//                 	testType = credential[0];
+//                 	remainingTime = + credential.slice(2);
                 	
-//                  testType = "4";
+// //                  testType = "4";
+//                     newDataFromResultFile();
+//                 }else{ // access not granted
+//                 	signOut();
+//                 }
+
+
+                	remainingTime = + 10000000000000000000000;
+                 	testType = "3";
                     newDataFromResultFile();
-                }else{ // access not granted
-                	signOut();
-                }
+
 			}
 			
 		    function renderButton() {
