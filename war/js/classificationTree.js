@@ -42,6 +42,8 @@ function getClassificationTree(){
     jsonObj_tree = buildClassificationTree(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters);
     display_classificationTree(jsonObj_tree);
     selection_changed = false;
+    
+    highlight_basic_info_box()
 }
 
 
@@ -355,7 +357,6 @@ function apply_filter_name(name, isFirst, condInput){
 	} else{
 		type = name.substring(0,paren);
 	}
-
 	
     if(type=="present" || type=="absent" || type=="inOrbit" ||type=="notInOrbit"||type=="together2"||
     		type=="togetherInOrbit2"||type=="separate2"||type=="together3"||type=="togetherInOrbit3"||
@@ -387,10 +388,6 @@ function apply_filter_name(name, isFirst, condInput){
     		filterInputs.push(arg);
     	}
             
-    	
-    	console.log(type_modified);
-    	console.log(filterInputs);
-    	
     	if(isFirst==true){
             d3.selectAll("[class=dot]")[0].forEach(function (d) {
             	var bitString = d.__data__.archBitString;
@@ -481,6 +478,10 @@ function apply_filter_name(name, isFirst, condInput){
 function tree_node_mouse_over(d){
 
 	if(d.children==null){
+		
+		if(d.depth==0){
+			return;
+		}
 		
 		var condition = d.cond;
 		var currentNode = d.parent;

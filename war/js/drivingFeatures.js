@@ -49,6 +49,8 @@ function getDrivingFeatures() {
     sortedDFs = generateDrivingFeatures(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
     display_drivingFeatures(sortedDFs,"lift");
     selection_changed = false;
+    
+    highlight_basic_info_box()
 }
 
 
@@ -100,27 +102,28 @@ function sortDrivingFeatures(drivingFeatures,sortBy){
 			continue;
 		}
 		
+		var metrics = thisDF.metrics;
 	       
         if(sortBy=="lift"){
-            value = thisDF.lift;
-            maxval = newlySorted[0].lift;
-            minval = newlySorted[newlySorted.length-1].lift;
+            value = thisDF.metrics[1];
+            maxval = newlySorted[0].metrics[1];
+            minval = newlySorted[newlySorted.length-1].metrics[1];
         } else if(sortBy=="supp"){
-            value = thisDF.supp;
-            maxval = newlySorted[0].supp;
-            minval = newlySorted[newlySorted.length-1].supp;
+            value = thisDF.metrics[0];
+            maxval = newlySorted[0].metrics[0];
+            minval = newlySorted[newlySorted.length-1].metrics[0];
         } else if(sortBy=="confave"){
-            value = (thisDF.conf + thisDF.conf2)/2;
-            maxval = (newlySorted[0].conf + newlySorted[0].conf2)/2;
-            minval = (newlySorted[newlySorted.length-1].conf+newlySorted[newlySorted.length-1].conf2)/2;
+            value = (thisDF.metrics[2] + thisDF.metrics[3])/2;
+            maxval = (newlySorted[0].metrics[2] + newlySorted[0].metrics[3])/2;
+            minval = (newlySorted[newlySorted.length-1].metrics[2]+newlySorted[newlySorted.length-1].metrics[3])/2;
         } else if(sortBy=="conf1"){
-            value = thisDF.conf;
-            maxval = newlySorted[0].conf;
-            minval = newlySorted[newlySorted.length-1].conf;
+            value = thisDF.metrics[2];
+            maxval = newlySorted[0].metrics[2];
+            minval = newlySorted[newlySorted.length-1].metrics[2];
         } else if(sortBy=="conf2"){
-            value = thisDF.conf2;
-            maxval = newlySorted[0].conf2;
-            minval = newlySorted[newlySorted.length-1].conf2;
+            value = thisDF.metrics[3];
+            maxval = newlySorted[0].metrics[3];
+            minval = newlySorted[newlySorted.length-1].metrics[3];
         }
 		
 		if(value>=maxval){
@@ -132,20 +135,20 @@ function sortDrivingFeatures(drivingFeatures,sortBy){
 				var refval=0; var refval2=0;
 				
 				if(sortBy=="lift"){
-					refval=newlySorted[j].lift;
-					refval2=newlySorted[j+1].lift;
+					refval=newlySorted[j].metrics[1];
+					refval2=newlySorted[j+1].metrics[1];
 				} else if(sortBy=="supp"){
-					refval=newlySorted[j].supp;
-					refval2=newlySorted[j+1].supp;
+					refval=newlySorted[j].metrics[0];
+					refval2=newlySorted[j+1].metrics[0];
 				} else if(sortBy=="confave"){
-					refval=(newlySorted[j].conf+newlySorted[j].conf2)/2
-					refval2=(newlySorted[j+1].conf+newlySorted[j+1].conf2)/2
+					refval=(newlySorted[j].metrics[2]+newlySorted[j].metrics[3])/2
+					refval2=(newlySorted[j+1].metrics[2]+newlySorted[j+1].metrics[3])/2
 				} else if(sortBy=="conf1"){
-					refval=newlySorted[j].conf;
-					refval2=newlySorted[j+1].conf;
+					refval=newlySorted[j].metrics[2];
+					refval2=newlySorted[j+1].metrics[2];
 				} else if(sortBy=="conf2"){
-					refval=newlySorted[j].conf2;
-					refval2=newlySorted[j+1].conf2;
+					refval=newlySorted[j].metrics[3];
+					refval2=newlySorted[j+1].metrics[3];
 				}
 				if(value <=refval && value > refval2){
 					newlySorted.splice(j+1,0,thisDF); break;
@@ -242,6 +245,8 @@ function display_filterOption(){
     d3.select("[id=applyFilterButton_new]").on("click",applyFilter_new);
     d3.select("[id=applyFilterButton_within]").on("click",applyFilter_within);
     d3.select("[id=applyFilterButton_complement]").on("click",applyFilter_complement);
+    
+    highlight_basic_info_box()
 }
 
 
@@ -640,7 +645,8 @@ function applyFilter_new(){
     if (filterType == "paretoFront"){
         var filterInput = d3.select("[id=filter_input1_textBox]")[0][0].value;
         var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-            if (d3.select(d).attr("paretoRank")== ""+filterInput){
+        	var rank = d3.select(d).attr("paretoRank");
+            if (rank <= ""+filterInput && rank >= 0){
                 d3.select(d).attr("class", "dot_clicked")
                             .style("fill", "#0040FF");
             }
@@ -713,8 +719,9 @@ function applyFilter_within(){
         var filterInput = d3.select("[id=filter_input1_textBox]")[0][0].value;
         var clickedArchs = d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
 
-            if (d3.select(d).attr("paretoRank")== ""+filterInput){
-            } else {
+        	var rank = d3.select(d).attr("paretoRank");
+            if (rank <= ""+filterInput && rank >= 0){
+            }else {
                 d3.select(d).attr("class", "dot")
                             .style("fill", function (d) {
                                 if (d.status == "added") {
@@ -794,8 +801,9 @@ function applyFilter_add(){
     if (filterType == "paretoFront"){
         var filterInput = d3.select("[id=filter_input1_textBox]")[0][0].value;
         var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-            if (d3.select(d).attr("paretoRank")== ""+filterInput){
-                d3.select(d).attr("class", "dot_clicked")
+        	var rank = d3.select(d).attr("paretoRank");
+            if (rank <= ""+filterInput && rank >= 0){
+            	d3.select(d).attr("class", "dot_clicked")
                             .style("fill", "#0040FF");
             }
         });
@@ -843,78 +851,7 @@ function applyFilter_add(){
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());  
 }
 
-function applyFilter_complement(){
-    buttonClickCount_applyFilter += 1;
-    cancelDotSelections();
 
-    var filterType = d3.select("[id=dropdown_presetFilters]")[0][0].value;
-    var neg = true;
-    
-    if (filterType == "paretoFront"){
-        var filterInput = d3.select("[id=filter_input1_textBox]")[0][0].value;
-        var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-            if (d3.select(d).attr("paretoRank")== ""+filterInput){
-                d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
-            }
-        });
-
-    }
-    else if (filterType == "present" || filterType == "absent" || filterType == "inOrbit" || filterType == "notInOrbit" || filterType == "together" || filterType == "togetherInOrbit" || filterType == "separate" || 
-            filterType == "emptyOrbit" || filterType=="numOrbitUsed" || filterType=="subsetOfInstruments"){
-
-        var filterInputs = [];
-        if(d3.select("[id=filter_input1_textBox]")[0][0]!==null){
-            filterInputs.push(d3.select("[id=filter_input1_textBox]")[0][0].value);
-        }
-        if(d3.select("[id=filter_input2_textBox]")[0][0]!==null){
-            filterInputs.push(d3.select("[id=filter_input2_textBox]")[0][0].value);
-        }
-        if(d3.select("[id=filter_input3_textBox]")[0][0]!==null){
-            filterInputs.push(d3.select("[id=filter_input3_textBox]")[0][0].value);
-        }
-
-        var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-//                            var bitString = booleanArray2String(d.__data__.archBitString)
-            var bitString = d.__data__.archBitString;
-            if (presetFilter2(filterType,bitString,filterInputs,neg)){
-                d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
-            }
-        });
-    } else if(filterType == "defineNewFilter" || (filterType =="not_selected" && userDefFilters.length !== 0)){
-        var filterExpression = d3.select("[id=filter_expression]").text();
-        tmpCnt =0;
-
-        d3.selectAll("[class=dot]")[0].forEach(function(d){
-
-            var bitString = d.__data__.archBitString;
-            if(applyUserDefFilterFromExpression(filterExpression,bitString)){
-                d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
-            }
-        });
-
-        d3.select("[id=saveFilter]").attr('disabled', null)
-                                    .on("click",saveNewFilter);
-    }
-    else{
-        for(var k=0 ; k < userDefFilters.length; k++){
-           if(userDefFilters[k].name == filterType){
-                var filterExpression = userDefFilters[k].expression;
-                d3.selectAll("[class=dot]")[0].forEach(function(d){
-                    var bitString = d.__data__.archBitString;
-                    if(!applyUserDefFilterFromExpression(filterExpression,bitString)){
-                        d3.select(d).attr("class", "dot_clicked")
-                                    .style("fill", "#0040FF");
-                    }
-                }); 
-           }
-        }
-    }
-
-    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());  
-}
 
 
 
@@ -942,10 +879,10 @@ function display_drivingFeatures(source,sortby) {
     var conf2s=[];
 
     for (var i=0;i<size;i++){
-        lifts.push(source[i].lift);
-        supps.push(source[i].supp);
-        conf1s.push(source[i].conf);
-        conf2s.push(source[i].conf2);
+        lifts.push(source[i].metrics[1]);
+        supps.push(source[i].metrics[0]);
+        conf1s.push(source[i].metrics[2]);
+        conf2s.push(source[i].metrics[3]);
         drivingFeatures.push(source[i]);
         if(source[i].preset===true){
             drivingFeatureNames.push(source[i].name);
@@ -1105,28 +1042,28 @@ function display_drivingFeatures(source,sortby) {
             .attr("width", xScale_df(1))
             .attr("y", function(d) { 
                 if(sortby==="lift"){
-                    return yScale_df(d.lift); 
+                    return yScale_df(d.metrics[1]); 
                 } else if(sortby==="supp"){
-                    return yScale_df(d.supp); 
+                    return yScale_df(d.metrics[0]); 
                 }else if(sortby==="confave"){
-                    return yScale_df((d.conf+d.conf2)/2); 
+                    return yScale_df((d.metrics[2]+d.metrics[3])/2); 
                 }else if(sortby==="conf1"){
-                    return yScale_df(d.conf); 
+                    return yScale_df(d.metrics[2]); 
                 }else if(sortby==="conf2"){
-                    return yScale_df(d.conf2); 
+                    return yScale_df(d.metrics[3]); 
                 }
             })
             .attr("height", function(d) { 
                 if(sortby==="lift"){
-                    return height_df - yScale_df(d.lift); 
+                    return height_df - yScale_df(d.metrics[1]); 
                 } else if(sortby==="supp"){
-                    return height_df - yScale_df(d.supp); 
+                    return height_df - yScale_df(d.metrics[0]); 
                 }else if(sortby==="confave"){
-                    return height_df - yScale_df((d.conf+d.conf2)/2); 
+                    return height_df - yScale_df((d.metrics[2]+d.metrics[3])/2); 
                 }else if(sortby==="conf1"){
-                    return height_df - yScale_df(d.conf); 
+                    return height_df - yScale_df(d.metrics[2]); 
                 }else if(sortby==="conf2"){
-                    return height_df - yScale_df(d.conf2); 
+                    return height_df - yScale_df(d.metrics[3]); 
                 }
             })
             .attr("transform",function(d){
@@ -1176,10 +1113,10 @@ function display_drivingFeatures(source,sortby) {
                     var tmp= d.id;
                     var name = relabelDrivingFeatureName(d.name);
                     var type = d.type;
-                    var lift = d.lift;
-                    var supp = d.supp;
-                    var conf = d.conf;
-                    var conf2 = d.conf2;
+                    var lift = d.metrics[1];
+                    var supp = d.metrics[0];
+                    var conf = d.metrics[2];
+                    var conf2 = d.metrics[3];
 
                     d3.selectAll("[class=bar]").filter(function(d){
                         if(d.id===tmp){

@@ -143,10 +143,12 @@ public class Apriori {
                     }
                     if(thisCAR.getClassLabel()==true){
                         name = name + "-> " + "good design";
-                        CARs.add(new DrivingFeature(name,"good",thisLift,thisSupp,thisConf,thisConf2));
+                        double[] metrics = {thisSupp, thisLift, thisConf, thisConf2};
+                        CARs.add(new DrivingFeature(name,"good",metrics));
                     } else{
                         name = name + "-> " + "bad design";
-                        CARs.add(new DrivingFeature(name,"bad",thisLift,thisSupp,thisConf,thisConf2));
+                        double[] metrics = {thisSupp, thisLift, thisConf, thisConf2};
+                        CARs.add(new DrivingFeature(name,"bad",metrics));
                     }
                     tmp.add(thisCAR);
                 }

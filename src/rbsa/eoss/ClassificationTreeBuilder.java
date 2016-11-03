@@ -385,25 +385,7 @@ public class ClassificationTreeBuilder { // assumes binary features
 //		[id,"leaf",numDat,num_b,num_nb]
 		
 		String out = "";
-		
-		
-//		for(int i=0;i<tree.size();i++){
-//			node thisNode = tree.get(i);
-//			if(thisNode.isRoot()){
-//				out = out + "[{id:" + thisNode.getID() + ", test: \"root\", numDat: " + thisNode.getData().length 
-//						+ ", id_c1: " + thisNode.getChild1() +", id_c2: " + thisNode.getChild2() + "}";
-//			}else if(thisNode.isLeaf()){
-//				subMat mat = new subMat(thisNode.getData());
-//				int num_behavioral = mat.numOfData_withFeature(thisNode.getData()[0].length-1, 1);
-//				int num_nonbehavioral = mat.numOfData_withFeature(thisNode.getData()[0].length-1,0);
-//				out = out + ", {id:" + thisNode.getID() + ",test: \"leaf\", numDat: " + thisNode.getData().length 
-//						+ ", num_b: " + num_behavioral +", num_nb: " + num_nonbehavioral + "}";
-//			}else{
-//				out = out + ",{id: " + thisNode.getID() + ", test: "+ thisNode.getTest() +", numDat: " + thisNode.getData().length 
-//						+ ", id_c1: " + thisNode.getChild1() +", id_c2: " + thisNode.getChild2() + "}";
-//			}
-//		}
-		
+
 		
 		for(int i=0;i<tree.size();i++){
 			node thisNode = tree.get(i);
@@ -417,18 +399,18 @@ public class ClassificationTreeBuilder { // assumes binary features
 				df = dfs.get(thisTest);
 //				System.out.println(df.getName());
 				if(thisNode.isRoot()){
-					out = out + "[{\"nodeID\":" + thisNode.getID() + ", \"name\": \""+ df.getName() + "\", \"numDat\": " + thisNode.getData().length 
-							+ ", \"id_c1\": " + thisNode.getChild1() +", \"id_c2\": " + thisNode.getChild2()
-							+ ", \"num_b\": " + num_behavioral +", \"num_nb\": " + num_nonbehavioral + ", \"x\":0, \"y\":0}";
+					out = out + "[{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getName() + "\",\"numDat\":" + thisNode.getData().length 
+							+ ",\"id_c1\":" + thisNode.getChild1() +",\"id_c2\":" + thisNode.getChild2()
+							+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
 				}else{
-					out = out + ",{\"nodeID\": " + thisNode.getID() + ", \"name\": \""+ df.getName() +"\", \"numDat\": " + thisNode.getData().length 
-							+ ", \"id_c1\": " + thisNode.getChild1() +", \"id_c2\": " + thisNode.getChild2()
-							+ ", \"num_b\": " + num_behavioral +", \"num_nb\": " + num_nonbehavioral + ", \"x\":0, \"y\":0}";
+					out = out + ",{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getName() +"\",\"numDat\":" + thisNode.getData().length 
+							+ ",\"id_c1\":" + thisNode.getChild1() +",\"id_c2\":" + thisNode.getChild2()
+							+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
 				}
 			} 
 			else{  // the node is a leaf node
-				out = out + ", {\"nodeID\":" + thisNode.getID() + ",\"name\": \"leaf\", \"numDat\": " + thisNode.getData().length 
-						+ ", \"num_b\": " + num_behavioral +", \"num_nb\": " + num_nonbehavioral + ", \"x\":0, \"y\":0}";
+				out = out + ",{\"nodeID\":" + thisNode.getID() + ",\"name\":\"leaf\",\"numDat\":" + thisNode.getData().length 
+						+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
 				
 				if (!thisNode.isLeaf()){
 					System.out.println("something's wrong");

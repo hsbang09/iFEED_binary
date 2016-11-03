@@ -39,12 +39,9 @@ import weka.core.Instances;
  * @author Bang
  */
 public class DrivingFeaturesGenerator {
-//    private static DrivingFeaturesGenerator instance = null;
-    
-//    private ArrayList<Architecture> focus;
-//    private ArrayList<Architecture> random;
-    private ArrayList<int[][]> focusData;
-    private ArrayList<int[][]> randomData;
+
+    private ArrayList<int[][]> behavioral;
+    private ArrayList<int[][]> non_behavioral;
     private int[][] dataFeatureMat;
     private double supp_threshold;
     private double confidence_threshold;
@@ -61,32 +58,8 @@ public class DrivingFeaturesGenerator {
     public DrivingFeaturesGenerator(){
     }
     
-//    public void initialize(ArrayList<Architecture> focus, ArrayList<Architecture> random, double supp, double conf, double lift){
-//       
-//        this.focus = focus;
-//        this.random = random;
-//        this.supp_threshold=supp;
-//        this.confidence_threshold=conf;
-//        this.lift_threshold=lift;
-//        
-//        focusData = new ArrayList<>();
-//        randomData = new ArrayList<>();
-//        
-//        for (Architecture arch : focus) {
-//            focusData.add(booleanToInt(arch.getMat()));
-//        }
-//        for (Architecture arch2 : random) {
-//            randomData.add(booleanToInt(arch2.getMat()));
-//        }
-//
-//        this.ninstr = focus.get(0).getNinstr();
-//        this.norb = focus.get(0).getNorb();
-//        
-//        userDef = new ArrayList<>();
-//        
-//    }
-    public void initialize2(ArrayList<int[][]> focus, ArrayList<int[][]> random, double supp, double conf, double lift){
-       
+    
+    public void initialize2(ArrayList<int[][]> behavioral, ArrayList<int[][]> non_behavioral, double supp, double conf, double lift){
         
 //        this.focus = focus;
 //        this.random = random;
@@ -94,77 +67,62 @@ public class DrivingFeaturesGenerator {
         this.confidence_threshold=conf;
         this.lift_threshold=lift;
         
-        this.focusData = focus;
-        this.randomData = random;
+        this.behavioral = behavioral;
+        this.non_behavioral = non_behavioral;
         
-        this.ninstr = focusData.get(0)[0].length;
-        this.norb = focusData.get(0).length;
+        this.ninstr = behavioral.get(0)[0].length;
+        this.norb = behavioral.get(0).length;
         
         userDef = new ArrayList<>();
         drivingFeatures = new ArrayList<>();
-
     }
     
-    
-    private double computeLift (Scheme scheme) {
+  
+    private double[] computeMetrics(Scheme s){
+
+    	double cnt_all= (double) non_behavioral.size() + behavioral.size();
+        double cnt_F=0.0;
+        double cnt_S= (double) behavioral.size();
+        double cnt_SF=0.0;
         
-        int count_focus = 0;
-        int count_random = 0;
-        for (int[][] e : focusData) {
-            if (scheme.compare(e, "") == 1) ++count_focus;
+        for (int[][] a: behavioral) {
+            if (s.compare(a) == 1) {
+            	cnt_SF = cnt_SF+1.0;
+            	cnt_F = cnt_F + 1.0;
+            }
         }
-        for (int[][] e : randomData) {
-            if (scheme.compare(e, "") == 1) ++count_random;
+        for (int[][] a: non_behavioral) {
+            if (s.compare(a) == 1) cnt_F = cnt_F+1.0;
         }
-        double lift =0;
-        if (count_random != 0) lift = (double) ( (double) count_focus/focusData.size())/ ( (double) count_random/randomData.size());
+
         
-        return lift;
+        double cnt_NS = cnt_all-cnt_S;
+        double cnt_NF = cnt_all-cnt_F;
+        double cnt_S_NF = cnt_S-cnt_SF;
+        double cnt_F_NS = cnt_F-cnt_SF;
+        
+    	double[] metrics = new double[4];
+    	
+        double support = cnt_SF/cnt_all;
+        double support_F = cnt_F/cnt_all;
+        double support_S = cnt_S/cnt_all;
+        double lift = (cnt_SF/cnt_S) / (cnt_F/cnt_all);
+        double conf_given_F = (cnt_SF)/(cnt_F);   // confidence (feature -> selection)
+        double conf_given_S = (cnt_SF)/(cnt_S);   // confidence (selection -> feature)
+
+
+    	metrics[0] = support;
+    	metrics[1] = lift;
+    	metrics[2] = conf_given_F;
+    	metrics[3] = conf_given_S;
+    	
+    	return metrics;
     }
     
-    private double computeSupport (Scheme scheme) {
-        
-        int count_data = 0;
-        for (int[][] e : focusData) {
-            if (scheme.compare(e, "") == 1) count_data++;
-        }
-        double support = ((double) count_data)/((double)randomData.size());
-        return support;
-    }
+
     
-    private double computeConfidenceGivenSelection (Scheme scheme){
-        int count_focus=0;
-        int count_random=0;
-        int focus_size = focusData.size();
 
-        for (int[][] e : focusData) {
-            if (scheme.compare(e, "") == 1) count_focus++;
-        }
-        for (int[][] e : randomData) {
-            if (scheme.compare(e, "") == 1) count_random++;
-        }
-        double conf = (double) ((double) count_focus)/((double) focusData.size());   // confidence of a rule  {goodDesign} -> {feature}
-
-        return conf;
-    }
-    private double computeConfidenceGivenFeature (Scheme scheme) {
-        
-//        randomData
-//        focusData;        
-        int count_focus=0;
-        int count_random=0;
-        int focus_size = focusData.size();
-
-        for (int[][] e : focusData) {
-            if (scheme.compare(e, "") == 1) count_focus++;
-        }
-        for (int[][] e : randomData) {
-            if (scheme.compare(e, "") == 1) count_random++;
-        }
-        double conf = (double) ((double) count_focus)/((double) count_random);   // confidence of a rule  {feature} -> {goodDesign}
-
-        return conf;
-    } 
+    
 
     public ArrayList<DrivingFeature> getDrivingFeatures (){
 
@@ -173,29 +131,23 @@ public class DrivingFeaturesGenerator {
         scheme.setName("present");
         for (int i = 0; i < ninstr; ++i) {
             scheme.setInstrument (i);
-            double support = computeSupport (scheme);
-            double lift = computeLift(scheme);
-            double conf = computeConfidenceGivenFeature(scheme);
-            double conf2 = computeConfidenceGivenSelection(scheme);
-            if (support > supp_threshold && lift > lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+            double[] metrics = computeMetrics(scheme);
+            if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                 String[] param = new String[1];
                 param[0] = Params.instrument_list[i];
                 String featureName = "present[" + param[0] + "]";
-                drivingFeatures.add(new DrivingFeature(featureName,"present", param, lift, support, conf, conf2));
+                drivingFeatures.add(new DrivingFeature(featureName,"present", param, metrics));
             }
         }
         scheme.setName("absent");
         for (int i = 0; i < ninstr; ++i) {
             scheme.setInstrument (i);
-            double support = computeSupport (scheme);
-            double lift = computeLift(scheme);
-            double conf = computeConfidenceGivenFeature(scheme);
-            double conf2 = computeConfidenceGivenSelection(scheme);
-            if (support > supp_threshold && lift> lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+            double[] metrics = computeMetrics(scheme);
+            if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                 String [] param = new String[1];
                 param[0] = Params.instrument_list[i];
                 String featureName = "absent[" + param[0] + "]";
-                drivingFeatures.add(new DrivingFeature(featureName,"absent", param, lift, support, conf, conf2));
+                drivingFeatures.add(new DrivingFeature(featureName,"absent", param, metrics));
             }
         }
         scheme.setName("inOrbit");
@@ -203,16 +155,13 @@ public class DrivingFeaturesGenerator {
             for (int j = 0; j < ninstr; ++j) {
                 scheme.setInstrument (j);
                 scheme.setOrbit(i);
-                double support = computeSupport (scheme);
-                double lift = computeLift(scheme);
-                double conf = computeConfidenceGivenFeature(scheme);
-                double conf2 = computeConfidenceGivenSelection(scheme);
-                if (support > supp_threshold && lift> lift_threshold && conf>confidence_threshold && conf2 > confidence_threshold) {
+                double[] metrics = computeMetrics(scheme);
+                if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                     String[] param = new String[2];
                     param[0] = Params.orbit_list[i];
                     param[1] = Params.instrument_list[j];
-                    String featureName = "inOrbit[" + param[0] + ", " + param[1] + "]";
-                    drivingFeatures.add(new DrivingFeature(featureName,"inOrbit", param, lift, support, conf, conf2));
+                    String featureName = "inOrbit[" + param[0] + "," + param[1] + "]";
+                    drivingFeatures.add(new DrivingFeature(featureName,"inOrbit", param, metrics));
                 }
             }
         }
@@ -221,16 +170,13 @@ public class DrivingFeaturesGenerator {
             for (int j = 0; j < ninstr; ++j) {
                 scheme.setInstrument (j);
                 scheme.setOrbit(i);
-                double support = computeSupport (scheme);
-                double lift = computeLift (scheme);
-                double conf = computeConfidenceGivenFeature(scheme);
-                double conf2 = computeConfidenceGivenSelection(scheme);
-                if (support > supp_threshold && lift> lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+                double[] metrics = computeMetrics(scheme);
+                if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                     String[] param = new String[2];
                     param[0] = Params.orbit_list[i];
                     param[1] = Params.instrument_list[j];
-                    String featureName = "notInOrbit[" + param[0] + ", " + param[1] + "]";
-                    drivingFeatures.add(new DrivingFeature(featureName,"notInOrbit", param, lift, support, conf, conf2));
+                    String featureName = "notInOrbit[" + param[0] + "," + param[1] + "]";
+                    drivingFeatures.add(new DrivingFeature(featureName,"notInOrbit", param, metrics));
                 } 
             }
         }
@@ -239,16 +185,13 @@ public class DrivingFeaturesGenerator {
             for (int j = 0; j < i; ++j) {
                 scheme.setInstrument(i);
                 scheme.setInstrument2(j);
-                double support = computeSupport(scheme);
-                double lift = computeLift(scheme);
-                double conf = computeConfidenceGivenFeature(scheme);
-                double conf2 = computeConfidenceGivenSelection(scheme);
-                if (support > supp_threshold && lift>lift_threshold && conf> confidence_threshold && conf2 > confidence_threshold) {
+                double[] metrics = computeMetrics(scheme);
+                if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                     String[] param = new String[2];
                     param[0] = Params.instrument_list[i];
                     param[1] = Params.instrument_list[j];
-                    String featureName = "together2[" + param[0] + ", " + param[1] + "]";
-                    drivingFeatures.add(new DrivingFeature(featureName,"together2", param, lift, support, conf, conf2));
+                    String featureName = "together2[" + param[0] + "," + param[1] + "]";
+                    drivingFeatures.add(new DrivingFeature(featureName,"together2", param, metrics));
                 }
             }
         }            
@@ -259,18 +202,15 @@ public class DrivingFeaturesGenerator {
                     scheme.setInstrument(j);
                     scheme.setInstrument2(k);
                     scheme.setOrbit(i);
-                    double support = computeSupport(scheme);
-                    double lift = computeLift(scheme);
-                    double conf = computeConfidenceGivenFeature(scheme);
-                    double conf2 = computeConfidenceGivenSelection(scheme);
-                    if (support > supp_threshold && lift> lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+                    double[] metrics = computeMetrics(scheme);
+                    if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                         String[] param = new String[3];
                         param[0] = Params.orbit_list[i];
                         param[1] = Params.instrument_list[j];
                         param[2] = Params.instrument_list[k];
-                        String featureName = "togetherInOrbit2[" + param[0] + ", " + param[1] + 
-                                ", " + param[2] + "]"; 
-                        drivingFeatures.add(new DrivingFeature(featureName,"togetherInOrbit2", param, lift, support, conf, conf2));
+                        String featureName = "togetherInOrbit2[" + param[0] + "," + param[1] + 
+                                "," + param[2] + "]"; 
+                        drivingFeatures.add(new DrivingFeature(featureName,"togetherInOrbit2", param,metrics));
                     }
                 }
             }
@@ -280,16 +220,13 @@ public class DrivingFeaturesGenerator {
             for (int j = 0; j < i; ++j) {
                 scheme.setInstrument(i);
                 scheme.setInstrument2(j);
-                double support = computeSupport(scheme);
-                double lift = computeLift(scheme);
-                double conf = computeConfidenceGivenFeature(scheme);
-                double conf2 = computeConfidenceGivenSelection(scheme);
-                    if (support > supp_threshold && lift>lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+                double[] metrics = computeMetrics(scheme);
+                if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                         String[] param = new String[2];
                         param[0] = Params.instrument_list[i];
                         param[1] = Params.instrument_list[j];
-                        String featureName = "separate2[" + param[0] + ", " + param[1] + "]";
-                        drivingFeatures.add(new DrivingFeature(featureName,"separate2", param, lift, support, conf, conf2));
+                        String featureName = "separate2[" + param[0] + "," + param[1] + "]";
+                        drivingFeatures.add(new DrivingFeature(featureName,"separate2", param, metrics));
                     }
             }            
         }
@@ -300,18 +237,15 @@ public class DrivingFeaturesGenerator {
                     scheme.setInstrument(i);
                     scheme.setInstrument2(j);
                     scheme.setInstrument3(k);
-                    double support = computeSupport(scheme);
-                    double lift = computeLift(scheme);
-                    double conf = computeConfidenceGivenFeature(scheme);
-                    double conf2 = computeConfidenceGivenSelection(scheme);
-                    if (support > supp_threshold && lift > lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+                    double[] metrics = computeMetrics(scheme);
+                    if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                         String[] param = new String[3];
                         param[0] = Params.instrument_list[i];
                         param[1] = Params.instrument_list[j];
                         param[2] = Params.instrument_list[k];
-                        String featureName = "together3[" + param[0] + ", " + 
-                                            param[1] + ", " + param[2] + "]";
-                        drivingFeatures.add(new DrivingFeature(featureName,"together3", param, lift, support, conf, conf2));
+                        String featureName = "together3[" + param[0] + "," + 
+                                            param[1] + "," + param[2] + "]";
+                        drivingFeatures.add(new DrivingFeature(featureName,"together3", param, metrics));
                     }
                 }
             }            
@@ -326,19 +260,16 @@ public class DrivingFeaturesGenerator {
                         scheme.setInstrument2(k);
                         scheme.setInstrument3(l);
                         scheme.setOrbit(i);
-                        double support = computeSupport(scheme);
-                        double lift = computeLift(scheme);
-                        double conf = computeConfidenceGivenFeature(scheme);
-                        double conf2 = computeConfidenceGivenSelection(scheme);
-                        if (support > supp_threshold && lift > lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+                        double[] metrics = computeMetrics(scheme);
+                        if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                             String[] param = new String[4];
                             param[0] = Params.orbit_list[i];
                             param[1] = Params.instrument_list[j];
                             param[2] = Params.instrument_list[k];
                             param[3] = Params.instrument_list[l];
-                            String featureName = "togetherInOrbit3[" + param[0] + ", " + 
-                                                param[1] + ", " + param[2] + "," + param[3] + "]";
-                            drivingFeatures.add(new DrivingFeature(featureName,"togetherInOrbit3", param, lift, support, conf, conf2));
+                            String featureName = "togetherInOrbit3[" + param[0] + "," + 
+                                                param[1] + "," + param[2] + "," + param[3] + "]";
+                            drivingFeatures.add(new DrivingFeature(featureName,"togetherInOrbit3", param, metrics));
                         }
                     }
                 }
@@ -351,18 +282,15 @@ public class DrivingFeaturesGenerator {
                     scheme.setInstrument(i);
                     scheme.setInstrument2(j);
                     scheme.setInstrument3(k);
-                    double support = computeSupport(scheme);
-                    double lift = computeLift(scheme);
-                    double conf = computeConfidenceGivenFeature(scheme);
-                    double conf2 = computeConfidenceGivenSelection(scheme);
-                    if (support > supp_threshold && lift>lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+                    double[] metrics = computeMetrics(scheme);
+                    if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                         String[] param = new String[3];
                         param[0] = Params.instrument_list[i];
                         param[1] = Params.instrument_list[j];
                         param[2] = Params.instrument_list[k];
-                        String featureName = "separate3[" + param[0] + ", " + 
-                                            param[1] + ", " + param[2] + "]";
-                        drivingFeatures.add(new DrivingFeature(featureName,"separate3", param, lift, support, conf, conf2));
+                        String featureName = "separate3[" + param[0] + "," + 
+                                            param[1] + "," + param[2] + "]";
+                        drivingFeatures.add(new DrivingFeature(featureName,"separate3", param, metrics));
                     }
                 }
             }
@@ -370,29 +298,23 @@ public class DrivingFeaturesGenerator {
         scheme.setName("emptyOrbit");
         for (int i = 0; i < norb; ++i) {
             scheme.setOrbit(i);
-            double support = computeSupport(scheme);
-            double lift = computeLift(scheme);
-            double conf = computeConfidenceGivenFeature(scheme);
-            double conf2 = computeConfidenceGivenSelection(scheme);
-            if (support > supp_threshold && lift > lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+            double[] metrics = computeMetrics(scheme);
+            if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                 String[] param = new String[1];
                 param[0] = Params.orbit_list[i];
                 String featureName = "emptyOrbit[" + param[0] + "]";
-                drivingFeatures.add(new DrivingFeature(featureName,"emptyOrbit", param, lift, support, conf, conf2));
+                drivingFeatures.add(new DrivingFeature(featureName,"emptyOrbit", param, metrics));
             }
         }
         scheme.setName("numOrbits");
         for (int i = 1; i < norb+1; i++) {
             scheme.setNumOrbits(i);
-            double support = computeSupport(scheme);
-            double lift = computeLift(scheme);
-            double conf = computeConfidenceGivenFeature(scheme);
-            double conf2 = computeConfidenceGivenSelection(scheme);
-            if (support > supp_threshold && lift>lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
+            double[] metrics = computeMetrics(scheme);
+            if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
                 String[] param = new String[1];
                 param[0] = "" + i;
                 String featureName = "numOrbits[" + param[0] + "]";
-                drivingFeatures.add(new DrivingFeature(featureName,"numOrbits", param, lift, support, conf, conf2));
+                drivingFeatures.add(new DrivingFeature(featureName,"numOrbits", param, metrics));
             }
         }
         for (DrivingFeature userDef1:userDef){
@@ -400,12 +322,9 @@ public class DrivingFeaturesGenerator {
 //            System.out.println(userDef1.getType());
             
             scheme.setName(userDef1.getType());
-            double support = computeSupport(scheme);
-            double lift = computeLift(scheme);
-            double conf = computeConfidenceGivenFeature(scheme);
-            double conf2 = computeConfidenceGivenSelection(scheme);
-            if (support > supp_threshold && lift>lift_threshold && conf > confidence_threshold && conf2 > confidence_threshold) {
-                drivingFeatures.add(new DrivingFeature(userDef1.getName(),userDef1.getType(),lift, support, conf, conf2));
+            double[] metrics = computeMetrics(scheme);
+            if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
+                drivingFeatures.add(new DrivingFeature(userDef1.getName(),userDef1.getType(),metrics));
             }
         }
         
@@ -440,12 +359,17 @@ public class DrivingFeaturesGenerator {
 
     public int[][] getDataFeatureMat(){
         
-        int numData = randomData.size();
+        int numData = behavioral.size() + non_behavioral.size();
         int numFeature = drivingFeatures.size() + 1; // add class label as a last feature
         int[][] dataMat = new int[numData][numFeature];
         
         for(int i=0;i<numData;i++){
-            int[][] d = randomData.get(i);
+        	int[][] d;
+        	if(i<behavioral.size()){
+        		d = behavioral.get(i);
+        	}else{
+        		d = non_behavioral.get(i-behavioral.size());
+        	}
             Scheme s = new Scheme();
 
 //            presetFilter(String filterName, int[][] data, ArrayList<String> params
@@ -473,7 +397,7 @@ public class DrivingFeaturesGenerator {
             }
             
             boolean classLabel = false;
-            for (int[][] compData : focusData) {
+            for (int[][] compData : behavioral) {
                 boolean match = true;
                 for(int k=0;k<d.length;k++){
                     for(int l=0;l<d[0].length;l++){
@@ -614,7 +538,7 @@ public class DrivingFeaturesGenerator {
     
     public Instances addData(Instances dataset){
         
-        for(int i=0;i<randomData.size();i++){
+        for(int i=0;i<behavioral.size()+non_behavioral.size();i++){
             double[] values = new double[drivingFeatures.size()+1];
             for(int j=0;j<drivingFeatures.size()+1;j++){
                 values[j] = (double) dataFeatureMat[i][j];

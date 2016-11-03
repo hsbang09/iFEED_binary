@@ -16,10 +16,7 @@ public class DrivingFeature{
         private String type; // inOrbit, together, separate, present, absent, etc.
         private String[] param;
         private boolean preset;
-        private double lift;
-        private double supp;
-        private double conf;  //{feature} -> {good design}
-        private double conf2; // {good design} -> {feature}
+        private double[] metrics;
         
 
         public DrivingFeature(String name, String type){
@@ -27,31 +24,22 @@ public class DrivingFeature{
             this.type = type;
             this.preset = false;
         }
-        public DrivingFeature(String name, String type, double lift, double supp, double conf, double conf2){
+        public DrivingFeature(String name, String type, double[] metrics){
             this.name = name;
             this.type = type;
-            this.lift = lift;
-            this.supp = supp;
-            this.conf = conf;       
-            this.conf2 = conf2;
+            this.metrics = metrics;
             this.preset = false;
         }
-        public DrivingFeature(String name, String type, String[] param, double lift, double supp, double conf, double conf2){
+        public DrivingFeature(String name, String type, String[] param, double[] metrics){
             this.name = name;
             this.type = type;
             this.param = param;
-            this.lift = lift;
-            this.supp = supp;
-            this.conf = conf;       
-            this.conf2 = conf2;
+            this.metrics= metrics;
             this.preset = true;
         }
         public String getType(){return type;}
         public String getName(){return name;}
-        public double getLift(){return lift;}
-        public double getSupport(){return supp;}
-        public double getConfidence(){return conf;}
-        public double getConfidence2(){return conf2;}
+        public double[] getMetrics(){return metrics;}
         public String[] getParam(){return param;}
         public boolean isPreset(){return preset;}
         

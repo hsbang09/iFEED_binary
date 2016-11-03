@@ -246,7 +246,8 @@ function draw_scatterPlot(source) {
     d3.selectAll("[class=dot]")[0].forEach(function(d,i){
         d3.select(d).attr("paretoRank",-1);
     });
-//    d3.select("[id=resultFileURL_newData]")[0][0].disabled = true;
+    d3.select("[id=scatterPlotFigure]").on("click",unhighlight_basic_info_box);
+    d3.select("[id=basicInfoBox_div]").on("click",highlight_basic_info_box);
 
     orbits = getOrbitList();
     instruments = getInstrumentList();
@@ -398,6 +399,10 @@ function show_all_archs(){
 
 function dot_mouseover(d) {
 	
+	if(infoBox_active==true){
+		return;
+	}
+	
 	numOfArchViewed = numOfArchViewed+1;
 	
 	
@@ -411,9 +416,9 @@ function dot_mouseover(d) {
             .append("g");
 
     archInfoBox.append("p")
-            .text("Benefit: " + d.science);
+            .text("Benefit: " + (d.science).toFixed(4));
     archInfoBox.append("p")
-            .text("Cost: " + d.cost);
+            .text("Cost: " + (d.cost).toFixed(1));
 
     archInfoBox.append("input")
             .attr("id", "evalNewArch")
@@ -791,7 +796,17 @@ function calculateParetoRanking(){
 }
 
 
-
+function highlight_basic_info_box(){
+	
+	d3.select("[id=basicInfoBox_div]")
+		.style("border","2.5px black double");
+	infoBox_active=true;
+}
+function unhighlight_basic_info_box(){
+	d3.select("[id=basicInfoBox_div]")
+			.style("border","1px black double");
+	infoBox_active=false;
+}
 
 
 

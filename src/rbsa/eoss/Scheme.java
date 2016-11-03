@@ -16,7 +16,7 @@ import rbsa.eoss.local.Params;
  *
  * @author Clara
  */
-public class Scheme implements Comparator{
+public class Scheme {
     
     private String name;//present, absent, inOrbit, notInOrbit, together2, togetherInOrbit2, 
     //separete2, together3, togetherInOrbit3, separete3, emptyOrbit, numOrbits
@@ -49,8 +49,8 @@ public class Scheme implements Comparator{
         tmpcnt = 0;
     }
     
-     @Override
-    public int compare(Object o1, Object o2) {
+
+    public int compare(Object o1) {
         int[][] data = (int[][]) o1;
         if (name.equals("present")) {
             for (int i = 0; i < data.length; ++i) {
@@ -618,8 +618,8 @@ public class Scheme implements Comparator{
 
 //        if(tmpcnt==0){System.out.println("getName: " + s.getName());}
 //        if(tmpcnt==0){System.out.println("getInst: " + s.getInstrument());}
-        if(neg){return !(s.compare(data, "") == 1);}else{
-        	return s.compare(data, "") == 1;
+        if(neg){return !(s.compare(data) == 1);}else{
+        	return s.compare(data) == 1;
         }
     }
     
