@@ -12,6 +12,8 @@
 
 function getDrivingFeatures() {
 	
+    highlight_basic_info_box()
+    
 	if(selection_changed == false && sortedDFs != null){
 		display_drivingFeatures(sortedDFs,"lift");
 		return;
@@ -50,7 +52,6 @@ function getDrivingFeatures() {
     display_drivingFeatures(sortedDFs,"lift");
     selection_changed = false;
     
-    highlight_basic_info_box()
 }
 
 
@@ -244,7 +245,6 @@ function display_filterOption(){
     d3.select("[id=applyFilterButton_add]").on("click",applyFilter_add);
     d3.select("[id=applyFilterButton_new]").on("click",applyFilter_new);
     d3.select("[id=applyFilterButton_within]").on("click",applyFilter_within);
-    d3.select("[id=applyFilterButton_complement]").on("click",applyFilter_complement);
     
     highlight_basic_info_box()
 }

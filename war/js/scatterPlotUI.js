@@ -628,6 +628,7 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
                             ) {
                                 d3.select(d).attr("class","dot_clicked")
                                         .style("fill", "#0040FF");      
+                                selection_changed = true;
                             }
                         });
 
@@ -652,6 +653,7 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
                                                 return "#000000";
                                             }
                                         });      
+                                selection_changed = true;
                             }
                         });
                     }
@@ -666,7 +668,7 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
 
            // remove selection frame
         svg_tmp.selectAll( "rect.selection").remove();
-        selection_changed = true;
+        
     })
     }               
 }
@@ -798,13 +800,17 @@ function calculateParetoRanking(){
 
 function highlight_basic_info_box(){
 	
+    d3.select("[id=scatterPlotFigure]")
+    	.style("border-width","1px");
 	d3.select("[id=basicInfoBox_div]")
-		.style("border","2.5px black double");
+		.style("border-width","3.3px");
 	infoBox_active=true;
 }
 function unhighlight_basic_info_box(){
+    d3.select("[id=scatterPlotFigure]")
+			.style("border-width","3.3px");
 	d3.select("[id=basicInfoBox_div]")
-			.style("border","1px black double");
+			.style("border-width","1px");
 	infoBox_active=false;
 }
 

@@ -7,8 +7,11 @@
 
 function getClassificationTree(){
 	
+	highlight_basic_info_box()
+	
 	if(selection_changed == false && jsonObj_tree != null){
 		display_classificationTree(jsonObj_tree);
+		
 		return;
 	}
 
@@ -43,7 +46,6 @@ function getClassificationTree(){
     display_classificationTree(jsonObj_tree);
     selection_changed = false;
     
-    highlight_basic_info_box()
 }
 
 
@@ -137,6 +139,8 @@ var jsonObj_tree_nested;
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
+var edgeLabelLoc;
+
 function display_classificationTree(source){
 	
 	// top  right bottem left
@@ -160,6 +164,7 @@ function display_classificationTree(source){
     root = jsonObj_tree_nested;
     root.x0 = height / 2;
     root.y0 = 0;
+    edgeLabelLoc = [];
     
     function toggleAll(d) {
         if (d.children) {
@@ -219,7 +224,7 @@ function update(source) {
     nodeEnter.append("svg:text")
         .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
         .attr("dy", ".40em")
-        .style("font-size","12px")
+        .style("font-size","14px")
         .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
         .text("default")
         .style("fill-opacity", 1e-6);
@@ -230,7 +235,7 @@ function update(source) {
         .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
     nodeUpdate.select("circle")
-        .attr("r", 7.5)
+        .attr("r", 9.5)
         .style("fill", function(d) { return d._children ? "#3A3A3A" : "#A3A3A3"; });
 //        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
@@ -247,7 +252,7 @@ function update(source) {
             var out="";
 
             if(d.children){
-            	out += relabelDrivingFeatureName(d.name);
+            	out += relabelDrivingFeatureName(d.name) + "?";
             }else { // leafNode
             	if(d.num_b >= d.num_nb){
             		// classified as selected
@@ -264,7 +269,7 @@ function update(source) {
             
             return out;
         })
-        .style("font-size",20)
+        .style("font-size",25)
         .style("fill-opacity", 1);
  
     // Transition exiting nodes to the parent's new position.
@@ -280,16 +285,23 @@ function update(source) {
         .style("fill-opacity", 1e-6);
 
     // Update the links…
+//    var linkGroup = vis.append("g")
+//    	.attr("id","linkGroup")
+    	
+//    var link = linkGroup.selectAll("path.treeLink")
+//        .data(tree.links(nodes), function(d) { return d.target.id; });
     var link = vis.selectAll("path.treeLink")
-        .data(tree.links(nodes), function(d) { return d.target.id; });
+    	.data(tree.links(nodes), function(d) { return d.target.id; });
 
-    var path_scale = d3.scale.pow().exponent(0.5);
-    path_scale.range([2,18])
+    
+    var path_scale = d3.scale.pow().exponent(0.8);
+    path_scale.range([2,27])
               	.domain([1,jsonObj_tree_nested.numDat]);
 
 
     // Enter any new links at the parent's previous position.
     link.enter().insert("svg:path", "g")
+//    link.enter().append("svg:path")
         .attr("class", "treeLink")
         .attr("d", function(d) {
           var o = {x: source.x0, y: source.y0};
@@ -297,10 +309,8 @@ function update(source) {
         })
         .style("stroke",function(d){
             if(d.target.cond === true){
-//                return "#99FFB4";
                 return "#1CAB00";
             } else{
-//                return "#FF99CE";
                 return "#FF2238";
             }
         })
@@ -325,6 +335,62 @@ function update(source) {
           return diagonal({source: o, target: o});
         })
         .remove();
+    
+    
+//    d3.selectAll("[class=treeLink]")[0]   // generate label locations
+//			    .forEach(function(n,i){
+//			        var leng = d3.selectAll("[class=treeLink]")[0][i].getTotalLength();
+//			        var pathPoint = d3.selectAll("[class=treeLink]")[0][i].getPointAtLength(leng*0.05);
+//			        var targetPoint = d3.selectAll("[class=treeLink]")[0][i].getPointAtLength(0);
+//			        var source = n.source;
+//			        var target = n.target;
+//			        var labelPoint = {x0:pathPoint.x, x1: targetPoint.x, y0:pathPoint.y, y1:targetPoint.y, source:source, target:target};
+//			        edgeLabelLoc.push(labelPoint);
+//				});
+//    
+//    
+//    d3.select("[id=linkGroup]")
+//		    .selectAll("[class=edgeLabel]")
+//		    .data(edgeLabelLoc)
+//		    .enter() 
+//		    .append("div")
+//		    .attr("class","edgeLabel")
+//		    .attr("text", "testing!")
+//		    .attr("transform", function(d,i){
+//        
+//	            var x0 = d.x0;
+//	            var x1 = d.x1;
+//	            var y0 = d.y0;
+//	            var y1 = d.y1;
+//	            var source = d.source;
+//	            var target = d.target;
+//	        
+//	            if (Math.abs(x1-x0 < 0.02)){
+//	                if(y1 - y0 > 0 ){
+//	                    return "translate(" + [x0, y0] + ")";
+//	                }else{
+//	                    return "translate(" + [x0, y0] + ")";
+//	                }
+//	                
+//	            } else {
+//	                if(y1 - y0 > 0){
+//	                    var slope_rad = Math.atan(      (x1-x0)/(y1-y0)    );
+//	                    var slope_ang = slope_rad * 180 / Math.PI;
+//	                    return "translate(" + [x0, y0] + ")";
+//	                }
+//	                else {
+//	                    var slope_rad = Math.atan(     -(x1-x0)/(y1-y0)    );
+//	                    var slope_ang = slope_rad * 180 / Math.PI;
+//	                    return "translate(" + [x0, y0] + ")";
+//	                }
+//	            }
+//		    });
+     
+    
+    
+    
+    
+    
 
     // Stash the old positions for transition.
     nodes.forEach(function(d) {
