@@ -204,7 +204,6 @@ function draw_scatterPlot(source) {
     d3.select("[id=hide_selection]")[0][0].disabled = false;
     d3.select("[id=show_all_archs]")[0][0].disabled = false;
     d3.select("[id=getDrivingFeaturesButton]")[0][0].disabled = false;
-    d3.select("[id=getClassificationTreeButton]")[0][0].disabled = false;
     d3.select("[id=openFilterOptions]")[0][0].disabled = false;
 	d3.select("[id=scatterPlot_option]")[0][0].disabled=false;
     
@@ -218,11 +217,9 @@ function draw_scatterPlot(source) {
         d3.select("[id=scatterPlot_option]").remove();
     }
     else if(testType==="2"){
-        d3.select("[id=getClassificationTreeButton]").remove();
     } else if(testType==="3"){
     } else if(testType==="4"){
         d3.select("[id=lift_threshold_input]")[0][0].value = 0;
-        d3.select("[id=getDrivingFeaturesSetting_div]").select("[id=getClassificationTreeButton]").remove();
         d3.select("[id=scatterPlot_option]").remove();
 //        d3.select("[id=dfsort_options]").remove();
     }
@@ -234,7 +231,6 @@ function draw_scatterPlot(source) {
         d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
     }
 //    d3.select("[id=satisfactionScoreSummaryButton]").on("click", loadSatisfactionSummaryPage);
-    d3.select("[id=getClassificationTreeButton]").on("click",getClassificationTree);
     d3.select("[id=selectArchsWithinRangeButton]").on("click", selectArchsWithinRange);
     d3.select("[id=cancel_selection]").on("click",cancelDotSelections);
     d3.select("[id=hide_selection]").on("click",hideSelection);
@@ -411,8 +407,8 @@ function dot_mouseover(d) {
         d3.select(this).style("fill", "#D32020");
     }
 
-    d3.select("[id=basicInfoBox_div]").select("g").remove();
-    var archInfoBox = d3.select("[id=basicInfoBox_div]")
+    d3.select("[id=basicInfoBox_div]").select("[id=view1]").select("g").remove();
+    var archInfoBox = d3.select("[id=basicInfoBox_div]").select("[id=view1]")
             .append("g");
 
     archInfoBox.append("p")

@@ -19,10 +19,6 @@ function getDrivingFeatures() {
 		return;
 	}
 	
-    var support_threshold = d3.select("[id=support_threshold_input]")[0][0].value;
-    var confidence_threshold = d3.select("[id=confidence_threshold_input]")[0][0].value;
-    var lift_threshold = d3.select("[id=lift_threshold_input]")[0][0].value;
-
     var selectedArchs = d3.selectAll("[class=dot_clicked]");
     var nonSelectedArchs = d3.selectAll("[class=dot]");
     var numOfSelectedArchs = selectedArchs.size();
@@ -168,10 +164,12 @@ function sortDrivingFeatures(drivingFeatures,sortBy){
 
 
 function display_filterOption(){
+	
+	$("#openView2").click();
 
-    d3.select("[id=basicInfoBox_div]").select("g").remove();
+    d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g").remove();
 
-    var archInfoBox = d3.select("[id=basicInfoBox_div]").append("g");
+    var archInfoBox = d3.select("[id=basicInfoBox_div]").select("[id=view2]").append("g");
     archInfoBox.append("div")
             .attr("id","filter_title")
             .style("width","90%")
@@ -253,7 +251,7 @@ function display_filterOption(){
 
 function selectFilterOption(){
 
-    var archInfoBox = d3.select("[id=basicInfoBox_div]").select("g");
+    var archInfoBox = d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g");
 
     archInfoBox.select("[id=filter_inputs]").remove();
 
@@ -935,8 +933,8 @@ function display_drivingFeatures(source,sortby) {
             .scale(yScale_df)
             .orient("left");
 
-    d3.select("[id=basicInfoBox_div]").select("g").remove();
-    var infoBox = d3.select("[id=basicInfoBox_div]")
+    d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
+    var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
             .append("g");
 
     var svg_df = infoBox.append("svg")
@@ -948,7 +946,7 @@ function display_drivingFeatures(source,sortby) {
                     .scaleExtent([1, 10])
                     .on("zoom", function (d) {
 
-                        var svg = d3.select("[id=basicInfoBox_div]")
+                        var svg = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
                                 .select("svg");
                         var scale = d3.event.scale;
 
@@ -1079,8 +1077,8 @@ function display_drivingFeatures(source,sortby) {
 
                 	numOfDrivingFeatureViewed = numOfDrivingFeatureViewed+1;
                 	
-                    var mouseLoc_x = d3.mouse(d3.select("[id=basicInfoBox_div]").select("[class=dfbars_svg]")[0][0])[0];
-                    var mouseLoc_y = d3.mouse(d3.select("[id=basicInfoBox_div]").select("[class=dfbars_svg]")[0][0])[1];
+                    var mouseLoc_x = d3.mouse(d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]")[0][0])[0];
+                    var mouseLoc_y = d3.mouse(d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]")[0][0])[1];
                     var featureInfoLoc = {x:0,y:0};
                     var h_threshold = (width_df + margin_df.left + margin_df.right)*0.5;
                     var v_threshold = (height_df + margin_df.top + margin_df.bottom)*0.55;
@@ -1096,7 +1094,7 @@ function display_drivingFeatures(source,sortby) {
                     } else{
                         featureInfoLoc.y = -10 -tooltip_height;
                     }
-                    var svg_tmp = d3.select("[id=basicInfoBox_div]").select("[class=dfbars_svg]");
+                    var svg_tmp = d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]");
                     var featureInfoBox = svg_tmp.append("g")
                                                 .attr("id","featureInfo_tooltip")
                                                 .append("rect")
@@ -1194,7 +1192,7 @@ function display_drivingFeatures(source,sortby) {
                     
 
                     
-                    var fo = d3.select("[id=basicInfoBox_div]").select("[class=dfbars_svg]")
+                    var fo = d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]")
                                     .append("g")
                                     .attr("id","foreignObject_tooltip")
                                     .append("foreignObject")
@@ -1243,8 +1241,8 @@ function display_drivingFeatures(source,sortby) {
 
                 })
                 .on("mouseout",function(d){
-                    d3.select("[id=basicInfoBox_div]").selectAll("[id=featureInfo_tooltip]").remove();
-                    d3.select("[id=basicInfoBox_div]").selectAll("[id=foreignObject_tooltip]").remove();
+                    d3.select("[id=basicInfoBox_div]").select("[id=view3]").selectAll("[id=featureInfo_tooltip]").remove();
+                    d3.select("[id=basicInfoBox_div]").select("[id=view3]").selectAll("[id=foreignObject_tooltip]").remove();
                     var tmp= d.id;
                     d3.selectAll("[class=bar]").filter(function(d){
                            if(d.id===tmp){
@@ -1319,7 +1317,7 @@ function dfsort(){
                 
 
 function openFilterOptions(){
-    d3.select("[id=basicInfoBox_div]").select("g").remove();
+    d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g").remove();
     d3.select("[id=instrumentOptions]").select("table").remove();
     display_filterOption();
     

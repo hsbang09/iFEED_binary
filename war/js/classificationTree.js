@@ -15,10 +15,6 @@ function getClassificationTree(){
 		return;
 	}
 
-    var support_threshold = d3.select("[id=support_threshold_input]")[0][0].value;
-    var confidence_threshold = d3.select("[id=confidence_threshold_input]")[0][0].value;
-    var lift_threshold = d3.select("[id=lift_threshold_input]")[0][0].value;
-
     var selectedArchs = d3.selectAll("[class=dot_clicked]");
     var nonSelectedArchs = d3.selectAll("[class=dot]");
     var numOfSelectedArchs = selectedArchs.size();

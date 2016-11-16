@@ -12,18 +12,15 @@ and open the template in the editor.
 
         <script src="js/lib/jquery.js" type="text/javascript"></script>
         <script src="js/lib/d3.js"></script>
+	   <script src="js/lib/tabcontent.js" type="text/javascript"></script>
+	   <link href="js/lib/tabcontent.css" rel="stylesheet" type="text/css"/>
+        
        <script src="https://apis.google.com/js/platform.js" async defer></script>
        <meta name="google-signin-client_id" content="564804694787-lnsp9md3u0q8086nftbamu43drid6d4t.apps.googleusercontent.com">
 
 	<style>
 	
-            #title{
-                float:left;
-                margin-left: 30px;
-                margin-top: 15px;
-                width: 80%;
 
-            }
 
             #scatterPlotFigure {
 			    border-style: solid;
@@ -35,119 +32,36 @@ and open the template in the editor.
                 margin-left:0px;
                 margin-top:0px;
             }
-            #drivingFeaturesAndSensitivityAnalysis_div{
-                float:left;
-                width: 200px;
-                height:540px;
-                border: 1px black double;
-                overflow:scroll;
-            }
 
-            #firstLineOfFigs{
-                margin-left: 30px;
-                margin-bottom: 10px;
-                width: 95%;
-                height: 540px;   
-                float: left;
-            }
-            #secondLineOfFigs{
-                float:left;
-                margin-top: 5px;
-                margin-left: 30px;
-                width: 100%;
 
-            }
-
-            #requestButtons{
-                width: 95%;
-                float: left;
-                margin-left: 30px;
-                margin-top: 10px;
-                margin-bottom: 5px;
-                height: 30px;
-            }
-            
-
-            
-            #basicInfoBox_div{
-                float:left;
-			    border-style: solid;
-			    border-width: 1px;
-                width: 1162px;
-                height: 430px;
-                overflow: scroll;
-                margin-left: 0px;
-                margin-top: 0px;
-                font-family: 'Helvetica Neue', Helvetica; font-weight: 300; padding: 5px;
-            }
-
-            #resultFileURL{
-                width: 650px;
-            }
-            #resultFileURLInput{
-                float:left;
-                margin-left:30px;
-                margin-top: 8px;
-                width: 90%;
-                height:30px;
-            }
-
-            #satisfactionScoreSummaryButton_div{
-                float:left;
-
-            }
-            #getDrivingFeaturesSetting_div{
-                float:left;
-                margin-left: 5px;
-                margin-top: 15px;
-            }
-            #fixScatterPlotWindowButton_div{
-                float:left;
-                margin-left: 10px;
-            }
-            #selectArchsWithinRange_div{
-                float:left;
-                margin-left: 5px;
-                margin-top: 7px;
-            }
-            #selectArchsWithinRange_minCost{
+			.select_within_range_text_box{
                 margin-top: 3px;
                 margin-bottom: 3px;
                 width: 65px;
-            }
-            #selectArchsWithinRange_maxCost{
-                width: 65px;
-                margin-top: 3px;
-                margin-bottom: 3px;
-            }
-            #selectArchsWithinRange_minScience{
-                margin-top: 3px;
-                margin-bottom: 3px;
-                width: 65px;
-            }
-            #selectArchsWithinRange_maxScience{
-                width: 65px;
-                margin-top: 3px;
-                margin-bottom: 3px;
-            }
+			}
+
 
             #dropdown_presetDesignFeatures{
                 margin-top: 7px;
             }
-            #getDrivingFeaturesButton{
-                margin-top: 12px;
-                margin-bottom: 7px;
+
+            .main_options button{
+            	margin-top: 3px;
+            	margin-bottom: 3px;
                 width: 170px;
             }
-            #getClassificationTreeButton{
-                margin-bottom: 7px;
+            #data_mining_option_div button{
+            	margin-top: 3px;
+            	margin-bottom: 3px;
                 width: 170px;
             }
-            #openFilterOptions{
-                margin-bottom: 7px;
+            selection_option_div button{
+            	margin-top: 3px;
+            	margin-bottom: 3px;
                 width: 170px;
-            }
-            
+            }           
+			                
+
             
 			.node circle {
 			  cursor: pointer;
@@ -286,10 +200,10 @@ and open the template in the editor.
 
     </head>
     <body>
-        <div id="title">
-            <h2>iFEED GUI</h2>
+        <div id="title" style="float:left; margin-top: 15px; margin-bottom: 20px; text-align: center; width: 100%;">
+				<h2>iFEED GUI</h2>
         </div>
-        <br/>
+
         
 		<a href="#" onclick="signOut();" style="margin-bottom: 10px; float:right">Quit experiment and sign out</a>	
 		
@@ -297,8 +211,6 @@ and open the template in the editor.
 	        <div style="width:400px;margin:auto">
 	        	Please log in to start:
 	        </div>
-	        
-	        <br/>
 			<div id="signin_div" class="g-signin2" data-onsuccess="onSignIn" style="width:400px;margin:auto"></div>
 		</div>
 		
@@ -313,79 +225,109 @@ and open the template in the editor.
 			  </div>
 		</div>
 		
+		<div style="width:100%; margin-top: 35px">
+			<div style="width:1300px; margin:auto">
+	
+		        <div id="StatusBar" style="width: 100%; float:left; margin-top:10px; margin-bottom:5px;
+		                height: 30px;">
+		<!--             <div id="satisfactionScoreSummaryButton_div"> -->
+		                <!--<button type="button" id="satisfactionScoreSummaryButton">Satisfaction Score Decomposition</button>-->
+		<!--             </div> -->
+		
+		           <div id="numOfArchs" style="float:left; margin-left:0;">
+		               Number of designs: 
+		               <input type="text" id="numOfArchs_inputBox" value="0" style="width:50px; height: 20px; margin-left: 1px;"/>
+		           </div>
+		           <div id="numOfSelectedArchs" style="float:left; margin-left:20px">
+		               Number of selected designs: 
+		               <input type="text" id="numOfSelectedArchs_inputBox" value="0" style="width:50px; height: 20px; margin-left: 1px;"/>
+		           </div>
+		           
+		        </div>
 		
 		
-        <div id="resultFileURLInput">
-        
-<!--             <input id="resultFileURL" type="text" name="resultFileURL" value="0"/> -->
-<!--             <input id="resultFileURL_newData" type="submit" value="Click to start experiment" disabled="True" /> -->
-<!--            <input id="resultFileURL_addData" type="submit" value="Add to existing data" />-->
+		        <div id="firstLineOfFigs" style="margin-bottom: 10px;width: 100%%;height: 540px;float: left;">
+		            
+		            <figure id="scatterPlotFigure"></figure>
+		            
+		            <div id="OptionsPane" class="main_options" style="float:left; width: 250px; height: 540px;border: 1px black double; overflow:scroll;">
+		            	<div style="width:190px;height:540px;margin:auto;">
+		            	
+			            	<button id="scatterPlot_option" class="zoom" style="margin-top: 20px" disabled="True">Enable drag-selection</button>
+			            						
+			                <div id="selection_option_div" style="float:left;margin-top: 10px;">
+			                    Cost range: <br/>
+			                    <input id="selectArchsWithinRange_minCost" class="select_within_range_text_box" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxCost" class="select_within_range_text_box" type="text" value="inf"/>
+			                    <br/> Science Benefit range: <br/>
+			                    <input id="selectArchsWithinRange_minScience" class="select_within_range_text_box" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxScience" class="select_within_range_text_box" type="text" value="1"/>
+			                    <br/>
+			                    
+			                    <button type="button" id="selectArchsWithinRangeButton" disabled="True">Select archs within range</button>
+			                    <button type="button"  id="cancel_selection" disabled="True">Cancel all selections</button>
+			                    <button type="button"  id="hide_selection" disabled="True">Hide selections</button>
+			                    <button type="button"  id="show_all_archs" disabled="True">Show all architectures</button>
+			                    <button type="button" disabled="True"  id="openFilterOptions">Open Filter Options</button>
+			                </div>
 
-        </div>
-        <br/>
+			                <div id="data_mining_option_div" style="float:left; margin-top: 15px;">
+			                    <button type="button" disabled="True" id="getDrivingFeaturesButton">Run data mining</button>
+<!-- 			                    <button type="button" disabled="True"  id="getClassificationTreeButton">Build classification tree</button> -->
+			                    
+<!-- 			                    <select id="dfsort_options" style="width:170px; margin-bottom: 7px"> -->
+<!-- 			                        <option value="lift">Lift</option> -->
+<!-- 			                        <option value="supp">Support</option> -->
+<!-- 			                        <option value="confave">Conf (average)</option> -->
+<!-- 			                        <option value="conf1">Conf (feature->selection)</option> -->
+<!-- 			                        <option value="conf2">Conf (selection->feature)</option> -->
+<!-- 			                    </select> -->
+			                </div>
+		            	</div>
+		            	
+		
+		            </div>
+		        </div>
+		
+		      
+		
+		        <div id="secondLineOfFigs" style="float:left;margin-top: 5px; width: 100%;">
+		        
+		        
+				    <div id="basicInfoBox_div" style="width: 1212px; margin: 0 auto; float:left;border-style: solid;
+				    					border-width: 1px;height: 430px;overflow: scroll;
+				    					hbmargin-left: 0px;font-family: 'Helvetica Neue', Helvetica; 
+		              					font-weight: 300; padding: 5px;">
+				        <ul class="tabs" data-persist="true">
+				            <li><a href="#view1">Inspect Design</a></li>
+				            <li><a href="#view2">Filter Setting</a></li>
+				            <li><a href="#view3">Driving Features</a></li>
+				            <li><a href="#view4">Classification Tree</a></li>
+				        </ul>
+				        <div class="tabcontents">
+				            <div id="view1">
+				            </div>
+				            <div id="view2">          
+				            </div>
+				            <div id="view3">
+				            </div>
+				            <div id="view4">
+				            </div>
+				        </div>
+				    </div>
+		        
+		        
+<!-- 		            <div id="basicInfoBox_div" style="float:left;border-style: solid;border-width: 1px; -->
+<!-- /* 		            								 width: 1212px;height: 430px;overflow: scroll;hbmargin-left: 0px; */ -->
+<!-- /* 		              								 margin-top: 0px;font-family: 'Helvetica Neue', Helvetica;  */ -->
+<!-- 		              								 font-weight: 300; padding: 5px;"></div>  -->
+		        </div>
+			</div>
+		</div>
 
-        <div id="requestButtons">
-<!--             <div id="satisfactionScoreSummaryButton_div"> -->
-                <!--<button type="button" id="satisfactionScoreSummaryButton">Satisfaction Score Decomposition</button>-->
-<!--             </div> -->
-            <button id="scatterPlot_option" class="zoom" disabled="True" style="float:left;margin-left:5px;">Enable drag-selection</button>
-           
-           <div id="numOfArchs" style="float:left; margin-left:580px;">
-               Number of Architectures: 
-               <input type="text" id="numOfArchs_inputBox" value="0" style="width:50px; height: 20px; margin-left: 1px;"/>
-           </div>
-        </div>
 
-
-        <div id="firstLineOfFigs">
-            <figure id="scatterPlotFigure"></figure>
-            <div id="drivingFeaturesAndSensitivityAnalysis_div">
-                <div id="selectArchsWithinRange_div">
-                    Cost range: <br/>
-                    <input id="selectArchsWithinRange_minCost" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxCost" type="text" value="inf"/>
-                    <br/> Science Benefit range: <br/>
-                    <input id="selectArchsWithinRange_minScience" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxScience" type="text" value="1"/>
-                    <br/>
-                    <button type="button" id="selectArchsWithinRangeButton" disabled="True" style="margin-top:5px; width:170px">Select archs within range</button>
-                    <button type="button"  id="cancel_selection" disabled="True" style="margin-top:5px;width: 170px;">Cancel all selections</button>
-                    <button type="button"  id="hide_selection" disabled="True" style="margin-top:5px;width: 170px;">Hide selections</button>
-                    <button type="button"  id="show_all_archs" disabled="True" style="margin-top:5px;width: 170px;">Show all architectures</button>
-           
-                    <div id="numOfSelectedArchs" style="float:left; margin-top:10px">
-                        Num of selected Archs: 
-                        <input type="text" id="numOfSelectedArchs_inputBox" value="0" style="width:50px; height: 17px; margin-left: 1px;margin-top:5px"/>
-                    </div>
-                    
-                </div>
-                
-                <div id="getDrivingFeaturesSetting_div">
-                    Threshold Setup <br/>
-                    <div style="margin-top: 5px;">
-                        Support: &nbsp;<input id="support_threshold_input" type="text" value="0.02" style="width:105px; margin-top: 3px;"/>
-                        Confidence:&nbsp;<input id="confidence_threshold_input" type="text" value="0.3" style="width:85px; margin-top: 3px;"/>
-                        Lift:&nbsp;<input id="lift_threshold_input" type="text" value="1" style="width:135px; margin-top: 3px;"/>
-                    </div>
-                    <button type="button" disabled="True" id="getDrivingFeaturesButton">Get driving features</button>
-                    <select id="dfsort_options" style="width:170px; margin-bottom: 7px">
-                        <option value="lift">Lift</option>
-                        <option value="supp">Support</option>
-                        <option value="confave">Conf (average)</option>
-                        <option value="conf1">Conf (feature->selection)</option>
-                        <option value="conf2">Conf (selection->feature)</option>
-                    </select>
-                    <button type="button" disabled="True"  id="getClassificationTreeButton">Build classification tree</button>
-                    <button type="button" disabled="True"  id="openFilterOptions">Open Filter Options</button>
-                    
-                </div>
-
-            </div>
-        </div>
-
-        <br/>
-
-        <div id="secondLineOfFigs">
-            <div id="basicInfoBox_div"></div> 
-        </div>
+		<a id="openView1" href="#view1"></a>
+		<a id="openView2" href="#view2"></a>
+		<a id="openView3" href="#view3"></a>
+		<a id="openView4" href="#view4"></a>
 
 
        <script src="js/scatterPlotUI.js" type="text/javascript"></script>
@@ -399,42 +341,58 @@ and open the template in the editor.
        
        <script>
 
-            var testType;
-            var remainingTime;
-            
-            
             var original_bitString;
             var modified_bitString;
             var selected_bitString;
             var selected_bitString2;
+            var color_drivingFeatures = d3.scale.category10();        
+            var i_drivingFeatures=0;
+            var filter_arch;
+            var modified_filterArch;
+            var orbits, instruments, ninstr, norb;
+            var translate_tmp = [0,0];
+            var scale_tmp = 0;
+            var translate_tmp_local = [0,0];
+            var scale_tmp_local = 0;
+            var orbitList = [];
+            var instrList = [];
 
-
+            
+            
+            
+            // Sign-in
+   
+            var id_token;
+            var session_timed_out = false;
+            var key_number=-12345678;
+            var testType;
+            var remainingTime;
+            
+            // Scatter plot variables
+            
+           	var architectures; // old: jsonObj_scatterPlot
+            var newArchs = [];  newArchs.length = 0;    
+            var infoBox_active = false;
+            var selection_changed = true;   
+            
             var margin = {top: 20, right: 20, bottom: 30, left: 60},
             width = 960 - margin.left - margin.right,
                     height = 540 - margin.top - margin.bottom;
-
-            
             var json_arch;
             var svg,
                     objects;
             var xValue, xScale, xMap, xAxis, xBuffer, yBuffer,
                     yValue, yScale, yMap, yAxis;
-
-
             
-            var color_drivingFeatures = d3.scale.category10();        
-            var i_drivingFeatures=0;
-            var filter_arch;
-            var modified_filterArch;
+               	
+            // Driving features variables
             
-            var orbits, instruments, ninstr, norb;
-
-
-            var translate_tmp = [0,0];
-            var scale_tmp = 0;
-            var translate_tmp_local = [0,0];
-            var scale_tmp_local = 0;
-            
+			var sortedDFs=null;
+           	var support_threshold = 0.015;
+           	var confidence_threshold = 0.3;
+           	var lift_threshold = 1;
+            	
+           	// Filter option variables
             var filterDropdownOptions = [{value:"not_selected",text:"Preset Filters"},{value:"paretoFront",text:"Pareto front"},
                 {value:"present",text:"Present"},{value:"absent",text:"Absent"},{value:"inOrbit",text:"In orbit"},
                 {value:"notInOrbit",text:"Not in orbit"},{value:"together",text:"Together"},
@@ -446,30 +404,14 @@ and open the template in the editor.
             userDefFilterExpressionHistory.length=0;
             var userDefFilters = [];
             
-            var orbitList = [];
-            var instrList = [];
-            
-            var jsonObj_tree=null;
-            var jsonObj_tree_nested;
-            var selection_changed = true;
-   
-            var id_token;
-            var session_timed_out = false;
-            var key_number=-12345678;
-            
-            // Scatter plot variables
-            
-            	var architectures; // old: jsonObj_scatterPlot
-                var newArchs = [];  newArchs.length = 0;    
-            
-            // Driving features variables
-            
-				var sortedDFs=null;
-            
             // Classification Tree variables
             
             var classificationTree_window;
+            var jsonObj_tree=null;
+            var jsonObj_tree_nested;
             
+            
+            // Experiment-related
             
             var buttonClickCount_drivingFeatures = 0;
             var buttonClickCount_classificationTree = 0;
@@ -481,13 +423,14 @@ and open the template in the editor.
             var getDrivingFeatures_numOfArchs = [];
             var getClassificationTree_numOfArchs = [];
             var getDrivingFeatures_thresholds = [];
+
+
             
-//             var timeMeasurement_drivingFeature_bar = 0;
-//             var timeMeasurement_classificationTree = 0;
-            
-            
-           var infoBox_active = false;
-            
+           
+           
+           
+           
+           
             
 			function onSignIn(googleUser) {
             	id_token = googleUser.getAuthResponse().id_token;
@@ -643,7 +586,9 @@ and open the template in the editor.
                     complete: function () {
                     	reset_drawing_scatterPlot();
                     	draw_scatterPlot(architectures);
-                    	d3.select("[id=basicInfoBox_div]").select("g").remove();
+                    	d3.select("[id=basicInfoBox_div]").select("[id=view1]").select("g").remove();
+                    	d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g").remove();
+                    	d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
                     	
                     	var startTime = Date.parse(new Date());
                     	startTime = +startTime;
@@ -727,10 +672,10 @@ and open the template in the editor.
                     }
                 }
 
-                d3.select("[id=basicInfoBox_div]")
+                d3.select("[id=basicInfoBox_div]").select("[id=view1]")
                         .select("g").select("table").remove();
 
-                var archInfoBox = d3.select("[id=basicInfoBox_div]")
+                var archInfoBox = d3.select("[id=basicInfoBox_div]").select("[id=view1]")
                         .select("g");
 
                 var table = archInfoBox.append("table")
@@ -956,7 +901,7 @@ and open the template in the editor.
 //             d3.select("[id=resultFileURL_newData]").on("click", newDataFromResultFile);
 //            d3.select("[id=resultFileURL_addData]").on("click", addDataFromResultFile);
             
-            
+
 
             } catch (err) {
                 console.log(err.message);
