@@ -11,7 +11,6 @@ function getClassificationTree(){
 	
 	if(selection_changed == false && jsonObj_tree != null){
 		display_classificationTree(jsonObj_tree);
-		
 		return;
 	}
 

@@ -12,6 +12,7 @@
 
 function getDrivingFeatures() {
 	
+	document.getElementById('tab3').click();
     highlight_basic_info_box()
     
 	if(selection_changed == false && sortedDFs != null){
@@ -165,7 +166,7 @@ function sortDrivingFeatures(drivingFeatures,sortBy){
 
 function display_filterOption(){
 	
-	$("#openView2").click();
+	document.getElementById('tab2').click();
 
     d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g").remove();
 
@@ -1323,6 +1324,9 @@ function openFilterOptions(){
     
     buttonClickCount_filterOptions += 1;
 }
+
+
+
                 
    
    
@@ -1519,4 +1523,67 @@ function checkNeg(original,neg){
 	}else{
 		return !original;
 	}
+}
+
+
+
+
+
+function applyFilter(filterType,filterInput){
+    cancelDotSelections();
+
+    var neg = false;
+    if (filterType == "paretoFront"){
+        var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
+        	var rank = d3.select(d).attr("paretoRank");
+            if (rank <= ""+filterInput && rank >= 0){
+                d3.select(d).attr("class", "dot_clicked")
+                            .style("fill", "#0040FF");
+            }
+        });
+
+    }
+    else if (filterType == "present" || filterType == "absent" || filterType == "inOrbit" || filterType == "notInOrbit" || filterType == "together" || filterType == "togetherInOrbit" || filterType == "separate" || 
+            filterType == "emptyOrbit" || filterType=="numOrbitUsed" || filterType=="subsetOfInstruments"){
+
+        var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
+            var bitString = d.__data__.archBitString;
+            if (presetFilter2(filterType,bitString,filterInputs,neg)){
+                d3.select(d).attr("class", "dot_clicked")
+                            .style("fill", "#0040FF");
+            }
+        });
+    } else if(filterType == "defineNewFilter" || (filterType =="not_selected" && userDefFilters.length !== 0)){
+        var filterExpression = d3.select("[id=filter_expression]").text();
+        tmpCnt =0;
+
+        d3.selectAll("[class=dot]")[0].forEach(function(d){
+        	
+            var bitString = d.__data__.archBitString;
+            if(applyUserDefFilterFromExpression(filterExpression,bitString)){
+                d3.select(d).attr("class", "dot_clicked")
+                            .style("fill", "#0040FF");
+            }
+        });
+
+        d3.select("[id=saveFilter]").attr('disabled', null)
+                                    .on("click",saveNewFilter);
+    }
+    else{
+    	
+        for(var k=0 ; k < userDefFilters.length; k++){
+           if(userDefFilters[k].name == filterType){
+                var filterExpression = userDefFilters[k].expression;
+                d3.selectAll("[class=dot]")[0].forEach(function(d){
+                    var bitString = d.__data__.archBitString;
+                    if(applyUserDefFilterFromExpression(filterExpression,bitString)){
+                        d3.select(d).attr("class", "dot_clicked")
+                                    .style("fill", "#0040FF");
+                    }
+                }); 
+           } 
+        }
+    }
+
+    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());  
 }

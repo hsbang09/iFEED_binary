@@ -5,6 +5,35 @@
  */
 
 
+//function display_guideline_driving_feature(){
+//	
+//	d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
+//	var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
+//						.append("g");
+//	
+//	infoBox.append("div")
+//			.attr("id","guideline_driving_feature_div")
+//			.style("width","900px")
+//			.style("margin","auto");
+//	
+//	d3.select("[id=guideline_driving_feature_div]")
+//			.append("div")
+//			.style("width","100%")
+//			.style("font-size", "21px")
+//			.text("To run data mining, first select the target solutions on the scatter plot. Then click the button below.");
+//	
+//	d3.select("[id=guideline_driving_feature_div]")
+//			.append("div").style("width","300px").style("margin","auto")
+//			.append("button")
+//			.attr("id","getDrivingFeaturesButton")
+//			.style("margin-top","30px")
+//			.style("width","200px")
+//			.style("font-size", "23px")
+//			.text("Run data mining");
+//	
+//}
+
+
 
 function reset_drawing_scatterPlot() {
     d3.select("[id=scatterPlotFigure]").selectAll("svg").remove();
@@ -203,17 +232,14 @@ function draw_scatterPlot(source) {
     d3.select("[id=cancel_selection]")[0][0].disabled = false;
     d3.select("[id=hide_selection]")[0][0].disabled = false;
     d3.select("[id=show_all_archs]")[0][0].disabled = false;
-    d3.select("[id=getDrivingFeaturesButton]")[0][0].disabled = false;
     d3.select("[id=openFilterOptions]")[0][0].disabled = false;
 	d3.select("[id=scatterPlot_option]")[0][0].disabled=false;
     
+	
+
+	
     if(testType==="1"){
-        d3.select("[id=getDrivingFeaturesSetting_div]").remove();
-        d3.select("[id=drivingFeaturesAndSensitivityAnalysis_div]").append("div")
-                .attr("id","getDrivingFeaturesSetting_div")
-                .append("button")
-                .attr("id","openFilterOptions")
-                .text("Open Filter Options");
+//        d3.select("[id=getDrivingFeaturesSetting_div]").remove();
         d3.select("[id=scatterPlot_option]").remove();
     }
     else if(testType==="2"){
@@ -225,11 +251,7 @@ function draw_scatterPlot(source) {
     }
     
 
-    if(testType==="4"){
-        d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures_automated);
-    } else{
-        d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
-    }
+
 //    d3.select("[id=satisfactionScoreSummaryButton]").on("click", loadSatisfactionSummaryPage);
     d3.select("[id=selectArchsWithinRangeButton]").on("click", selectArchsWithinRange);
     d3.select("[id=cancel_selection]").on("click",cancelDotSelections);
@@ -255,6 +277,12 @@ function draw_scatterPlot(source) {
     
     
     selection_changed = true;
+//	display_guideline_driving_feature();
+    if(testType==="4"){
+        d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures_automated);
+    } else{
+        d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
+    }
 }
 
 
