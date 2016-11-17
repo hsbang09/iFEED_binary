@@ -25,30 +25,34 @@ function getDrivingFeatures() {
     var numOfSelectedArchs = selectedArchs.size();
     var numOfNonSelectedArchs = nonSelectedArchs.size();
     
-    
-    buttonClickCount_drivingFeatures += 1;
-    getDrivingFeatures_numOfArchs.push({numOfSelectedArchs,numOfNonSelectedArchs});
-    getDrivingFeatures_thresholds.push({supp:support_threshold,lift:lift_threshold,conf:confidence_threshold});
-    
-    
-    var selectedBitStrings = [];
-    var nonSelectedBitStrings = [];
-    selectedBitStrings.length = 0;
-    nonSelectedBitStrings.length=0;
+    if (numOfSelectedArchs==0){
+    	alert("First select target solutions!");
+    }else{
 
-    for (var i = 0; i < numOfSelectedArchs; i++) {
-        var tmpBitString = booleanArray2String(selectedArchs[0][i].__data__.archBitString);
-        selectedBitStrings.push(tmpBitString);
-    }
-    for (var i = 0; i < numOfNonSelectedArchs; i++) {
-        var tmpBitString = booleanArray2String(nonSelectedArchs[0][i].__data__.archBitString);
-        nonSelectedBitStrings.push(tmpBitString);
-    }
+        buttonClickCount_drivingFeatures += 1;
+        getDrivingFeatures_numOfArchs.push({numOfSelectedArchs,numOfNonSelectedArchs});
+        getDrivingFeatures_thresholds.push({supp:support_threshold,lift:lift_threshold,conf:confidence_threshold});
+        
+        
+        var selectedBitStrings = [];
+        var nonSelectedBitStrings = [];
+        selectedBitStrings.length = 0;
+        nonSelectedBitStrings.length=0;
 
-    sortedDFs = generateDrivingFeatures(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
-    display_drivingFeatures(sortedDFs,"lift");
-    selection_changed = false;
-    
+        for (var i = 0; i < numOfSelectedArchs; i++) {
+            var tmpBitString = booleanArray2String(selectedArchs[0][i].__data__.archBitString);
+            selectedBitStrings.push(tmpBitString);
+        }
+        for (var i = 0; i < numOfNonSelectedArchs; i++) {
+            var tmpBitString = booleanArray2String(nonSelectedArchs[0][i].__data__.archBitString);
+            nonSelectedBitStrings.push(tmpBitString);
+        }
+
+        sortedDFs = generateDrivingFeatures(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
+        display_drivingFeatures(sortedDFs,"lift");
+        selection_changed = false;
+        
+    }
 }
 
 
@@ -939,6 +943,7 @@ function display_drivingFeatures(source,sortby) {
             .append("g");
 
     var svg_df = infoBox.append("svg")
+    		.style("float","left")
             .attr("width", width_df + margin_df.left + margin_df.right)
             .attr("height", height_df + margin_df.top + margin_df.bottom)
                 .call(
@@ -961,13 +966,38 @@ function display_drivingFeatures(source,sortby) {
                                 .attr("width", function(d){
                                     return dfbar_width*scale;
                                 });
-
                         })
                     )
             .append("g")        
             .attr("transform", "translate(" + margin_df.left + "," + margin_df.top + ")");
 
     
+    
+    var df_explanation_box = infoBox.append("div")
+	    		.style("float","left")
+	    		.style("background-color","#D2D2D2")
+	    		.style("width","350px")
+	    		.style("height",height_df + margin_df.top + margin_df.bottom)
+	    		.append("div")
+	    		.attr("id","df_explanation_box")
+	    		.style("width","280px")
+	    		.style("height",height_df + margin_df.top + margin_df.bottom - 30)
+	    		.style("margin-top","15px")
+	    		.style("margin-left","20px")
+
+    df_explanation_box.append("p")
+    			.style("font-size","17px")
+    			.text("Lift: The statistical dependency between the feature and selected designs")
+    			.append("p")
+    			.style("font-size","17px")
+    			.text("Suppport: The proportion of designs that are selected and have the feature, out of all designs")
+			    .append("p")
+			    .style("font-size","17px")
+				.text("Confidence(feature->selection): The proportion of selected designs among designs with the feature")
+			    .append("p")
+			    .style("font-size","17px")
+				.text("Confidence(selection->feature): The proportion of designs with feature among the selected designs");
+
 
 ////////////////////////////////////////////////////////
     // x-axis
@@ -1215,26 +1245,15 @@ function display_drivingFeatures(source,sortby) {
                     var textdiv = fo_div.selectAll("div")
                             .data([{name:name,supp:supp,conf:conf,conf2:conf2,lift:lift}])
                             .enter()
-                            .append("div");
+                            .append("div")
+                            .style("margin-left","15px")
+                            .style("margin-top","10px");
                           
 //                    
                     textdiv.html(function(d){
-                    	
-                    	if(testType==="4"){
-                    		if(type==="good"){
-                                var output= d.name + " (cost<5000 & science>0.15)<br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
-                                "<br> conf {feature} -> {selection}: " + d.conf.toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.conf2.toFixed(4) +
-                                "";
-                    		}else{
-                                var output= d.name + " (cost>5000 || science<0.15)<br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
-                                "<br> conf {feature} -> {selection}: " + d.conf.toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.conf2.toFixed(4) +
-                                "";
-                    		}
-                    	}else{
-                            var output= d.name + "<br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
-                            "<br> conf {feature} -> {selection}: " + d.conf.toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.conf2.toFixed(4) +
-                            "";
-                    	}
+                        var output= d.name + "<br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
+                        "<br> conf {feature} -> {selection}: " + d.conf.toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.conf2.toFixed(4) +
+                        "";
                         return output;
                     }).style("color", "#F7FF55");                         
 
@@ -1548,7 +1567,7 @@ function applyFilter(filterType,filterInput){
 
         var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
             var bitString = d.__data__.archBitString;
-            if (presetFilter2(filterType,bitString,filterInputs,neg)){
+            if (presetFilter2(filterType,bitString,filterInput,neg)){
                 d3.select(d).attr("class", "dot_clicked")
                             .style("fill", "#0040FF");
             }

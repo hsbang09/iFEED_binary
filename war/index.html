@@ -120,11 +120,6 @@ and open the template in the editor.
                 margin-bottom: 14px;
             }
 
-            .toggle-button { background-color: white; margin-top: 1px; border-radius: 20px; border: 2px solid #232323; height: 18px; cursor: pointer; width: 43px; position: absolute; display: inline-block; user-select: none; -webkit-user-select: none; -ms-user-select: none; -moz-user-select: none; }
-            .toggle-button button { cursor: pointer; outline: 0; display:block; position: absolute; left: 1px; top: 2px; border-radius: 100%; width: 18px; height: 20px; background-color: white; float: left; margin: -3px 0 0 -3px; border: 2px solid #232323; transition: left 0.3s; }
-            .toggle-button-selected { background-color: #83B152; border: 2px solid #232323;}
-            .toggle-button-selected button { left: 26px; top: 0; margin: -1px 0 0 0; border: 2px solid #232323; width: 18px; height: 21px; box-shadow: 0 0 4px rgba(0,0,0,0.1); }
-
 
             #filter_inputs{
                 width:95%;
@@ -251,7 +246,7 @@ and open the template in the editor.
 		            
 		            <figure id="scatterPlotFigure"></figure>
 		            
-		            <div id="OptionsPane" class="main_options" style="float:left; width: 250px; height: 540px;border: 1px black double; overflow:scroll;">
+		            <div id="OptionsPane" class="main_options" style="float:left; width: 250px; height: 540px;border: 1px black double;">
 		            	<div style="width:190px;height:530px;margin:auto;">
 		            	
 			            	<button id="scatterPlot_option" class="zoom" style="margin-top: 20px" disabled="True">Enable drag-selection</button>
@@ -267,11 +262,11 @@ and open the template in the editor.
 			                    <button type="button"  id="cancel_selection" disabled="True">Cancel all selections</button>
 			                    <button type="button"  id="hide_selection" disabled="True">Hide selections</button>
 			                    <button type="button"  id="show_all_archs" disabled="True">Show all architectures</button>
-			                    <button type="button" disabled="True"  id="openFilterOptions">Open Filter Options</button>
+<!-- 			                    <button type="button" disabled="True"  id="openFilterOptions">Open Filter Options</button> -->
 			                </div>
 
 			                <div id="data_mining_option_div" style="float:left; margin-top: 15px;">
-			                    <button type="button" disabled="True" id="getDrivingFeaturesButton">Run data mining</button>
+<!-- 			                    <button type="button" disabled="True" id="getDrivingFeaturesButton">Run data mining</button> -->
 <!-- 			                    <button type="button" disabled="True"  id="getClassificationTreeButton">Build classification tree</button> -->
 			                    
 <!-- 			                    <select id="dfsort_options" style="width:170px; margin-bottom: 7px"> -->
@@ -304,14 +299,10 @@ and open the template in the editor.
 				            <li><a id="tab4" href="#view4">Classification Tree</a></li>
 				        </ul>
 				        <div class="tabcontents">
-				            <div id="view1">
-				            </div>
-				            <div id="view2">          
-				            </div>
-				            <div id="view3">
-				            </div>
-				            <div id="view4">
-				            </div>
+				            <div id="view1"></div>
+				            <div id="view2"></div>
+				            <div id="view3"></div>
+				            <div id="view4"></div>
 				        </div>
 				    </div>
 		        
@@ -558,13 +549,6 @@ and open the template in the editor.
                 
                 var selectedArchs = d3.selectAll("[class=dot_clicked]");
                 var numOfSelectedArchs = selectedArchs.size();
-//                 var bitStrings = [];
-//                 bitStrings.length = 0;
-                
-//                 for (var i = 0; i < numOfSelectedArchs; i++) {
-//                     var tmpBitString = booleanArray2String(selectedArchs[0][i].__data__.archBitString);
-//                     bitStrings.push(tmpBitString);
-//                 } //bitStrings: JSON.stringify(bitStrings)
 
                 $.ajax({
                 	url: "resultsGUIServlet",
@@ -580,9 +564,7 @@ and open the template in the editor.
                     complete: function () {
                     	reset_drawing_scatterPlot();
                     	draw_scatterPlot(architectures);
-                    	d3.select("[id=basicInfoBox_div]").select("[id=view1]").select("g").remove();
-                    	d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g").remove();
-                    	d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
+
                     	
                     	var startTime = Date.parse(new Date());
                     	startTime = +startTime;
@@ -700,7 +682,7 @@ and open the template in the editor.
                             return d.columnName;
                         })
                         .style("font-size", "12px");
-                ;
+                
 
                 // create table body
                 table.append('tbody')

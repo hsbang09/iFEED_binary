@@ -5,33 +5,6 @@
  */
 
 
-//function display_guideline_driving_feature(){
-//	
-//	d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
-//	var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
-//						.append("g");
-//	
-//	infoBox.append("div")
-//			.attr("id","guideline_driving_feature_div")
-//			.style("width","900px")
-//			.style("margin","auto");
-//	
-//	d3.select("[id=guideline_driving_feature_div]")
-//			.append("div")
-//			.style("width","100%")
-//			.style("font-size", "21px")
-//			.text("To run data mining, first select the target solutions on the scatter plot. Then click the button below.");
-//	
-//	d3.select("[id=guideline_driving_feature_div]")
-//			.append("div").style("width","300px").style("margin","auto")
-//			.append("button")
-//			.attr("id","getDrivingFeaturesButton")
-//			.style("margin-top","30px")
-//			.style("width","200px")
-//			.style("font-size", "23px")
-//			.text("Run data mining");
-//	
-//}
 
 
 
@@ -227,32 +200,17 @@ function draw_scatterPlot(source) {
             });
     dots.on("click", dot_click);
 
-
+    initialize_tabs();
+    
     d3.select("[id=selectArchsWithinRangeButton]")[0][0].disabled = false;
     d3.select("[id=cancel_selection]")[0][0].disabled = false;
     d3.select("[id=hide_selection]")[0][0].disabled = false;
     d3.select("[id=show_all_archs]")[0][0].disabled = false;
-    d3.select("[id=openFilterOptions]")[0][0].disabled = false;
 	d3.select("[id=scatterPlot_option]")[0][0].disabled=false;
-    
 	
-
-	
-    if(testType==="1"){
-//        d3.select("[id=getDrivingFeaturesSetting_div]").remove();
-        d3.select("[id=scatterPlot_option]").remove();
-    }
-    else if(testType==="2"){
-    } else if(testType==="3"){
-    } else if(testType==="4"){
-        d3.select("[id=lift_threshold_input]")[0][0].value = 0;
-        d3.select("[id=scatterPlot_option]").remove();
-//        d3.select("[id=dfsort_options]").remove();
-    }
-    
-
-
-//    d3.select("[id=satisfactionScoreSummaryButton]").on("click", loadSatisfactionSummaryPage);
+    d3.select("[id=scatterPlotFigure]").on("click",unhighlight_basic_info_box);
+    d3.select("[id=basicInfoBox_div]").on("click",highlight_basic_info_box);
+	d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
     d3.select("[id=selectArchsWithinRangeButton]").on("click", selectArchsWithinRange);
     d3.select("[id=cancel_selection]").on("click",cancelDotSelections);
     d3.select("[id=hide_selection]").on("click",hideSelection);
@@ -264,8 +222,7 @@ function draw_scatterPlot(source) {
     d3.selectAll("[class=dot]")[0].forEach(function(d,i){
         d3.select(d).attr("paretoRank",-1);
     });
-    d3.select("[id=scatterPlotFigure]").on("click",unhighlight_basic_info_box);
-    d3.select("[id=basicInfoBox_div]").on("click",highlight_basic_info_box);
+
 
     orbits = getOrbitList();
     instruments = getInstrumentList();
@@ -275,14 +232,8 @@ function draw_scatterPlot(source) {
     calculateParetoRanking();
     drawParetoFront();
     
-    
     selection_changed = true;
-//	display_guideline_driving_feature();
-    if(testType==="4"){
-        d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures_automated);
-    } else{
-        d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
-    }
+    
 }
 
 
@@ -360,6 +311,7 @@ function selectArchsWithinRange() {
 
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
     selection_changed = true;
+    initialize_tabs_driving_features()
 }
 
 function cancelDotSelections(){
@@ -380,6 +332,7 @@ function cancelDotSelections(){
             .select("table").remove();        
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
     selection_changed = true;
+    initialize_tabs_driving_features()
 }
 
 function hideSelection(){
@@ -393,6 +346,7 @@ function hideSelection(){
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
     d3.select("[id=numOfArchs_inputBox]").attr("value",numOfArchs());
     selection_changed = true;
+    initialize_tabs_driving_features()
 }
 function show_all_archs(){
 
@@ -414,6 +368,7 @@ function show_all_archs(){
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
     d3.select("[id=numOfArchs_inputBox]").attr("value",numOfArchs());
     selection_changed = true;
+    initialize_tabs_driving_features()
 }
 
 
@@ -489,6 +444,7 @@ function dot_click(d) {
     }
     d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
     selection_changed = true;
+    initialize_tabs_driving_features()
 }
 
 
@@ -653,6 +609,7 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
                                 d3.select(d).attr("class","dot_clicked")
                                         .style("fill", "#0040FF");      
                                 selection_changed = true;
+                                initialize_tabs_driving_features()
                             }
                         });
 
@@ -678,6 +635,7 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
                                             }
                                         });      
                                 selection_changed = true;
+                                initialize_tabs_driving_features()
                             }
                         });
                     }
@@ -937,3 +895,130 @@ function getDrivingFeatures_automated(){
 
     display_drivingFeatures(sortedDFs,"confave");
 }
+
+
+
+
+function initialize_tabs(){
+	initialize_tabs_inspection();
+	initialize_tabs_filter_options();
+	initialize_tabs_driving_features();
+}
+
+
+function initialize_tabs_inspection(){
+	d3.select("[id=basicInfoBox_div]").select("[id=view1]").select("g").remove();
+	d3.select("[id=basicInfoBox_div]").select("[id=view1]").append("g")
+			.append("div")
+			.style("width","900px")
+			.style("margin","auto")
+			.append("div")
+			.style("width","100%")
+			.style("font-size","21px")
+			.text("If you hover the mouse over a design, relative information will be displayed here.");
+}
+function initialize_tabs_filter_options(){
+
+	d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g").remove();
+	var archInfoBox = d3.select("[id=basicInfoBox_div]").select("[id=view2]").append("g");
+    archInfoBox.append("div")
+            .attr("id","filter_title")
+            .style("width","90%")
+            .style("margin-top","10px")
+            .style("margin-bottom","15px")
+            .style("margin-left","2px")
+            .style("float","left")
+            .append("p")
+            .text("Filter Setting")
+            .style("font-size", "18px");
+    var filterOptions = archInfoBox.append("div")
+            .attr("id","filter_options")
+            .style("width","100%")
+            .style("height","40px")
+            .style("float","left")
+            .style("margin-bottom","10px");
+
+    var filterDropdownMenu = d3.select("[id=filter_options]")
+            .append("select")
+            .attr("id","dropdown_presetFilters")
+            .style("width","200px")
+            .style("float","left")
+            .style("margin-left","2px")
+            .style("height","24px");
+
+    filterDropdownMenu.selectAll("option").remove();
+    filterDropdownMenu.selectAll("option")
+            .data(filterDropdownOptions)
+            .enter()
+            .append("option")
+            .attr("value",function(d){
+                return d.value;
+            })
+            .text(function(d){
+                return d.text;
+            });
+
+    d3.select("[id=filter_options]").append("button")
+            .attr("id","applyFilterButton_new")
+            .attr("class","filterOptionButtons")
+            .style("margin-left","6px")
+            .style("float","left")
+            .text("Apply new filter");
+    d3.select("[id=filter_options]").append("button")
+            .attr("class","filterOptionButtons")
+            .attr("id","applyFilterButton_add")
+            .style("margin-left","6px")
+            .style("float","left")
+            .text("Add to selection");
+    d3.select("[id=filter_options]").append("button")
+            .attr("id","applyFilterButton_within")
+            .attr("class","filterOptionButtons")
+            .style("margin-left","6px")
+            .style("float","left")
+            .text("Search within selection");
+    d3.select("[id=filter_options]").append("button")
+		    .attr("id","applyFilterButton_complement")
+		    .attr("class","filterOptionButtons")
+		    .style("margin-left","6px")
+		    .style("float","left")
+		    .text("Select complement");
+    d3.select("[id=filter_options]").append("button")
+            .attr("id","saveFilter")
+            .attr("class","filterOptionButtons")
+            .style("margin-left","6px")
+            .style("float","left")
+            .text("Save this filter")
+            .attr('disabled', true);
+    
+    d3.select("[id=filter_options]").select("select").on("change",selectFilterOption);
+    d3.select("[id=applyFilterButton_add]").on("click",applyFilter_add);
+    d3.select("[id=applyFilterButton_new]").on("click",applyFilter_new);
+    d3.select("[id=applyFilterButton_within]").on("click",applyFilter_within);
+    
+}
+function initialize_tabs_driving_features(){
+	d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
+	var guideline = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
+			.append("g")
+			.append("div")
+			.style("width","900px")
+			.style("margin","auto")
+			
+	guideline.append("div")
+			.style("width","100%")
+			.style("font-size","21px")
+			.text("To run data mining, select target solutions on the scatter plot. Then click the button below.");
+
+	guideline.append("div")
+			.style("width","300px")
+			.style("margin","auto")
+			.append("button")
+			.attr("id","getDrivingFeaturesButton")
+			.style("margin-top","30px")
+			.style("width","200px")
+			.style("font-size","19px")
+			.text("Run data mining");
+	d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
+}
+
+
