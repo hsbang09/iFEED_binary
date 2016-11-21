@@ -210,22 +210,22 @@ function draw_scatterPlot(source) {
 	
     d3.select("[id=scatterPlotFigure]").on("click",unhighlight_basic_info_box);
     d3.select("[id=basicInfoBox_div]").on("click",highlight_basic_info_box);
-	d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
+	d3.selectAll("[id=getDrivingFeaturesButton]").on("click", runDataMining);
     d3.select("[id=selectArchsWithinRangeButton]").on("click", selectArchsWithinRange);
     d3.select("[id=cancel_selection]").on("click",cancelDotSelections);
     d3.select("[id=hide_selection]").on("click",hideSelection);
     d3.select("[id=show_all_archs]").on("click",show_all_archs);
     d3.select("[id=openFilterOptions]").on("click",openFilterOptions);
     d3.select("[id=drivingFeaturesAndSensitivityAnalysis_div]").selectAll("options");
-    d3.select("[id=numOfArchs_inputBox]").attr("value",numOfArchs());
+    d3.select("[id=numOfArchs_inputBox]").text(""+numOfArchs());
     d3.select("[id=scatterPlot_option]").on("click",scatterPlot_option);
     d3.selectAll("[class=dot]")[0].forEach(function(d,i){
         d3.select(d).attr("paretoRank",-1);
     });
 
 
-    orbits = getOrbitList();
-    instruments = getInstrumentList();
+    orbitList = getOrbitList();
+    instrList = getInstrumentList();
     ninstr = getNinstr();
     norb = getNorb();
 
@@ -309,9 +309,10 @@ function selectArchsWithinRange() {
                 }
             });
 
-    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
+    d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
     selection_changed = true;
-    initialize_tabs_driving_features()
+    initialize_tabs_driving_features();
+    initialize_tabs_classification_tree();
 }
 
 function cancelDotSelections(){
@@ -330,9 +331,10 @@ function cancelDotSelections(){
             });
     d3.select("[id=instrumentOptions]")
             .select("table").remove();        
-    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
+    d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
     selection_changed = true;
-    initialize_tabs_driving_features()
+    initialize_tabs_driving_features();
+    initialize_tabs_classification_tree();
 }
 
 function hideSelection(){
@@ -343,10 +345,11 @@ function hideSelection(){
             .style("opacity", 0.085);
     d3.select("[id=instrumentOptions]")
             .select("table").remove();        
-    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
-    d3.select("[id=numOfArchs_inputBox]").attr("value",numOfArchs());
+    d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
+    d3.select("[id=numOfArchs_inputBox]").text(""+numOfArchs());
     selection_changed = true;
-    initialize_tabs_driving_features()
+    initialize_tabs_driving_features();
+    initialize_tabs_classification_tree();
 }
 function show_all_archs(){
 
@@ -365,10 +368,11 @@ function show_all_archs(){
             .style("opacity",1);
     d3.select("[id=instrumentOptions]")
             .select("table").remove();        
-    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
-    d3.select("[id=numOfArchs_inputBox]").attr("value",numOfArchs());
+    d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
+    d3.select("[id=numOfArchs_inputBox]").text(""+numOfArchs());
     selection_changed = true;
-    initialize_tabs_driving_features()
+    initialize_tabs_driving_features();
+    initialize_tabs_classification_tree();
 }
 
 
@@ -442,9 +446,10 @@ function dot_click(d) {
                 .style("fill", "#0040FF");
 
     }
-    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
+    d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
     selection_changed = true;
-    initialize_tabs_driving_features()
+    initialize_tabs_driving_features();
+    initialize_tabs_classification_tree();
 }
 
 
@@ -609,7 +614,8 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
                                 d3.select(d).attr("class","dot_clicked")
                                         .style("fill", "#0040FF");      
                                 selection_changed = true;
-                                initialize_tabs_driving_features()
+                                initialize_tabs_driving_features();
+                                initialize_tabs_classification_tree();
                             }
                         });
 
@@ -635,11 +641,12 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
                                             }
                                         });      
                                 selection_changed = true;
-                                initialize_tabs_driving_features()
+                                initialize_tabs_driving_features();
+                                initialize_tabs_classification_tree();
                             }
                         });
                     }
-                    d3.select("[id=numOfSelectedArchs_inputBox]").attr("value",numOfSelectedArchs());
+                    d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
 
             }      
     })
@@ -903,6 +910,7 @@ function initialize_tabs(){
 	initialize_tabs_inspection();
 	initialize_tabs_filter_options();
 	initialize_tabs_driving_features();
+	initialize_tabs_classification_tree();
 }
 
 
@@ -1018,7 +1026,35 @@ function initialize_tabs_driving_features(){
 			.style("width","200px")
 			.style("font-size","19px")
 			.text("Run data mining");
-	d3.select("[id=getDrivingFeaturesButton]").on("click", getDrivingFeatures);
+	d3.selectAll("[id=getDrivingFeaturesButton]").on("click", runDataMining);
 }
 
+function initialize_tabs_classification_tree(){
+	if(testType=="3"){
+		d3.select("[id=basicInfoBox_div]").select("[id=view4]").select("g").remove();
+		var guideline = d3.select("[id=basicInfoBox_div]").select("[id=view4]")
+				.append("g")
+				.append("div")
+				.style("width","900px")
+				.style("margin","auto")
+				
+		guideline.append("div")
+				.style("width","100%")
+				.style("font-size","21px")
+				.text("To run data mining, select target solutions on the scatter plot. Then click the button below.");
+
+		guideline.append("div")
+				.style("width","300px")
+				.style("margin","auto")
+				.append("button")
+				.attr("id","getDrivingFeaturesButton")
+				.style("margin-top","30px")
+				.style("width","200px")
+				.style("font-size","19px")
+				.text("Run data mining");
+		d3.selectAll("[id=getDrivingFeaturesButton]").on("click", runDataMining);
+	}else{
+		return;
+	}
+}
 

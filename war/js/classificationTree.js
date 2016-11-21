@@ -5,57 +5,75 @@
  */
 
 
-function getClassificationTree(){
-	
-	highlight_basic_info_box()
-	
-	if(selection_changed == false && jsonObj_tree != null){
-		display_classificationTree(jsonObj_tree);
-		return;
-	}
+//function getClassificationTree(){
+//	
+//    highlight_basic_info_box()
+//	
+//	if(selection_changed == false && jsonObj_tree != null){
+//		display_classificationTree(jsonObj_tree);
+//		return;
+//	}
+//
+//    var selectedArchs = d3.selectAll("[class=dot_clicked]");
+//    var nonSelectedArchs = d3.selectAll("[class=dot]");
+//    var numOfSelectedArchs = selectedArchs.size();
+//    var numOfNonSelectedArchs = nonSelectedArchs.size();
+//    var selectedBitStrings = [];
+//    var nonSelectedBitStrings = [];
+//    selectedBitStrings.length = 0;
+//    nonSelectedBitStrings.length=0;
+//    
+//    
+//    buttonClickCount_classificationTree += 1;
+//    getClassificationTree_numOfArchs.push([{numOfSelectedArchs,numOfNonSelectedArchs}]);
+//
+//    
+//    for (var i = 0; i < numOfSelectedArchs; i++) {
+//        var tmpBitString = booleanArray2String(selectedArchs[0][i].__data__.archBitString);
+//        selectedBitStrings.push(tmpBitString);
+//    }
+//    for (var i = 0; i < numOfNonSelectedArchs; i++) {
+//        var tmpBitString = booleanArray2String(nonSelectedArchs[0][i].__data__.archBitString);
+//        nonSelectedBitStrings.push(tmpBitString);
+//    }
+//   
+//    jsonObj_tree = buildClassificationTree(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters);
+//    display_classificationTree(jsonObj_tree);
+//    selection_changed = false;
+//    
+//}
 
-    var selectedArchs = d3.selectAll("[class=dot_clicked]");
-    var nonSelectedArchs = d3.selectAll("[class=dot]");
-    var numOfSelectedArchs = selectedArchs.size();
-    var numOfNonSelectedArchs = nonSelectedArchs.size();
-    var selectedBitStrings = [];
-    var nonSelectedBitStrings = [];
-    selectedBitStrings.length = 0;
-    nonSelectedBitStrings.length=0;
-    
-    
-    buttonClickCount_classificationTree += 1;
-    getClassificationTree_numOfArchs.push([{numOfSelectedArchs,numOfNonSelectedArchs}]);
 
-    
-    for (var i = 0; i < numOfSelectedArchs; i++) {
-        var tmpBitString = booleanArray2String(selectedArchs[0][i].__data__.archBitString);
-        selectedBitStrings.push(tmpBitString);
-    }
-    for (var i = 0; i < numOfNonSelectedArchs; i++) {
-        var tmpBitString = booleanArray2String(nonSelectedArchs[0][i].__data__.archBitString);
-        nonSelectedBitStrings.push(tmpBitString);
-    }
-   
-    jsonObj_tree = buildClassificationTree(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters);
-    display_classificationTree(jsonObj_tree);
-    selection_changed = false;
-    
-}
+//function buildClassificationTree(selected,nonSelected,
+//		support_threshold,confidence_threshold,lift_threshold,
+//		userDefFilters){
+//	
+//	var output;
+//    $.ajax({
+//        url: "classificationTreeServlet",
+//        type: "POST",
+//        data: {ID: "buildClassificationTree",selected: JSON.stringify(selected),nonSelected:JSON.stringify(nonSelected),
+//        	supp:support_threshold,conf:confidence_threshold,lift:lift_threshold,
+//        	userDefFilters:JSON.stringify(userDefFilters)},
+//        async: false,
+//        success: function (data, textStatus, jqXHR)
+//        {
+//        	output = JSON.parse(data);
+//        },
+//        error: function (jqXHR, textStatus, errorThrown)
+//        {alert("error");}
+//    });
+//    
+//    return output;
+//}
 
-
-
-function buildClassificationTree(selected,nonSelected,
-		support_threshold,confidence_threshold,lift_threshold,
-		userDefFilters){
+function buildClassificationTree(){
 	
 	var output;
     $.ajax({
-        url: "classificationTreeServlet",
+        url: "drivingFeatureServlet",
         type: "POST",
-        data: {ID: "buildClassificationTree",selected: JSON.stringify(selected),nonSelected:JSON.stringify(nonSelected),
-        	supp:support_threshold,conf:confidence_threshold,lift:lift_threshold,
-        	userDefFilters:JSON.stringify(userDefFilters)},
+        data: {ID: "buildClassificationTree"},
         async: false,
         success: function (data, textStatus, jqXHR)
         {
@@ -116,16 +134,6 @@ function searchByNodeID(id,objs){
 
 
 
-
-
-
-
-
-
-
-
-
-
 var i_tree = 0;
 var root;
 var tree;
@@ -139,14 +147,14 @@ var edgeLabelLoc;
 function display_classificationTree(source){
 	
 	// top  right bottem left
-	var margin_tree = [20, 120, 20, 350],
+	var margin_tree = [15, 120, 20, 350],
 	    width_tree = 3280 - margin_tree[1] - margin_tree[3],
-	    height_tree = 800 - margin_tree[0] - margin_tree[2];
+	    height_tree = 500 - margin_tree[0] - margin_tree[2];
 
 	tree = d3.layout.tree().size([height_tree, width_tree]);
 	
-	d3.select("[id=basicInfoBox_div]").select("g").remove();
-    var infoBox = d3.select("[id=basicInfoBox_div]")
+	d3.select("[id=basicInfoBox_div]").select("[id=view4]").select("g").remove();
+    var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view4]")
             .append("g");
     
 	var svg_tree = infoBox.append("svg")
@@ -184,7 +192,7 @@ function update(source) {
     // Normalize for fixed-depth.
     nodes.forEach(function(d) { d.y = d.depth * 170; });
     
-    var vis = d3.select("[id=basicInfoBox_div]").select('svg').select('g');
+    var vis = d3.select("[id=basicInfoBox_div]").select("[id=view4]").select("svg").select("g");
     
     // Update the nodes…
     var node = vis.selectAll("g.node")
@@ -264,7 +272,7 @@ function update(source) {
             
             return out;
         })
-        .style("font-size",25)
+        .style("font-size",23)
         .style("fill-opacity", 1);
  
     // Transition exiting nodes to the parent's new position.
@@ -280,23 +288,18 @@ function update(source) {
         .style("fill-opacity", 1e-6);
 
     // Update the links…
-//    var linkGroup = vis.append("g")
-//    	.attr("id","linkGroup")
-    	
-//    var link = linkGroup.selectAll("path.treeLink")
-//        .data(tree.links(nodes), function(d) { return d.target.id; });
     var link = vis.selectAll("path.treeLink")
     	.data(tree.links(nodes), function(d) { return d.target.id; });
 
     
-    var path_scale = d3.scale.pow().exponent(0.8);
+//    var path_scale = d3.scale.pow().exponent(0.8);
+    var path_scale = d3.scale.pow().exponent(0.6);
     path_scale.range([2,27])
               	.domain([1,jsonObj_tree_nested.numDat]);
 
 
     // Enter any new links at the parent's previous position.
     link.enter().insert("svg:path", "g")
-//    link.enter().append("svg:path")
         .attr("class", "treeLink")
         .attr("d", function(d) {
           var o = {x: source.x0, y: source.y0};
@@ -331,61 +334,55 @@ function update(source) {
         })
         .remove();
     
-    
-//    d3.selectAll("[class=treeLink]")[0]   // generate label locations
-//			    .forEach(function(n,i){
-//			        var leng = d3.selectAll("[class=treeLink]")[0][i].getTotalLength();
-//			        var pathPoint = d3.selectAll("[class=treeLink]")[0][i].getPointAtLength(leng*0.05);
-//			        var targetPoint = d3.selectAll("[class=treeLink]")[0][i].getPointAtLength(0);
-//			        var source = n.source;
-//			        var target = n.target;
-//			        var labelPoint = {x0:pathPoint.x, x1: targetPoint.x, y0:pathPoint.y, y1:targetPoint.y, source:source, target:target};
-//			        edgeLabelLoc.push(labelPoint);
-//				});
-//    
-//    
-//    d3.select("[id=linkGroup]")
-//		    .selectAll("[class=edgeLabel]")
-//		    .data(edgeLabelLoc)
-//		    .enter() 
-//		    .append("div")
-//		    .attr("class","edgeLabel")
-//		    .attr("text", "testing!")
-//		    .attr("transform", function(d,i){
-//        
-//	            var x0 = d.x0;
-//	            var x1 = d.x1;
-//	            var y0 = d.y0;
-//	            var y1 = d.y1;
-//	            var source = d.source;
-//	            var target = d.target;
-//	        
-//	            if (Math.abs(x1-x0 < 0.02)){
-//	                if(y1 - y0 > 0 ){
-//	                    return "translate(" + [x0, y0] + ")";
-//	                }else{
-//	                    return "translate(" + [x0, y0] + ")";
-//	                }
-//	                
-//	            } else {
-//	                if(y1 - y0 > 0){
-//	                    var slope_rad = Math.atan(      (x1-x0)/(y1-y0)    );
-//	                    var slope_ang = slope_rad * 180 / Math.PI;
-//	                    return "translate(" + [x0, y0] + ")";
-//	                }
-//	                else {
-//	                    var slope_rad = Math.atan(     -(x1-x0)/(y1-y0)    );
-//	                    var slope_ang = slope_rad * 180 / Math.PI;
-//	                    return "translate(" + [x0, y0] + ")";
-//	                }
-//	            }
-//		    });
-     
+
     
     
     
     
     
+    
+    
+    // Update the link labels
+    var link_label = vis.selectAll(".linkLabel")
+    		.data(tree.links(nodes), function(d) { return d.target.id; });
+  
+    link_label.enter().append("text")
+		    .attr("class", "linkLabel")
+		    .attr("x",function(d){
+		        return (d.source.y + d.target.y)/2;
+		    })
+		    .attr("y", function(d){
+		    	return (d.source.x + d.target.x)/2;
+		    })
+		    .text(function(d){
+		    	if(d.target.cond){
+		    		return "Yes";
+		    	}else{
+		    		return "No";
+		    	}
+		    })
+			.style("fill-opacity",0)
+			.transition()
+			.duration(duration)
+			.style("fill-opacity",1);
+
+    // Transition links to their new position.
+    link_label.transition()
+        		.duration(duration)
+				.attr("x",function(d){
+			        return (d.source.y + d.target.y)/2;
+			    })
+			    .attr("y", function(d){
+			    	return (d.source.x + d.target.x)/2;
+			    })
+			    .style("fill-opacity",1);
+    
+    link_label.exit().transition()
+		    .duration(duration)
+		    .style("fill-opacity",0)
+		    .remove();
+
+
 
     // Stash the old positions for transition.
     nodes.forEach(function(d) {

@@ -291,6 +291,10 @@ public class drivingFeatureServlet extends HttpServlet {
             outputString = jsonObj;
    
         } 
+        else if (requestID.equalsIgnoreCase("buildClassificationTree")){
+        	String graph = dfsGen.buildTree(false);
+        	outputString = graph;
+        }
 
 
 //        

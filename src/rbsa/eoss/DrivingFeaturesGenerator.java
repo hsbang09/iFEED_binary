@@ -551,10 +551,12 @@ public class DrivingFeaturesGenerator {
     
 
 
-    public String buildTree() {
+    public String buildTree(boolean recomputeDFs) {
     	  
         String graph="";
-        getDrivingFeatures();
+        if(recomputeDFs){
+        	getDrivingFeatures();
+        }
         int[][] mat = getDataFeatureMat();
         ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(mat);
         

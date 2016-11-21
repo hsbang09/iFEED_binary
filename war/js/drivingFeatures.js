@@ -10,13 +10,16 @@
 
 
 
-function getDrivingFeatures() {
+function runDataMining() {
 	
 	document.getElementById('tab3').click();
     highlight_basic_info_box()
     
 	if(selection_changed == false && sortedDFs != null){
 		display_drivingFeatures(sortedDFs,"lift");
+		if(testType=="3"){
+			display_classificationTree(jsonObj_tree);
+		}
 		return;
 	}
 	
@@ -49,7 +52,14 @@ function getDrivingFeatures() {
         }
 
         sortedDFs = generateDrivingFeatures(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
+        if(testType=="3"){
+            jsonObj_tree = buildClassificationTree();
+        }
+        
         display_drivingFeatures(sortedDFs,"lift");
+        if(testType=="3"){
+        	display_classificationTree(jsonObj_tree);
+        }
         selection_changed = false;
         
     }
@@ -163,9 +173,6 @@ function sortDrivingFeatures(drivingFeatures,sortBy){
 }
 
 
-//function loadDrivingFeaturesWindow() {
-//    var drivingFeatureDisplayWindow = window.open('drivingFeatures.html');
-//}
 
 
 function display_filterOption(){
@@ -639,7 +646,6 @@ function filterInputField_subsetOfInstruments(){
 function applyFilter_new(){
     buttonClickCount_applyFilter += 1;
 
-
     cancelDotSelections();
 
     var filterType = d3.select("[id=dropdown_presetFilters]")[0][0].value;
@@ -671,7 +677,6 @@ function applyFilter_new(){
         }
 
         var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-//                            var bitString = booleanArray2String(d.__data__.archBitString)
             var bitString = d.__data__.archBitString;
             if (presetFilter2(filterType,bitString,filterInputs,neg)){
                 d3.select(d).attr("class", "dot_clicked")
@@ -681,7 +686,6 @@ function applyFilter_new(){
     } else if(filterType == "defineNewFilter" || (filterType =="not_selected" && userDefFilters.length !== 0)){
         var filterExpression = d3.select("[id=filter_expression]").text();
         tmpCnt =0;
-
 
         d3.selectAll("[class=dot]")[0].forEach(function(d){
         	
@@ -974,30 +978,21 @@ function display_drivingFeatures(source,sortby) {
     
     
     var df_explanation_box = infoBox.append("div")
-	    		.style("float","left")
-	    		.style("background-color","#D2D2D2")
-	    		.style("width","350px")
-	    		.style("height",height_df + margin_df.top + margin_df.bottom)
-	    		.append("div")
-	    		.attr("id","df_explanation_box")
-	    		.style("width","280px")
-	    		.style("height",height_df + margin_df.top + margin_df.bottom - 30)
-	    		.style("margin-top","15px")
-	    		.style("margin-left","20px")
-
-    df_explanation_box.append("p")
-    			.style("font-size","17px")
-    			.text("Lift: The statistical dependency between the feature and selected designs")
-    			.append("p")
-    			.style("font-size","17px")
-    			.text("Suppport: The proportion of designs that are selected and have the feature, out of all designs")
-			    .append("p")
-			    .style("font-size","17px")
-				.text("Confidence(feature->selection): The proportion of selected designs among designs with the feature")
-			    .append("p")
-			    .style("font-size","17px")
-				.text("Confidence(selection->feature): The proportion of designs with feature among the selected designs");
-
+		.style("float","left")
+		.style("background-color","#E7E7E7")
+		.style("width","350px")
+		.style("height",height_df + margin_df.top + margin_df.bottom)
+		.append("div")
+		.attr("id","df_explanation_box")
+		.style("width","330px")
+		.style("height",height_df + margin_df.top + margin_df.bottom - 30)
+		.style("margin-top","15px")
+		.style("margin-left","20px");
+    df_explanation_box.append("svg")
+		.style("height","360px")
+		.style("width","290px")
+		.style("margin","auto");
+    
 
 ////////////////////////////////////////////////////////
     // x-axis
@@ -1251,13 +1246,13 @@ function display_drivingFeatures(source,sortby) {
                           
 //                    
                     textdiv.html(function(d){
-                        var output= d.name + "<br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
+                        var output= "<br>" + d.name + "<br><br><br> lift: " + d.lift.toFixed(4) + "<br> support: " + d.supp.toFixed(4) + 
                         "<br> conf {feature} -> {selection}: " + d.conf.toFixed(4) + "<br> conf2 {selection} -> {feature}: " + d.conf2.toFixed(4) +
                         "";
                         return output;
                     }).style("color", "#F7FF55");                         
 
-           
+                    draw_venn_diagram(df_explanation_box,supp,conf,conf2);
 
                 })
                 .on("mouseout",function(d){
@@ -1287,7 +1282,6 @@ function display_drivingFeatures(source,sortby) {
                     d3.selectAll("[class=dot_selected_DFhighlighted]")
                     		.attr("class", "dot_clicked")
                             .style("fill","#0040FF");     
-                    
                 });
 
 
@@ -1545,6 +1539,86 @@ function checkNeg(original,neg){
 }
 
 
+function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
+
+	df_explanation_box.select("svg").remove();
+	var svg_venn_diag = df_explanation_box
+								.append("svg")
+								.style("height","360px")
+								.style("width","290px")
+								.style("margin","auto");
+	
+	var F_size = supp * 1/conf;
+	var S_size = supp * 1/conf2;
+		
+	// Radius range: 30 ~ 80
+	// Intersecting distance range: 0 ~ (r1+r2)
+	
+    radius_scale = d3.scale.pow()
+    				.exponent(0.5)
+					.domain([0,5])
+	    			.range([10, 150]);
+    var r1 = radius_scale(1);
+    var	r2 = radius_scale(F_size/S_size);
+    
+    intersection_scale = d3.scale.linear()
+					.domain([0,1])
+					.range([r1+r2, 20+ r2-r1]);
+    
+    var left_margin = 50;
+    var c1x = left_margin + r1;
+    var c2x;
+	if (conf2 > 0.99){
+		c2x = c1x + r2 - r1;
+    }else{
+    	c2x = c1x + intersection_scale(conf2);
+    }
+	
+	svg_venn_diag
+		.append("circle")
+		.attr("id","venn_diag_c1")
+	    .attr("cx", c1x)
+	    .attr("cy", 180)
+	    .attr("r", r1)
+	    .style("fill", "steelblue")
+	    .style("fill-opacity", ".5");
+    
+	svg_venn_diag
+		.append("circle")
+		.attr("id","venn_diag_c2")
+	    .attr("cx", c2x)
+	    .attr("cy", 180)
+	    .attr("r", r2)
+	    .style("fill", "brown")
+	    .style("fill-opacity", ".5");
+	
+	
+	svg_venn_diag
+		.append("text")
+		.attr("x",left_margin-10)
+		.attr("y",70)
+		.attr("font-family","sans-serif")
+		.attr("font-size","18px")
+		.attr("fill","black")
+		.text("Intersection: " + Math.round(supp * numOfArchs()));
+	
+	svg_venn_diag
+		.append("text")
+		.attr("x",c1x-110)
+		.attr("y",180+r1+50)
+		.attr("font-family","sans-serif")
+		.attr("font-size","18px")
+		.attr("fill","steelblue")
+		.text("Selected:" + numOfSelectedArchs() );
+	svg_venn_diag
+		.append("text")
+		.attr("x",c1x+30)
+		.attr("y",180+r1+50)
+		.attr("font-family","sans-serif")
+		.attr("font-size","18px")
+		.attr("fill","brown")
+		.text("Features:" + Math.round(F_size * numOfArchs()) );
+}
 
 
 
