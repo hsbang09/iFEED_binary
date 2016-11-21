@@ -222,7 +222,17 @@ function update(source) {
     
     nodeEnter.append("svg:circle")
         .attr("r", 1e-6)
-         .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+         .style("fill", function(d) { 
+        	 if(d._children){
+        		 if(d.num_nb > d.num_b){
+        			 return "#343434";
+        		 }else{
+        			 return "#2383FF"
+        		 }
+        	 }else{
+        		 return "#A3A3A3";
+        	 }
+    	 });
     
     nodeEnter.append("svg:text")
         .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
@@ -239,8 +249,18 @@ function update(source) {
 
     nodeUpdate.select("circle")
         .attr("r", 9.5)
-        .style("fill", function(d) { return d._children ? "#3A3A3A" : "#A3A3A3"; });
-//        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+        .style("fill", function(d) { 
+        	 if(d._children){
+        		 if(d.num_nb > d.num_b){
+        			 return "#343434";
+        		 }else{
+        			 return "#2383FF"
+        		 }
+        	 }else{
+        		 return "#A3A3A3";
+        	 }
+    	 });
+//        .style("fill", function(d) { return d._children ? "#3A3A3A" : "#A3A3A3"; });
 
     nodeUpdate.select("text")
             .attr("x",function(d){
