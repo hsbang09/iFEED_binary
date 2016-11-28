@@ -114,8 +114,6 @@ function draw_scatterPlot(source) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-//            var zoom = d3.behavior.zoom().x(function(){
-//                console.log(xScale.domain());
 
     // x-axis
     svg.append("g")
@@ -206,7 +204,6 @@ function draw_scatterPlot(source) {
     d3.select("[id=cancel_selection]")[0][0].disabled = false;
     d3.select("[id=hide_selection]")[0][0].disabled = false;
     d3.select("[id=show_all_archs]")[0][0].disabled = false;
-	d3.select("[id=scatterPlot_option]")[0][0].disabled=false;
 	
     d3.select("[id=scatterPlotFigure]").on("click",unhighlight_basic_info_box);
     d3.select("[id=basicInfoBox_div]").on("click",highlight_basic_info_box);
@@ -218,7 +215,6 @@ function draw_scatterPlot(source) {
     d3.select("[id=openFilterOptions]").on("click",openFilterOptions);
     d3.select("[id=drivingFeaturesAndSensitivityAnalysis_div]").selectAll("options");
     d3.select("[id=numOfArchs_inputBox]").text(""+numOfArchs());
-    d3.select("[id=scatterPlot_option]").on("click",scatterPlot_option);
     d3.selectAll("[class=dot]")[0].forEach(function(d,i){
         d3.select(d).attr("paretoRank",-1);
     });
@@ -453,9 +449,9 @@ function dot_click(d) {
 }
 
 
-function scatterPlot_option(){ // three options: zoom, drag_selection, drag_deselection
+function scatterPlot_option(selected_option){ // three options: zoom, drag_selection, drag_deselection
 
-    if (d3.select("[id=scatterPlot_option]").attr("class")=="drag_deselection"){
+    if (selected_option=="1"){
 
     	
         translate_tmp_local[0] = translate_tmp[0];
@@ -467,11 +463,6 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
             .on("mousedown",null)
             .on("mousemove",null)
             .on("mouseup",null);
-
-
-
-        d3.select("[id=scatterPlot_option]").attr("class","zoom")
-                .style("background-color", "#DFDFDF");
 
         d3.select("[id=scatterPlotFigure]")
             .select("svg")
@@ -530,13 +521,9 @@ function scatterPlot_option(){ // three options: zoom, drag_selection, drag_dese
             )  
     } else{
         var option;
-        if(d3.select("[id=scatterPlot_option]").attr("class")=="zoom"){
-            d3.select("[id=scatterPlot_option]").attr("class","drag_selection")
-                .style("background-color", "#4BC41B");
+        if(selected_option=="2"){
             option = "selection";
         }else{
-            d3.select("[id=scatterPlot_option]").attr("class","drag_deselection")
-                .style("background-color", "#FA5F73");
             option = "deselection";
         }
 
@@ -1058,3 +1045,21 @@ function initialize_tabs_classification_tree(){
 	}
 }
 
+
+
+function set_selection_option(selected_option){
+	if(selected_option=="1"){
+		d3.select("#zoom")[0][0].checked=true;
+		d3.select("#drag-select")[0][0].checked=false;
+		d3.select("#de-select")[0][0].checked=false;
+	}else if(selected_option=="2"){
+		d3.select("#zoom")[0][0].checked=false;
+		d3.select("#drag-select")[0][0].checked=true;
+		d3.select("#de-select")[0][0].checked=false;
+	}else{
+		d3.select("#zoom")[0][0].checked=false;
+		d3.select("#drag-select")[0][0].checked=false;
+		d3.select("#de-select")[0][0].checked=true;
+	}
+	scatterPlot_option(selected_option)
+}
