@@ -520,6 +520,7 @@ function scatterPlot_option(selected_option){ // three options: zoom, drag_selec
                         })       
             )  
     } else{
+    	
         var option;
         if(selected_option=="2"){
             option = "selection";
@@ -638,7 +639,7 @@ function scatterPlot_option(selected_option){ // three options: zoom, drag_selec
             }      
     })
     .on( "mouseup", function() {
-
+    	unhighlight_basic_info_box();
         var svg_tmp =  d3.select("[id=scatterPlotFigure]")
             .select("svg")
 

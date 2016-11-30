@@ -1235,7 +1235,7 @@ function display_drivingFeatures(source,sortby) {
                                     
                     var fo_div = fo.append('xhtml:div')
                                             .attr({
-                                                'class': 'tooltip'
+                                                'class': 'fo_tooltip'
                                             });
                     var textdiv = fo_div.selectAll("div")
                             .data([{name:name,supp:supp,conf:conf,conf2:conf2,lift:lift}])
