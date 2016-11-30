@@ -194,6 +194,40 @@ and open the template in the editor.
             	height:25px;
             	float:left;
             }
+            
+			            
+			/* Tooltip container */
+ 			.tooltip { 
+ 			    position: relative;
+ 			} 
+			
+			/* Tooltip text */
+			.tooltip .tooltiptext {
+			    visibility: hidden;
+			    width: 150px;
+			    background-color: #DCC5C1;
+			    color: black;
+			    text-align: center;
+			    padding: 10px;
+			    border-radius: 6px;
+			 
+			    /* Position the tooltip text - see examples below! */
+			    position: absolute;
+			    z-index: 1;
+			    
+			    opacity: 0;
+			    transition: opacity 0.3s;
+			}
+	
+			
+			
+			/* Show the tooltip text when you mouse over the tooltip container */
+			.tooltip:hover .tooltiptext {
+				opacity: 1;
+			    visibility: visible;
+			}
+            
+            
 	
 	</style>
 
@@ -259,18 +293,31 @@ and open the template in the editor.
 									<div style="font-size:18px;font-weight: bold;">
 										Select Interaction Mode
 									</div>
-								    <div style="margin-top:3px" onclick="set_selection_option(1);">
-								    	Zoom/Pan:
-								    	<input id="zoom" type="radio" checked="True"/>
-							    	</div>
-								    <div onclick="set_selection_option(2);">
-								    	Drag-select:
-								    	<input id="drag-select" type="radio"/>
-							    	</div>
-								    <div onclick="set_selection_option(3);">
-								    	De-select:
-								    	<input id="de-select" type="radio"/>
-							    	</div>
+									<div class="tooltip">
+										<span class="tooltiptext" style="right:230px;padding:11px;width:230px">Zoom/Pan: This option allows zooming/panning on the scatter plot</span>
+										<div style="margin-top:3px" onclick="set_selection_option(1);">
+									    	Zoom/Pan:
+									    	<input id="zoom" type="radio" checked="True"/>
+								    	</div>
+									</div>
+								    
+									<div class="tooltip">
+										<span class="tooltiptext" style="right:230px;padding:11px;width:230px">Drag-select: This option allows selecting designs by dragging over points</span>
+									    <div onclick="set_selection_option(2);">
+									    	Drag-select:
+									    	<input id="drag-select" type="radio"/>
+								    	</div>
+									</div>
+								    
+									<div class="tooltip">
+										<span class="tooltiptext" style="right:230px;padding:11px;width:230px">Deselect: This option allows de-selecting designs by dragging over points</span>
+									    <div onclick="set_selection_option(3);">
+									    	Deselect:
+									    	<input id="de-select" type="radio"/>
+								    	</div>
+									</div>
+
+
 			            		</div>
 		            		</div>
 		
@@ -285,20 +332,9 @@ and open the template in the editor.
 			                    <button type="button"  id="cancel_selection" disabled="True">Cancel all selections</button>
 			                    <button type="button"  id="hide_selection" disabled="True">Hide selections</button>
 			                    <button type="button"  id="show_all_archs" disabled="True">Show all architectures</button>
-<!-- 			                    <button type="button" disabled="True"  id="openFilterOptions">Open Filter Options</button> -->
 			                </div>
 
 			                <div id="data_mining_option_div" style="float:left; margin-top: 15px;">
-<!-- 			                    <button type="button" disabled="True" id="getDrivingFeaturesButton">Run data mining</button> -->
-<!-- 			                    <button type="button" disabled="True"  id="getClassificationTreeButton">Build classification tree</button> -->
-			                    
-<!-- 			                    <select id="dfsort_options" style="width:170px; margin-bottom: 7px"> -->
-<!-- 			                        <option value="lift">Lift</option> -->
-<!-- 			                        <option value="supp">Support</option> -->
-<!-- 			                        <option value="confave">Conf (average)</option> -->
-<!-- 			                        <option value="conf1">Conf (feature->selection)</option> -->
-<!-- 			                        <option value="conf2">Conf (selection->feature)</option> -->
-<!-- 			                    </select> -->
 			                </div>
 		            	</div>
 		            	
