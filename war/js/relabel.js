@@ -46,6 +46,7 @@ function relabelback(input){   // has to match with the method in Scheme.java
         }
         return orbitList[nth];
     } else if(input.length===1) {
+    	input = input.toUpperCase();
         var nth = $.inArray(input,newInstrList);
         if(nth==-1){
             return input;

@@ -364,7 +364,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
 
         filterInput.append("div")
                 .attr("id","filter_input1")
-                .text("Input Pareto Ranking: ");
+                .text("Input Pareto Ranking (Integer number between 0-15): ");
 
         filterInput.select("[id=filter_input1]")
                 .append("input")
@@ -654,8 +654,8 @@ function applyFilter_new(){
     if (filterType == "paretoFront"){
         var filterInput = d3.select("[id=filter_input1_textBox]")[0][0].value;
         var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-        	var rank = d3.select(d).attr("paretoRank");
-            if (rank <= ""+filterInput && rank >= 0){
+        	var rank = parseInt(d3.select(d).attr("paretoRank"));
+            if (rank <= filterInput && rank >= 0){
                 d3.select(d).attr("class", "dot_clicked")
                             .style("fill", "#0040FF");
             }
@@ -978,22 +978,27 @@ function display_drivingFeatures(source,sortby) {
     
     
     var df_explanation_box = infoBox.append("div")
+		.attr("id","df_explanation_box")
 		.style("float","left")
 		.style("background-color","#E7E7E7")
-		.style("width","350px")
-		.style("height",height_df + margin_df.top + margin_df.bottom)
-		.append("div")
-		.attr("id","df_explanation_box")
-		.style("width","330px")
-		.style("height",height_df + margin_df.top + margin_df.bottom - 30)
-		.style("margin-top","15px")
-		.style("margin-left","20px");
-    df_explanation_box.append("svg")
-		.style("height","360px")
-		.style("width","290px")
-		.style("margin","auto");
+	    .style('height','350px')
+	    .style('margin-top','15px')
+	    .style('padding','15px')
+	    .style('width','320px');
     
-
+    df_explanation_box.append('div')
+		.style("font-family","sans-serif")
+		.style('margin-left','10px')
+		.style("font-size","18px")
+    	.style('width','100%')
+    	.text('Total number of designs: ' + numOfArchs());
+    
+    df_explanation_box.append("svg")
+		.style('width','320px')  			
+		.style('height','305px')
+		.style('margin-top','10px')
+		.style('margin-bottom','10px'); 
+    
 ////////////////////////////////////////////////////////
     // x-axis
     svg_df.append("g")
@@ -1368,6 +1373,9 @@ function presetFilter2(filterName,bitString,inputs,neg){
     if(filterName==="present"){
         filterInput1 = relabelback(filterInput1);
         var thisInstr = $.inArray(filterInput1,instrList);
+        if(thisInstr==-1){
+        	return null;
+        }
         output = false;
         for(var i=0;i<orbitList.length;i++){
             if(bitString[ninstr*i+thisInstr]===true){
@@ -1378,6 +1386,9 @@ function presetFilter2(filterName,bitString,inputs,neg){
     } else if(filterName==="absent"){
         filterInput1 = relabelback(filterInput1);
         var thisInstr = $.inArray(filterInput1,instrList);
+        if(thisInstr==-1){
+        	return null;
+        }
         output = true;
         for(var i=0;i<orbitList.length;i++){
             if(bitString[ninstr*i+thisInstr]===true){
@@ -1391,6 +1402,10 @@ function presetFilter2(filterName,bitString,inputs,neg){
         output = false;
         var thisOrbit = $.inArray(filterInput1,orbitList);
         var thisInstr = $.inArray(filterInput2,instrList);
+        
+        if(thisInstr==-1 || thisOrbit==-1){
+        	return null;
+        }
             if(bitString[thisOrbit*ninstr + thisInstr]===true){
                 output = true;
             }
@@ -1400,6 +1415,9 @@ function presetFilter2(filterName,bitString,inputs,neg){
         output = true;
         var thisOrbit = $.inArray(filterInput1,orbitList);
         var thisInstr = $.inArray(filterInput2,instrList);
+        if(thisInstr==-1 || thisOrbit==-1){
+        	return null;
+        }
             if(bitString[thisOrbit*ninstr + thisInstr]===true){
                 output = false;
             }
@@ -1410,6 +1428,9 @@ function presetFilter2(filterName,bitString,inputs,neg){
         var thisInstr2 = $.inArray(relabelback(splitInstruments[1]),instrList);
         var thisInstr3;
         if(splitInstruments.length===2){
+            if(thisInstr1==-1 || thisInstr2==-1){
+            	return null;
+            }
             for(var i=0;i<norb;i++){
                 if(bitString[i*ninstr + thisInstr1] === true && bitString[i*ninstr + thisInstr2] === true){
                     output = true;
@@ -1417,8 +1438,10 @@ function presetFilter2(filterName,bitString,inputs,neg){
                 }
             }
         } else {
-            
             thisInstr3 = $.inArray(relabelback(splitInstruments[2]),instrList);
+            if(thisInstr1==-1 || thisInstr2==-1 || thisInstr3==-1){
+            	return null;
+            }
             for(var i=0;i<norb;i++){
                 if(bitString[i*ninstr + thisInstr1] === true && bitString[i*ninstr + thisInstr2] === true
                         && bitString[i*ninstr + thisInstr3] === true){
@@ -1435,11 +1458,17 @@ function presetFilter2(filterName,bitString,inputs,neg){
         var thisInstr2 = $.inArray(relabelback(splitInstruments[1]),instrList);
         var thisInstr3;
         if(splitInstruments.length===2){
+            if(thisInstr1==-1 || thisInstr2==-1 || thisOrbit==-1){
+            	return null;
+            }
             if(bitString[thisOrbit*ninstr + thisInstr1] === true && bitString[thisOrbit*ninstr + thisInstr2] === true){
                 output = true;
             }
         } else {
             thisInstr3 = $.inArray(relabelback(splitInstruments[2]),instrList);
+            if(thisInstr1==-1 || thisInstr2==-1 || thisInstr3==-1 || thisOrbit==-1){
+            	return null;
+            }
             if(bitString[thisOrbit*ninstr + thisInstr1] === true && bitString[thisOrbit*ninstr + thisInstr2] === true
                         && bitString[thisOrbit*ninstr + thisInstr3] === true){
                 output = true;
@@ -1452,6 +1481,9 @@ function presetFilter2(filterName,bitString,inputs,neg){
         var thisInstr2 = $.inArray(relabelback(splitInstruments[1]),instrList);
         var thisInstr3;
         if(splitInstruments.length===2){
+            if(thisInstr1==-1 || thisInstr2==-1){
+            	return null;
+            }
             for(var i=0;i<norb;i++){
                 if(bitString[i*ninstr + thisInstr1] === true && bitString[i*ninstr + thisInstr2] === true){
                     output = false;
@@ -1460,6 +1492,9 @@ function presetFilter2(filterName,bitString,inputs,neg){
             }
         } else {
             thisInstr3 = $.inArray(relabelback(splitInstruments[2]),instrList);
+            if(thisInstr1==-1 || thisInstr2==-1 || thisInstr3==-1){
+            	return null;
+            }
             for(var i=0;i<norb;i++){
                 if(bitString[i*ninstr + thisInstr1] === true && bitString[i*ninstr + thisInstr2] === true
                         && bitString[i*ninstr + thisInstr3] === true){
@@ -1470,6 +1505,9 @@ function presetFilter2(filterName,bitString,inputs,neg){
         }
     } else if(filterName ==="emptyOrbit"){
         var thisOrbit =  $.inArray(relabelback(filterInput1),orbitList);
+        if(thisOrbit==-1){
+        	return null;
+        }
         output = true;
         for(var i=0;i<ninstr;i++){
             if(bitString[thisOrbit*ninstr + i]===true){
@@ -1479,6 +1517,9 @@ function presetFilter2(filterName,bitString,inputs,neg){
         }
     } else if(filterName ==="numOrbitUsed"){
         var numOrbits = filterInput1;
+        if(numOrbits > 5 || numOrbits < 0){
+        	return null;
+        }
         var cnt = 0;
         for (var i=0;i<norb;i++){
             for (var j=0;j<ninstr;j++){
@@ -1544,10 +1585,15 @@ function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
 	df_explanation_box.select("svg").remove();
 	var svg_venn_diag = df_explanation_box
 								.append("svg")
-								.style("height","360px")
-								.style("width","290px")
-								.style("margin","auto");
-	
+					    		.style('width','320px')  			
+								.style('border-width','3px')
+								.style('height','305px')
+								.style('border-style','solid')
+								.style('border-color','black')
+								.style('border-radius','40px')
+								.style('margin-top','10px')
+								.style('margin-bottom','10px'); 
+
 	var F_size = supp * 1/conf;
 	var S_size = supp * 1/conf2;
 		
@@ -1578,7 +1624,7 @@ function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
 		.append("circle")
 		.attr("id","venn_diag_c1")
 	    .attr("cx", c1x)
-	    .attr("cy", 180)
+	    .attr("cy", 180-30)
 	    .attr("r", r1)
 	    .style("fill", "steelblue")
 	    .style("fill-opacity", ".5");
@@ -1587,7 +1633,7 @@ function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
 		.append("circle")
 		.attr("id","venn_diag_c2")
 	    .attr("cx", c2x)
-	    .attr("cy", 180)
+	    .attr("cy", 180-30)
 	    .attr("r", r2)
 	    .style("fill", "brown")
 	    .style("fill-opacity", ".5");
@@ -1596,7 +1642,7 @@ function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
 	svg_venn_diag
 		.append("text")
 		.attr("x",left_margin-10)
-		.attr("y",70)
+		.attr("y",70-30)
 		.attr("font-family","sans-serif")
 		.attr("font-size","18px")
 		.attr("fill","black")
@@ -1605,7 +1651,7 @@ function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
 	svg_venn_diag
 		.append("text")
 		.attr("x",c1x-110)
-		.attr("y",180+r1+50)
+		.attr("y",180+r1+50-30)
 		.attr("font-family","sans-serif")
 		.attr("font-size","18px")
 		.attr("fill","steelblue")
@@ -1613,7 +1659,7 @@ function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
 	svg_venn_diag
 		.append("text")
 		.attr("x",c1x+30)
-		.attr("y",180+r1+50)
+		.attr("y",180+r1+50-30)
 		.attr("font-family","sans-serif")
 		.attr("font-size","18px")
 		.attr("fill","brown")
