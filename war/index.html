@@ -236,16 +236,6 @@ and open the template in the editor.
 				<h2>iFEED GUI</h2>
         </div>
 
-        
-		<a href="#" onclick="signOut();" style="margin-bottom: 10px; float:right">Quit experiment and sign out</a>	
-		
-		<div id="logIn_window" style="width:100%;">
-	        <div style="width:400px;margin:auto">
-	        	Please log in to start:
-	        </div>
-			<div id="signin_div" class="g-signin2" data-onsuccess="onSignIn" style="width:400px;margin:auto"></div>
-		</div>
-		
 		<div id="clockdiv">
 			  <div>
 			    <span class="minutes"></span>
@@ -257,9 +247,10 @@ and open the template in the editor.
 			  </div>
 		</div>
 		
-		<div style="width:100%; margin-top: 35px">
+		
+		<div style="float:left;width:100%; margin-top: 20px">
 			<div style="width:1300px; margin:auto">
-	
+
 		        <div id="StatusBar" style="width: 100%; float:left; margin-top:10px; margin-bottom:5px;
 		                height: 30px;">
 		<!--             <div id="satisfactionScoreSummaryButton_div"> -->
@@ -318,6 +309,8 @@ and open the template in the editor.
 			            		</div>
 		            		</div>
 		
+		
+		
 			                <div id="selection_option_div" style="float:left;width:220px;margin-top: 20px;">
 								<div style="margin:auto;width:200;padding:15px;background-color:#D9D9D9">
 									<div style="font-size:18px;font-weight: bold;margin-bottom:10px">
@@ -337,6 +330,8 @@ and open the template in the editor.
 			                	
 			                
 			                </div>
+
+
 		            	</div>
 		            	
 		
@@ -381,7 +376,6 @@ and open the template in the editor.
        
        
        <script>
-
             var original_bitString;
             var modified_bitString;
             var selected_bitString;
@@ -408,8 +402,8 @@ and open the template in the editor.
    
             var id_token;
             var session_timed_out = false;
-            var key_number=-12345678;
-            var testType;
+            var account_id =-12345678;
+            var testType = -1;
             var remainingTime;
             
             // Scatter plot variables
@@ -470,60 +464,8 @@ and open the template in the editor.
 
 
             
-           
-           
-           
-           
-           
-            
-			function onSignIn(googleUser) {
-            	id_token = googleUser.getAuthResponse().id_token;
-		        var firstLoginTime = Date.parse(new Date());
-		        var credential;
-//                 $.ajax(
-//                         {
-//                             url: "loginServlet",
-//                             type: "POST",
-//                             data: {ID: "login", IDToken: id_token, loginTime:firstLoginTime},
-//                             async: false,
-//                             success: function (data, textStatus, jqXHR)
-//                             {
-//                             	d3.select("[id=logIn_window]").remove();
-// 								credential = data;
-//                             },
-//                             error: function (jqXHR, textStatus, errorThrown)
-//                             {
-//                                 alert("error");
-//                             }
-//                         });
-//                 if(credential!=="accessDenied"){  // access granted
-//                 	testType = credential[0];
-//                 	remainingTime = + credential.slice(2);
-                	
-// //                  testType = "4";
-//                     newDataFromResultFile();
-//                 }else{ // access not granted
-//                 	signOut();
-//                 }
 
 
-                	remainingTime = + 10000000000000000000000;
-                 	testType = "3";
-                    newDataFromResultFile();
-
-			}
-			
-		    function renderButton() {
-		        gapi.signin2.render('my-signin2', {
-		          'scope': 'profile',
-		          'width': 240,
-		          'height': 50,
-		          'longtitle': true,
-		          'theme': 'dark',
-		          'onsuccess': onSuccess,
-		          'onfailure': onFailure
-		        });
-		    }
 			
             
             function session_timeout(){
@@ -558,19 +500,7 @@ and open the template in the editor.
                 return out;
             }
             
-		  	function signOut() {
-		    	var auth2 = gapi.auth2.getAuthInstance();
-			    auth2.signOut().then(function () {
-			      console.log('User signed out.');
-			    });
-			    if(session_timed_out===true){ // the time ran out
-			    	d3.select('body').append('h2').text('You have logged out. Thank you for participating in the study. Now you can close the window')
-			    			.style("width","400px")
-			    			.style("margin","auto");
-			    }else{  // the experiment was stopped by the user before the time ran out
-				    window.location.replace("session_end.html");
-			    }
-		  	}
+
 
             try {
 
@@ -590,7 +520,6 @@ and open the template in the editor.
                             },
                             complete: function () {
                                 reset_drawing_scatterPlot();
-//                                 draw_scatterPlot(architectures);
                             },
                             error: function (jqXHR, textStatus, errorThrown)
                             {
@@ -628,17 +557,6 @@ and open the template in the editor.
                     complete: function () {
                     	reset_drawing_scatterPlot();
                     	draw_scatterPlot(architectures);
-
-                    	
-                    	var startTime = Date.parse(new Date());
-                    	startTime = +startTime;
-//                     	
-                    	if(+remainingTime < 0){
-                    		signOut();
-                    		return;
-                    	}
-						var deadline = new Date(startTime + remainingTime);
-                     	initializeClock('clockdiv', deadline);
                     },
                     error: function (jqXHR, textStatus, errorThrown)
                     {
@@ -944,11 +862,59 @@ and open the template in the editor.
            }
             
             
-
+            
+            
+			var credential_verified = false;
+			var cred = window.location.search;
+			var startTime = Date.parse(new Date());
+			cred = cred.substring(1);
+			if(cred){
+	       		testType_temp = cred.split("-")[0];
+	       		console.log(testType_temp);
+	       		account_id = cred.split("-")[1];
+	       		console.log(account_id);
+	       		var access;
+				$.ajax(
+					{
+  		                 url: "loginServlet",
+  		                 type: "POST",
+  		                 data: {ID: "login", account_id: account_id, testType: testType_temp, loginTime:startTime},
+  		                 async: false,
+  		                 success: function (data, textStatus, jqXHR)
+  		                 {
+  		                	remainingTime=data; 
+  		                 },
+  		                 error: function (jqXHR, textStatus, errorThrown)
+  		                 {
+  		                     alert("Initialization error");
+  		                 }
+  		             });
+      	       if(remainingTime!="accessDenied"){
+      	    	   // Credential verified
+      	    	   if( + remainingTime > 0){
+          	    	   credential_verified=true;
+          	    	  // Positive remaining time
+      	    	   }
+      	       }
+	       }else{
+	    	   // signout
+	    	   credential_verified=false;
+	       }
+			
+			
+// 			if(credential_verified){
+// 				var deadline = new Date(startTime + remainingTime);
+// 	         	initializeClock('clockdiv', deadline);
+// 	         	newDataFromResultFile();
+// 			}else{
+// 				window.location.replace("session_end.html");
+// 			}
 
 
         	remainingTime = + 10000000000000000000000;
          	testType = "3";
+			var deadline = new Date(startTime + remainingTime);
+         	initializeClock('clockdiv', deadline);
             newDataFromResultFile();
 
 
