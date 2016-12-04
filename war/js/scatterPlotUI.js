@@ -244,7 +244,7 @@ function add_newArchs_to_scatterPlot() {
 }
 
 function selectArchsWithinRange() {
-
+	
     var clickedArchs = d3.selectAll("[class=dot_clicked]");
     var unClickedArchs = d3.selectAll("[class=dot]");
 
@@ -312,7 +312,6 @@ function selectArchsWithinRange() {
 }
 
 function cancelDotSelections(){
-
     var clickedArchs = d3.selectAll("[class=dot_clicked]");
 
     clickedArchs.attr("class", "dot")
@@ -377,7 +376,7 @@ function show_all_archs(){
 
 
 function dot_mouseover(d) {
-	
+
 	if(infoBox_active==true){
 		return;
 	}
@@ -395,14 +394,14 @@ function dot_mouseover(d) {
             .append("g");
 
     archInfoBox.append("p")
-            .text("Benefit: " + (d.science).toFixed(4));
+            .text("Benefit: " + d.science.toFixed(4));
     archInfoBox.append("p")
-            .text("Cost: " + (d.cost).toFixed(1));
+            .text("Cost: " + d.cost.toFixed(1));
 
-    archInfoBox.append("input")
-            .attr("id", "evalNewArch")
-            .attr("type", "button")
-            .attr("value", "Evaluate modified architecture");
+//    archInfoBox.append("input")
+//            .attr("id", "evalNewArch")
+//            .attr("type", "button")
+//            .attr("value", "Evaluate modified architecture");
 
 
     var bitString = booleanArray2String(d.archBitString);
@@ -414,7 +413,7 @@ function dot_mouseover(d) {
 
 
 
-    document.getElementById("evalNewArch").disabled = true;
+//    document.getElementById("evalNewArch").disabled = true;
 
     d3.select("[id=instrumentOptions]")
             .select("table").remove();
@@ -654,7 +653,7 @@ function scatterPlot_option(selected_option){ // three options: zoom, drag_selec
 function drawParetoFront(){
 
     var archsInParetoFront = d3.selectAll("[class=dot]")[0].filter(function(d){
-        if(d3.select(d).attr("paretoRank")=="1"){
+        if(d3.select(d).attr("paretoRank")=="0"){
             return true;
         }
     });
@@ -733,12 +732,10 @@ function calculateParetoRanking(){
         return;
     }
 
-
     var rank=0;
-
     while(archs.length > 0){
+
         var numArchs = archs.length;
-        
         if (rank>15){
             break;
         }
@@ -774,7 +771,7 @@ function calculateParetoRanking(){
 
 
 function highlight_basic_info_box(){
-	
+
     d3.select("[id=scatterPlotFigure]")
     	.style("border-width","1px");
 	d3.select("[id=basicInfoBox_div]")
@@ -782,6 +779,7 @@ function highlight_basic_info_box(){
 	infoBox_active=true;
 }
 function unhighlight_basic_info_box(){
+
     d3.select("[id=scatterPlotFigure]")
 			.style("border-width","3.3px");
 	d3.select("[id=basicInfoBox_div]")
@@ -909,7 +907,7 @@ function initialize_tabs_inspection(){
 			.append("div")
 			.style("width","100%")
 			.style("font-size","21px")
-			.text("If you hover the mouse over a design, relative information will be displayed here.");
+			.text("If you hover the mouse over a design, relevant information will be displayed here.");
 }
 function initialize_tabs_filter_options(){
 
@@ -970,12 +968,12 @@ function initialize_tabs_filter_options(){
             .style("margin-left","6px")
             .style("float","left")
             .text("Search within selection");
-    d3.select("[id=filter_options]").append("button")
-		    .attr("id","applyFilterButton_complement")
-		    .attr("class","filterOptionButtons")
-		    .style("margin-left","6px")
-		    .style("float","left")
-		    .text("Select complement");
+//    d3.select("[id=filter_options]").append("button")
+//		    .attr("id","applyFilterButton_complement")
+//		    .attr("class","filterOptionButtons")
+//		    .style("margin-left","6px")
+//		    .style("float","left")
+//		    .text("Select complement");
     d3.select("[id=filter_options]").append("button")
             .attr("id","saveFilter")
             .attr("class","filterOptionButtons")
@@ -991,6 +989,7 @@ function initialize_tabs_filter_options(){
     
 }
 function initialize_tabs_driving_features(){
+	
 	d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
 	var guideline = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
 			.append("g")
@@ -1016,6 +1015,7 @@ function initialize_tabs_driving_features(){
 }
 
 function initialize_tabs_classification_tree(){
+
 	if(testType=="3"){
 		d3.select("[id=basicInfoBox_div]").select("[id=view4]").select("g").remove();
 		var guideline = d3.select("[id=basicInfoBox_div]").select("[id=view4]")
@@ -1061,4 +1061,9 @@ function set_selection_option(selected_option){
 		d3.select("#de-select")[0][0].checked=true;
 	}
 	scatterPlot_option(selected_option)
+}
+
+
+function round_num_2_perc(num){
+	return Math.round((num + 0.01) * 100);
 }

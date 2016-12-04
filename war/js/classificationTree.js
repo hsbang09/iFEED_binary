@@ -281,12 +281,12 @@ function update(source) {
             		// classified as selected
             		var weight = d.num_b + d.num_nb;
             		var accuracy = d.num_b / weight;
-            		out += "selected (" + accuracy.toFixed(2)*100 + "%) - Weight: " + weight;
+            		out += "selected (" + round_num_2_perc(accuracy) + "%) - Weight: " + weight;
             	}else{
             		// classified as not selected
             		var weight = d.num_b + d.num_nb;
             		var accuracy = d.num_nb / weight;
-            		out += "not selected (" + accuracy.toFixed(2)*100 + "%) - Weight: " + weight;
+            		out += "not selected (" + round_num_2_perc(accuracy) + "%) - Weight: " + weight;
             	}
             }
             
@@ -415,6 +415,7 @@ function update(source) {
 
 // Toggle children.
 function toggle_tree(d) {
+
     if (d.children) {
       d._children = d.children;
       d.children = null;
