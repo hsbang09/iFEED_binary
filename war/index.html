@@ -233,7 +233,7 @@ and open the template in the editor.
     </head>
     <body>
         <div id="title" style="float:left; margin-top: 15px; margin-bottom: 20px; text-align: center; width: 100%;">
-				<h2>iFEED GUI -test3</h2>
+				<h2>iFEED GUI</h2>
         </div>
 
         
@@ -243,7 +243,6 @@ and open the template in the editor.
 	        <div style="width:400px;margin:auto">
 	        	Please log in to start:
 	        </div>
-<!--      		<button id="signin_div" class="g-signin2"  style="width:400px;margin:auto"></button> -->
 			<div id="signin_div" class="g-signin2" data-onsuccess="onSignIn" style="width:400px;margin:auto"></div>
 		</div>
 		
@@ -286,10 +285,10 @@ and open the template in the editor.
 		            <div id="OptionsPane" class="main_options" style="float:left; width: 250px; height: 540px;border: 1px black double;">
 		            	<div style="width:225px;height:535px;margin:auto;">
 		            		
-		            		<div style="float:left;width:220px;margin-top:10px;height:115px;background-color:#D9D9D9">
-			            		<div class="toggle-selection-option-div" style="height: 110px; width:100%;float:left;margin:6px;">
+		            		<div style="float:left;width:190px;padding:15px;height:115px;background-color:#D9D9D9;margin-top:15px">
+			            		<div class="toggle-selection-option-div" style="height: 110px;float:left;">
 									<div style="font-size:18px;font-weight: bold;">
-										Select Interaction Mode
+										Mouse Selection
 									</div>
 									<div class="tooltip">
 										<span class="tooltiptext" style="right:230px;padding:11px;width:230px">Zoom/Pan: This option allows zooming/panning on the scatter plot</span>
@@ -319,20 +318,24 @@ and open the template in the editor.
 			            		</div>
 		            		</div>
 		
-			                <div id="selection_option_div" style="float:left;margin-top: 10px;">
-			                    Cost range: <br/>
-			                    <input id="selectArchsWithinRange_minCost" class="select_within_range_text_box" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxCost" class="select_within_range_text_box" type="text" value="inf"/>
-			                    <br/> Science Benefit range: <br/>
-			                    <input id="selectArchsWithinRange_minScience" class="select_within_range_text_box" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxScience" class="select_within_range_text_box" type="text" value="1"/>
-			                    <br/>
-			                    
-			                    <button type="button" id="selectArchsWithinRangeButton" disabled="True">Select points within range</button>
-			                    <button type="button"  id="cancel_selection" disabled="True">Cancel all selections</button>
+			                <div id="selection_option_div" style="float:left;width:220px;margin-top: 20px;">
+								<div style="margin:auto;width:200;padding:15px;background-color:#D9D9D9">
+									<div style="font-size:18px;font-weight: bold;margin-bottom:10px">
+										Range Selection
+									</div>
+				                    Cost range: <br/>
+				                    <input id="selectArchsWithinRange_minCost" class="select_within_range_text_box" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxCost" class="select_within_range_text_box" type="text" value="inf"/>
+				                    <br/> Science Benefit range: <br/>
+				                    <input id="selectArchsWithinRange_minScience" class="select_within_range_text_box" type="text" value="0"/>&nbsp; ~&nbsp; <input id="selectArchsWithinRange_maxScience" class="select_within_range_text_box" type="text" value="1"/>
+				                    <br/>
+			                    	<button type="button" id="selectArchsWithinRangeButton" style="margin-top:10px;margin-bottom:3px;width:170px" disabled="True">Select within range</button>
+
+								</div>
 <!-- 			                    <button type="button"  id="hide_selection" disabled="True">Hide selections</button> -->
 <!-- 			                    <button type="button"  id="show_all_archs" disabled="True">Show all architectures</button> -->
-			                </div>
-
-			                <div id="data_mining_option_div" style="float:left; margin-top: 15px;">
+            				    <button type="button"  id="cancel_selection" disabled="True" style="width:220px;height:35px;margin-top:20px">Cancel all selections</button>
+			                	
+			                
 			                </div>
 		            	</div>
 		            	
