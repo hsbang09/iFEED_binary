@@ -12,6 +12,7 @@ function selectNewFilterOption(){
     d3.select("[id=filter_input1]").remove();     
     d3.select("[id=filter_input2]").remove();
     d3.select("[id=filter_input3]").remove();
+    d3.select('#filter_explanation_valid_inputs').remove();
     d3.selectAll("[class=newFilterButtons]").remove();
         
     var selectedOption = d3.select("[id=dropdown_newFilterOption]")[0][0].value;     
@@ -112,7 +113,8 @@ function newFilter_addFeature(){
                     			selectedOption == "notInOrbit" || selectedOption == "together" || 
                     			selectedOption == "togetherInOrbit" || selectedOption == "separate" || 
                     			selectedOption == "emptyOrbit" || selectedOption=="numOrbitUsed" || 
-                    			selectedOption=="subsetOfInstruments"){
+                    			selectedOption=="subsetOfInstruments" ||
+                    			selectedOption=="numOfInstruments"){
                     		
                     		 var newExpression = prevExpression + selectedOption + "(" + filterInput1 + filterInput2 + filterInput3 + ")";
 
@@ -374,7 +376,8 @@ function applyUserDefFilter_single(expression,prev,logic,bitString){
                 filterType === "inOrbit" || filterType === "notInOrbit" || 
                 filterType === "together" || filterType === "togetherInOrbit" || 
                 filterType === "separate" || filterType === "emptyOrbit" || 
-                filterType==="numOrbitUsed" || filterType==="subsetOfInstruments"){
+                filterType==="numOrbitUsed" || filterType==="subsetOfInstruments"||
+                filterType==="numOfInstruments"){
 			if(presetFilter2(filterType,bitString,params,neg)){
 				output = true;
 			} else{

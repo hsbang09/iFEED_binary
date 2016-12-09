@@ -218,7 +218,29 @@ function draw_scatterPlot(source) {
     d3.selectAll("[class=dot]")[0].forEach(function(d,i){
         d3.select(d).attr("paretoRank",-1);
     });
-
+    
+    
+    
+    if(testType=="1"){
+    	
+    	d3.select('#selection_option_div').select('div').remove();
+    	d3.select('#OptionsPane').select('div').select('div').remove();
+    	
+    	d3.select("#tab3").text('-');
+    	d3.select("#view3").selectAll('g').remove();
+    	d3.select("#tab4").text('-');
+    	d3.select("#view4").select('g').remove();
+    	
+    }else if(testType=="2"){
+    	
+    	d3.select("#tab4").text('Empty tab');
+    	d3.select("#view4").select('g').remove();
+    	
+    }else {
+    	
+    	// Do nothing
+    	
+    }
 
     orbitList = getOrbitList();
     instrList = getInstrumentList();
@@ -989,6 +1011,10 @@ function initialize_tabs_filter_options(){
     
 }
 function initialize_tabs_driving_features(){
+	
+	if(testType=="1"){
+		return;
+	}
 	
 	d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
 	var guideline = d3.select("[id=basicInfoBox_div]").select("[id=view3]")

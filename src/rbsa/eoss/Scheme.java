@@ -24,6 +24,7 @@ public class Scheme {
     private int orbit;
     private int instrument2, instrument3;
     private int numOrbits;
+    private int numInstruments;
     private final int ninstr;
     private final int norb;
 //    private ArrayList<String> presetFeatureNames;
@@ -135,6 +136,29 @@ public class Scheme {
             if (numOrbits == data.length - count) return 1;
             return 0;
         }
+        else if (name.equals("numOfInstruments")) {
+        	if(instrument==-1){
+                int count = 0;
+                for (int i = 0; i < data.length; i++) {
+                	for(int j=0;j<data[0].length;j++){
+                        if(data[i][j]==1){
+                     	   count++;
+                        }
+                	}
+                }
+                if (count==numInstruments) return 1;
+                return 0;
+        	}else{
+                int count = 0;
+                for (int i = 0; i < data.length; ++i) {
+                   if(data[i][instrument]==1){
+                	   count++;
+                   }
+                }
+                if (count==numInstruments) return 1;
+                return 0;
+        	}
+        }
         else {
             if(userDefFilter_eval(name,data)) return 1;
             return 0;
@@ -166,6 +190,13 @@ public class Scheme {
     public void setOrbit(int orbit) {
         this.orbit = orbit;
     }
+    
+    public void setNumInstruments(int numInstruments){
+    	this.numInstruments=numInstruments;
+    }
+    public int getNumInstruments(int numInstruments){
+    	return this.numInstruments;
+    }
 
     public int getInstrument2() {
         return instrument2;
@@ -190,6 +221,26 @@ public class Scheme {
     public void setNumOrbits(int numOrbits) {
         this.numOrbits = numOrbits;
     }
+    
+    
+    public void clearArgs(){
+        name = "";
+        instrument=-1;
+        orbit=-1;
+        instrument2=-1;
+        instrument3=-1;
+        numOrbits=-1;
+        numInstruments=-1;
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     
 
     public boolean userDefFilter_eval(String filterExpression,int[][] data){
@@ -349,8 +400,6 @@ public class Scheme {
     
     public boolean presetFilter(String filterName, int[][] data, ArrayList<String> params){
 
-
-//        Scheme s = new Scheme();
         Scheme s = new Scheme();
         String[] instr_list = Params.instrument_list;
         String[] orbit_list = Params.orbit_list;
@@ -571,6 +620,23 @@ public class Scheme {
         } else if(filterName.equalsIgnoreCase("numOrbits")){
             s.setName("numOrbits");
             s.setNumOrbits(Integer.parseInt(params.get(0)));
+        } else if(filterName.equalsIgnoreCase("numOfInstruments")){
+        	
+            s.setName("numOfInstruments");
+            if(params.get(0).equals("N/A")){
+            	s.setInstrument(-1);
+            }else{
+                int inst = -1;
+                for(int i=0;i<ninstr;i++){
+                    if(instr_list[i].equalsIgnoreCase(relabelback(params.get(0)))){
+                        inst = i;
+                        break;
+                    }
+                }
+                s.setInstrument(inst);
+            }
+        	s.setNumInstruments(Integer.parseInt(params.get(1)));
+
         } else if(filterName.equalsIgnoreCase("subsetOfInstruments")){ 
             
             int orb = -1;

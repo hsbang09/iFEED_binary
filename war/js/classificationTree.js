@@ -439,7 +439,7 @@ function apply_filter_name(name, isFirst, condInput){
 	
     if(type=="present" || type=="absent" || type=="inOrbit" ||type=="notInOrbit"||type=="together2"||
     		type=="togetherInOrbit2"||type=="separate2"||type=="together3"||type=="togetherInOrbit3"||
-    		type=="separate3"||type=="emptyOrbit"||type=="numOrbits"){
+    		type=="separate3"||type=="emptyOrbit"||type=="numOrbits" || type=="numOfInstruments"){
     	
     	var type_modified;
     	var filterInputs = [];
@@ -453,7 +453,7 @@ function apply_filter_name(name, isFirst, condInput){
             
     	if(type_modified=="present" || type_modified=="absent" || type_modified=="emptyOrbit"
     				|| type_modified=="numOrbits" || type_modified=="together" 
-    					|| type_modified=="separate"){
+    					|| type_modified=="separate"|| type_modified=="numOfInstruments"){
     		
     		filterInputs.push(arg);
     		

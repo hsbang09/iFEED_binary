@@ -139,6 +139,7 @@ public class DrivingFeaturesGenerator {
                 drivingFeatures.add(new DrivingFeature(featureName,"present", param, metrics));
             }
         }
+        scheme.clearArgs();
         scheme.setName("absent");
         for (int i = 0; i < ninstr; ++i) {
             scheme.setInstrument (i);
@@ -150,6 +151,7 @@ public class DrivingFeaturesGenerator {
                 drivingFeatures.add(new DrivingFeature(featureName,"absent", param, metrics));
             }
         }
+        scheme.clearArgs();
         scheme.setName("inOrbit");
         for (int i = 0; i < norb; ++i) {
             for (int j = 0; j < ninstr; ++j) {
@@ -165,6 +167,7 @@ public class DrivingFeaturesGenerator {
                 }
             }
         }
+        scheme.clearArgs();
         scheme.setName("notInOrbit");
         for (int i = 0; i < norb; ++i) {
             for (int j = 0; j < ninstr; ++j) {
@@ -180,6 +183,7 @@ public class DrivingFeaturesGenerator {
                 } 
             }
         }
+        scheme.clearArgs();
         scheme.setName("together2");
         for (int i = 0; i < ninstr; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -194,7 +198,8 @@ public class DrivingFeaturesGenerator {
                     drivingFeatures.add(new DrivingFeature(featureName,"together2", param, metrics));
                 }
             }
-        }            
+        }     
+        scheme.clearArgs();
         scheme.setName("togetherInOrbit2");
         for (int i = 0; i < norb; ++i) {
             for (int j = 0; j < ninstr; ++j) {
@@ -215,6 +220,7 @@ public class DrivingFeaturesGenerator {
                 }
             }
         }
+        scheme.clearArgs();
         scheme.setName("separate2");
         for (int i = 0; i < ninstr; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -230,6 +236,7 @@ public class DrivingFeaturesGenerator {
                     }
             }            
         }
+        scheme.clearArgs();
         scheme.setName("together3");
         for (int i = 0; i < ninstr; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -250,6 +257,7 @@ public class DrivingFeaturesGenerator {
                 }
             }            
         }
+        scheme.clearArgs();
         scheme.setName("togetherInOrbit3");
         for (int i = 0; i < norb; ++i) {
             for (int j = 0; j < ninstr; ++j) {
@@ -275,6 +283,7 @@ public class DrivingFeaturesGenerator {
                 }
             }
         }
+        scheme.clearArgs();
         scheme.setName("separate3");
         for (int i = 0; i < ninstr; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -295,6 +304,7 @@ public class DrivingFeaturesGenerator {
                 }
             }
         }
+        scheme.clearArgs();
         scheme.setName("emptyOrbit");
         for (int i = 0; i < norb; ++i) {
             scheme.setOrbit(i);
@@ -306,6 +316,7 @@ public class DrivingFeaturesGenerator {
                 drivingFeatures.add(new DrivingFeature(featureName,"emptyOrbit", param, metrics));
             }
         }
+        scheme.clearArgs();
         scheme.setName("numOrbits");
         for (int i = 1; i < norb+1; i++) {
             scheme.setNumOrbits(i);
@@ -317,6 +328,39 @@ public class DrivingFeaturesGenerator {
                 drivingFeatures.add(new DrivingFeature(featureName,"numOrbits", param, metrics));
             }
         }
+        scheme.clearArgs();
+        scheme.setName("numOfInstruments");
+        for (int i = 0; i < ninstr; i++) {
+        	for(int j=0; j< norb + 1;j++){
+                scheme.setInstrument(i);
+                scheme.setNumInstruments(j);
+                double[] metrics = computeMetrics(scheme);
+                if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
+                    
+                    String[] param = new String[2];
+                    param[0] = Params.instrument_list[i];
+                    param[1] = Integer.toString(j);
+                    String featureName = "numOfInstruments[" + param[0] + "," + 
+                                        param[1] + "]";
+                    drivingFeatures.add(new DrivingFeature(featureName,"numOfInstruments", param, metrics));
+                }
+        	}
+        }
+        scheme.clearArgs();
+        scheme.setName("numOfInstruments");
+    	for(int i=1; i< 16;i++){
+            scheme.setNumInstruments(i);
+            double[] metrics = computeMetrics(scheme);
+            if (metrics[0] > supp_threshold && metrics[1] > lift_threshold && metrics[2] > confidence_threshold && metrics[3] > confidence_threshold) {
+                
+                String[] param = new String[1];
+                param[0] = Params.instrument_list[i];
+                String featureName = "numOfInstruments[" + param[0] +"]";
+                drivingFeatures.add(new DrivingFeature(featureName,"numOfInstruments", param, metrics));
+            }
+    	}
+        
+        
         for (DrivingFeature userDef1:userDef){
 //            System.out.println(userDef1.getName());
 //            System.out.println(userDef1.getType());
