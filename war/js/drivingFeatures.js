@@ -379,7 +379,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that have the specified instrument are selected)")
+                .text("(Hint: This selects all designs that use the specified instrument)")
                 .style("color", "#696969");   
         d3.select("[id=filter_inputs]")
         .append("div")
@@ -397,7 +397,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that do not have the specified instrument are selected)")
+                .text("(Hint: This selects all designs that does not use the specified instrument)")
                 .style("color", "#696969");   
         d3.select("[id=filter_inputs]")
         .append("div")
@@ -415,7 +415,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that have the specified instrument inside the chosen orbit are selected)")
+                .text("(Hint: This selects all designs that assign the given instrument to the given orbit)")
                 .style("color", "#696969");   
         d3.select("[id=filter_inputs]")
         .append("div")
@@ -433,7 +433,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that do not have the specified instrument inside the chosen orbit are selected)")
+                .text("(Hint: This selects all designs that do not assign the given instrument to the given orbit)")
                 .style("color", "#696969");   
         d3.select("[id=filter_inputs]")
         .append("div")
@@ -451,7 +451,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that have the specified instruments in any one orbit are chosen)")
+                .text("(Hint: This selects all designs that assign all specified instruments in the same orbit)")
                 .style("color", "#696969");   
         d3.select("[id=filter_inputs]")
         .append("div")
@@ -469,7 +469,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that have the specified instruments in the specified orbit are chosen)")
+                .text("(Hint: This selects all designs that assign all specified instruments in the given orbit)")
                 .style("color", "#696969");   
         d3.select("[id=filter_inputs]")
         .append("div")
@@ -487,7 +487,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that do not have the specified instruments in the same orbit are chosen)")
+                .text("(Hint: This selects all designs that do not assign all of the specified instruments in the same orbit)")
                 .style("color", "#696969");   
         d3.select("[id=filter_inputs]")
         .append("div")
@@ -505,7 +505,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that have no instrument inside the specified orbit are chosen)")
+                .text("(Hint: This selects all designs that do not assign any instrument to the specified orbit)")
                 .style("color", "#696969");   
         d3.select("[id=filter_inputs]")
 	        .append("div")
@@ -523,7 +523,7 @@ function selectFilterOption_filterInput(selectedOption,userDefOption){
                 .attr("id","filter_explanation")
                 .style("margin-top","15px")
                 .style("margin-left","10px")
-                .text("(Hint: Designs that have the specified number of non-empty orbits are chosen)")
+                .text("(Hint: This selects all designs that have the specified number of non-empty orbits)")
                 .style("color", "#696969");  
         d3.select("[id=filter_inputs]")
 		        .append("div")

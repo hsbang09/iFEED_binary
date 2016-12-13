@@ -870,8 +870,8 @@ and open the template in the editor.
 			var startTime = Date.parse(new Date());
 			cred = cred.substring(1);
 			if(cred){
-	       		testType_temp = cred.split("-")[0];
-	       		console.log(testType_temp);
+	       		testType = cred.split("-")[0];
+	       		console.log(testType);
 	       		account_id = cred.split("-")[1];
 	       		console.log(account_id);
 	       		var access;
@@ -879,7 +879,7 @@ and open the template in the editor.
 					{
   		                 url: "loginServlet",
   		                 type: "POST",
-  		                 data: {ID: "login", account_id: account_id, testType: testType_temp, loginTime:startTime},
+  		                 data: {ID: "login", account_id: account_id, testType: testType, loginTime:startTime},
   		                 async: false,
   		                 success: function (data, textStatus, jqXHR)
   		                 {
@@ -903,20 +903,20 @@ and open the template in the editor.
 	       }
 			
 			
-// 			if(credential_verified){
-// 				var deadline = new Date(startTime + remainingTime);
-// 	         	initializeClock('clockdiv', deadline);
-// 	         	newDataFromResultFile();
-// 			}else{
-// 				window.location.replace("session_end.html");
-// 			}
+			if(credential_verified){
+				var deadline = new Date(startTime + remainingTime);
+	         	initializeClock('clockdiv', deadline);
+	         	newDataFromResultFile();
+			}else{
+				window.location.replace("session_end.html");
+			}
 
 
-        	remainingTime = + 10000000000000000000000;
-         	testType = "3";
-			var deadline = new Date(startTime + remainingTime);
-         	initializeClock('clockdiv', deadline);
-            newDataFromResultFile();
+//         	remainingTime = + 10000000000000000000000;
+//          	testType = "3";
+// 			var deadline = new Date(startTime + remainingTime);
+//          	initializeClock('clockdiv', deadline);
+//             newDataFromResultFile();
 
 
             } catch (err) {
