@@ -285,7 +285,7 @@ and open the template in the editor.
 										<span class="tooltiptext" style="right:230px;padding:11px;width:230px">Zoom/Pan: This option allows zooming/panning on the scatter plot</span>
 										<div style="margin-top:3px" onclick="set_selection_option(1);">
 									    	Zoom/Pan:
-									    	<input id="zoom" type="radio" checked="True"/>
+									    	<input id="zoom-pan" type="radio" checked="True"/>
 								    	</div>
 									</div>
 								    
@@ -469,14 +469,14 @@ and open the template in the editor.
 
 			
             
-            function session_timeout(){
+            function session_timeout(account_id){
 
             	var out;
                 $.ajax(
                         {
                             url: "loginServlet",
                             type: "POST", 
-                            data: {ID: "sessionTimeout", IDToken: id_token, cnt_df:buttonClickCount_drivingFeatures,
+                            data: {ID: "sessionTimeout", account_id: account_id, cnt_df:buttonClickCount_drivingFeatures,
                             	cnt_ct:buttonClickCount_classificationTree,
                             	cnt_fo:buttonClickCount_filterOptions,
                             	cnt_af:buttonClickCount_applyFilter,
@@ -839,7 +839,7 @@ and open the template in the editor.
            		    	session_timed_out = true;
            		    	d3.select('body').selectAll('div').remove();
 //            		    	d3.select('body').select('a').remove();
-           		    	key_number = session_timeout();
+           		    	key_number = session_timeout(account_id);
            		    	
        		    		var img = $('<img />', {src : 'https://brand.cornell.edu/images/cornelllogo-stacked.png'});
        		    		img.appendTo('body');
@@ -853,7 +853,7 @@ and open the template in the editor.
            		    	d3.select('body').append('h2')
            		    		.text("Key number: "+ key_number).style("width","1200px").style("margin","auto");
            		    	d3.select('body').append('h2')
-       		    			.text("Now follow the link to solve problem: https://www.surveymonkey.com/r/NZRT5BL").style("width","1200px").style("margin","auto");
+       		    			.text("Now follow the link to solve problem: https://www.surveymonkey.com/r/P53BWX2").style("width","1200px").style("margin","auto");
            		    	d3.select('body').append('div').style("width","100%").style("height","30px");
           		  	}
        			}
@@ -893,6 +893,7 @@ and open the template in the editor.
       	       if(remainingTime!="accessDenied"){
       	    	   // Credential verified
       	    	   if( + remainingTime > 0){
+      	    		   remainingTime = + remainingTime;
           	    	   credential_verified=true;
           	    	  // Positive remaining time
       	    	   }
@@ -911,9 +912,8 @@ and open the template in the editor.
 				window.location.replace("session_end.html");
 			}
 
-
-//         	remainingTime = + 10000000000000000000000;
-//          	testType = "3";
+//         	remainingTime = + 10*60*1000;
+//          	testType = "2";
 // 			var deadline = new Date(startTime + remainingTime);
 //          	initializeClock('clockdiv', deadline);
 //             newDataFromResultFile();

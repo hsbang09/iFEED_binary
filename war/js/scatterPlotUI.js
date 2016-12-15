@@ -233,7 +233,7 @@ function draw_scatterPlot(source) {
     	
     }else if(testType=="2"){
     	
-    	d3.select("#tab4").text('Empty tab');
+    	d3.select("#tab4").text('-');
     	d3.select("#view4").select('g').remove();
     	
     }else {
@@ -1073,16 +1073,19 @@ function initialize_tabs_classification_tree(){
 
 
 function set_selection_option(selected_option){
+	if(testType=="1"){
+		return;
+	}
 	if(selected_option=="1"){
-		d3.select("#zoom")[0][0].checked=true;
+		d3.select("#zoom-pan")[0][0].checked=true;
 		d3.select("#drag-select")[0][0].checked=false;
 		d3.select("#de-select")[0][0].checked=false;
 	}else if(selected_option=="2"){
-		d3.select("#zoom")[0][0].checked=false;
+		d3.select("#zoom-pan")[0][0].checked=false;
 		d3.select("#drag-select")[0][0].checked=true;
 		d3.select("#de-select")[0][0].checked=false;
 	}else{
-		d3.select("#zoom")[0][0].checked=false;
+		d3.select("#zoom-pan")[0][0].checked=false;
 		d3.select("#drag-select")[0][0].checked=false;
 		d3.select("#de-select")[0][0].checked=true;
 	}

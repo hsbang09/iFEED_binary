@@ -185,19 +185,23 @@ public class loginServlet extends HttpServlet {
 	            	
 	        } else{   // logging in for the first time
 
-	            	double remaining_time = time_given;
-	            	outputString = Double.toString(remaining_time);
-	                
-	            	//saving the account info in the database
-	            	Experiment_2016_12 a1 = new Experiment_2016_12();
-	            	
-	            	a1.setAccountID(account_id);
-	    	        a1.setLoginTime(loginTime);
-	    	        a1.setType(testType);
-	    	        a1.setLoginTrial(1);
-	    	        ofy().save().entity(a1);
-	           
-	    	        accessGranted=true;
+	        		if(account_id.substring(account_id.length()-12).equalsIgnoreCase("717038028138")){
+		            	double remaining_time = time_given;
+		            	outputString = Double.toString(remaining_time);
+		                
+		            	//saving the account info in the database
+		            	Experiment_2016_12 a1 = new Experiment_2016_12();
+		            	
+		            	a1.setAccountID(account_id);
+		    	        a1.setLoginTime(loginTime);
+		    	        a1.setType(testType);
+		    	        a1.setLoginTrial(1);
+		    	        ofy().save().entity(a1);
+		           
+		    	        accessGranted=true;
+	        		} else{
+	        			accessGranted=false;
+	        		} 
 	        } 
 	        
 	        
@@ -210,8 +214,8 @@ public class loginServlet extends HttpServlet {
     	if (requestID.equalsIgnoreCase("sessionTimeout")){
     		
     		System.out.println("-----Session Timeout-----");
-	        String account_id = request.getParameter("account_id");
-	        Experiment_2016_12 acc = ofy().load().type(Experiment_2016_12.class).filter("accountID",account_id).first().now();
+	        String accountId = request.getParameter("account_id");
+	        Experiment_2016_12 acc = ofy().load().type(Experiment_2016_12.class).filter("accountID",accountId).first().now();
 
 	        String key = acc.getAccountID();
 	        
