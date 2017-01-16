@@ -87,7 +87,11 @@ function generateDrivingFeatures(selected,nonSelected,
         async: false,
         success: function (data, textStatus, jqXHR)
         {
+        	if(data=="[]"){
+        		alert("No driving feature mined. Please try modifying the selection. (Try selecting more designs)");
+        	}
         	output = JSON.parse(data);
+
         },
         error: function (jqXHR, textStatus, errorThrown)
         {alert("error");}
