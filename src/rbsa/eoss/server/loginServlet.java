@@ -57,7 +57,7 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import rbsa.eoss.Result;
 import rbsa.eoss.ResultCollection;
-import rbsa.eoss.server.resultsGUIServlet.archEvalResults;
+import rbsa.eoss.server.IFEEDServlet.ArchInfo;
 
 
 //import com.google.api.client.json.jackson2.JacksonFactory;

@@ -37,28 +37,28 @@ function runDataMining() {
         getDrivingFeatures_thresholds.push({supp:support_threshold,lift:lift_threshold,conf:confidence_threshold});
         
         
-        var selectedBitStrings = [];
-        var nonSelectedBitStrings = [];
-        selectedBitStrings.length = 0;
-        nonSelectedBitStrings.length=0;
+        var selected = [];
+        var non_selected = [];
+        selected.length = 0;
+        non_selected.length=0;
 
         for (var i = 0; i < numOfSelectedArchs; i++) {
-            var tmpBitString = booleanArray2String(selectedArchs[0][i].__data__.archBitString);
-            selectedBitStrings.push(tmpBitString);
+            var id = selectedArchs[0][i].__data__.id;
+            selected.push(id);
         }
         for (var i = 0; i < numOfNonSelectedArchs; i++) {
-            var tmpBitString = booleanArray2String(nonSelectedArchs[0][i].__data__.archBitString);
-            nonSelectedBitStrings.push(tmpBitString);
+            var id = nonSelectedArchs[0][i].__data__.id;
+            non_selected.push(id);
         }
 
-        sortedDFs = generateDrivingFeatures(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
+        sortedDFs = generateDrivingFeatures(selected,non_selected,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
         if(testType=="3"){
-            jsonObj_tree = buildClassificationTree();
+//            jsonObj_tree = buildClassificationTree();
         }
         
         display_drivingFeatures(sortedDFs,"lift");
         if(testType=="3"){
-        	display_classificationTree(jsonObj_tree);
+//        	display_classificationTree(jsonObj_tree);
         }
         selection_changed = false;
         
@@ -73,15 +73,14 @@ function runDataMining() {
 
 
 
-function generateDrivingFeatures(selected,nonSelected,
+function generateDrivingFeatures(selected,non_selected,
 		support_threshold,confidence_threshold,lift_threshold,
 		userDefFilters,sortBy){
-	
 	var output;
     $.ajax({
-        url: "drivingFeatureServlet",
+        url: "IFEEDServlet",
         type: "POST",
-        data: {ID: "generateDrivingFeatures",selected: JSON.stringify(selected),nonSelected:JSON.stringify(nonSelected),
+        data: {ID: "generateDrivingFeatures",selected: JSON.stringify(selected),non_selected:JSON.stringify(non_selected),
         	supp:support_threshold,conf:confidence_threshold,lift:lift_threshold,
         	userDefFilters:JSON.stringify(userDefFilters),sortBy:sortBy},
         async: false,
@@ -808,7 +807,7 @@ function applyFilter_new(){
         }
 
         var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-            var bitString = d.__data__.archBitString;
+            var bitString = d.__data__.bitString;
             var temp = presetFilter2(filterType,bitString,filterInputs,neg);
             if(temp==null){
             	wrong_arg = true;
@@ -825,7 +824,7 @@ function applyFilter_new(){
 
         d3.selectAll("[class=dot]")[0].forEach(function(d){
         	
-            var bitString = d.__data__.archBitString;
+            var bitString = d.__data__.bitString;
             if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                 d3.select(d).attr("class", "dot_clicked")
                             .style("fill", "#0040FF");
@@ -840,7 +839,7 @@ function applyFilter_new(){
            if(userDefFilters[k].name == filterType){
                 var filterExpression = userDefFilters[k].expression;
                 d3.selectAll("[class=dot]")[0].forEach(function(d){
-                    var bitString = d.__data__.archBitString;
+                    var bitString = d.__data__.bitString;
                     if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                         d3.select(d).attr("class", "dot_clicked")
                                     .style("fill", "#0040FF");
@@ -903,9 +902,9 @@ function applyFilter_within(){
 
 
         var clickedArchs = d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
-//                            var bitString = booleanArray2String(d.__data__.archBitString)
+//                            var bitString = booleanArray2String(d.__data__.bitString)
 
-            var bitString = d.__data__.archBitString;
+            var bitString = d.__data__.bitString;
             var temp = presetFilter2(filterType,bitString,filterInputs,neg);
             if(temp==null){
             	wrong_arg = true;
@@ -932,7 +931,7 @@ function applyFilter_within(){
            if(userDefFilters[k].name == filterType){
                 var filterExpression = userDefFilters[k].expression;
                 d3.selectAll("[class=dot_clicked]")[0].forEach(function(d){
-                    var bitString = d.__data__.archBitString;
+                    var bitString = d.__data__.bitString;
                     if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                         d3.select(d).attr("class", "dot_clicked")
                                     .style("fill", "#0040FF");
@@ -984,8 +983,8 @@ function applyFilter_add(){
         }
 
         var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-//                            var bitString = booleanArray2String(d.__data__.archBitString)
-            var bitString = d.__data__.archBitString;
+//                            var bitString = booleanArray2String(d.__data__.bitString)
+            var bitString = d.__data__.bitString;
             var temp = presetFilter2(filterType,bitString,filterInputs,neg);
             if(temp==null){
             	wrong_arg = true;
@@ -1002,7 +1001,7 @@ function applyFilter_add(){
            if(userDefFilters[k].name == filterType){
                 var filterExpression = userDefFilters[k].expression;
                 d3.selectAll("[class=dot]")[0].forEach(function(d){
-                    var bitString = d.__data__.archBitString;
+                    var bitString = d.__data__.bitString;
                     if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                         d3.select(d).attr("class", "dot_clicked")
                                     .style("fill", "#0040FF");
@@ -1351,7 +1350,7 @@ function display_drivingFeatures(source,sortby) {
                     	}
                             
                         d3.selectAll("[class=dot]")[0].forEach(function (d) {
-                        	var bitString = d.__data__.archBitString;
+                        	var bitString = d.__data__.bitString;
                             var temp = presetFilter2(type_modified,bitString,filterInputs,false);
                             if(temp==null){
                             	return;
@@ -1362,7 +1361,7 @@ function display_drivingFeatures(source,sortby) {
                 			}
                         });
                         d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
-                        	var bitString = d.__data__.archBitString;
+                        	var bitString = d.__data__.bitString;
                             var temp = presetFilter2(type_modified,bitString,filterInputs,false);
                             if(temp==null){
                             	return;
@@ -1376,14 +1375,14 @@ function display_drivingFeatures(source,sortby) {
                     }else{
                     		type_modified = type;
                             d3.selectAll("[class=dot]")[0].forEach(function (d) {
-                            	var bitString = d.__data__.archBitString;
+                            	var bitString = d.__data__.bitString;
                         		if (applyUserDefFilterFromExpression(type_modified,bitString)){
                         			d3.select(d).attr("class", "dot_DFhighlighted")
                         						.style("fill", "#F75082");
                     			}
                             });
                             d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
-                            	var bitString = d.__data__.archBitString;
+                            	var bitString = d.__data__.bitString;
                         		if (applyUserDefFilterFromExpression(type_modified,bitString)){
                         			d3.select(d).attr("class", "dot_selected_DFhighlighted")
                         						.style("fill", "#F75082");
@@ -1912,7 +1911,7 @@ function applyFilter(filterType,filterInput){
             filtertype == "numOfInstruments"){
 
         var unClickedArchs = d3.selectAll("[class=dot]")[0].forEach(function (d) {
-            var bitString = d.__data__.archBitString;
+            var bitString = d.__data__.bitString;
             var temp = presetFilter2(filterType,bitString,filterInputs,neg);
             if(temp==null){
             	wrong_arg = true;
@@ -1929,7 +1928,7 @@ function applyFilter(filterType,filterInput){
 
         d3.selectAll("[class=dot]")[0].forEach(function(d){
         	
-            var bitString = d.__data__.archBitString;
+            var bitString = d.__data__.bitString;
             if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                 d3.select(d).attr("class", "dot_clicked")
                             .style("fill", "#0040FF");
@@ -1945,7 +1944,7 @@ function applyFilter(filterType,filterInput){
            if(userDefFilters[k].name == filterType){
                 var filterExpression = userDefFilters[k].expression;
                 d3.selectAll("[class=dot]")[0].forEach(function(d){
-                    var bitString = d.__data__.archBitString;
+                    var bitString = d.__data__.bitString;
                     if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                         d3.select(d).attr("class", "dot_clicked")
                                     .style("fill", "#0040FF");

@@ -9,40 +9,24 @@
 <!--   <servlet> -->
 <!--   </servlet> -->
   <servlet>
-  	<servlet-name>resultsGUIServlet</servlet-name>
-  	<servlet-class>rbsa.eoss.server.resultsGUIServlet</servlet-class>
-  </servlet>
-  <servlet>
-  	<servlet-name>drivingFeatureServlet</servlet-name>
-  	<servlet-class>rbsa.eoss.server.drivingFeatureServlet</servlet-class>
+  	<servlet-name>IFEEDServlet</servlet-name>
+  	<servlet-class>rbsa.eoss.server.IFEEDServlet</servlet-class>
   </servlet>
   <servlet>
   	<servlet-name>loginServlet</servlet-name>
   	<servlet-class>rbsa.eoss.server.loginServlet</servlet-class>
-  </servlet>
-  <servlet>
-  	<servlet-name>classificationTreeServlet</servlet-name>
-  	<servlet-class>rbsa.eoss.server.classificationTreeServlet</servlet-class>
   </servlet>
   
   
 <!--   <servlet-mapping> -->
 <!--   </servlet-mapping> -->
   <servlet-mapping>
-  	<servlet-name>resultsGUIServlet</servlet-name>
-  	<url-pattern>/resultsGUIServlet</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-  	<servlet-name>drivingFeatureServlet</servlet-name>
-  	<url-pattern>/drivingFeatureServlet</url-pattern>
+  	<servlet-name>IFEEDServlet</servlet-name>
+  	<url-pattern>/IFEEDServlet</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
   	<servlet-name>loginServlet</servlet-name>
   	<url-pattern>/loginServlet</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-  	<servlet-name>classificationTreeServlet</servlet-name>
-  	<url-pattern>/classificationTreeServlet</url-pattern>
   </servlet-mapping>
   
   

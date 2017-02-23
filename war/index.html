@@ -19,9 +19,6 @@ and open the template in the editor.
        <meta name="google-signin-client_id" content="564804694787-lnsp9md3u0q8086nftbamu43drid6d4t.apps.googleusercontent.com">
 
 	<style>
-	
-
-
             #scatterPlotFigure {
 			    border-style: solid;
 			    border-width: 3.3px;
@@ -236,16 +233,16 @@ and open the template in the editor.
 				<h2>iFEED GUI</h2>
         </div>
 
-		<div id="clockdiv">
-			  <div>
-			    <span class="minutes"></span>
-			    <div class="smalltext">Minutes</div>
-			  </div>
-			  <div>
-			    <span class="seconds"></span>
-			    <div class="smalltext">Seconds</div>
-			  </div>
-		</div>
+<!-- 		<div id="clockdiv"> -->
+<!-- 			  <div> -->
+<!-- 			    <span class="minutes"></span> -->
+<!-- 			    <div class="smalltext">Minutes</div> -->
+<!-- 			  </div> -->
+<!-- 			  <div> -->
+<!-- 			    <span class="seconds"></span> -->
+<!-- 			    <div class="smalltext">Seconds</div> -->
+<!-- 			  </div> -->
+<!-- 		</div> -->
 		
 		
 		<div style="float:left;width:100%; margin-top: 20px">
@@ -371,25 +368,14 @@ and open the template in the editor.
        <script src="js/classificationTree.js" type="text/javascript"></script>
        <script src="js/userDefinedFilter.js" type="text/javascript"></script>
        <script src="js/relabel.js" type="text/javascript"></script>
-
-
        
        
        <script>
             var original_bitString;
             var modified_bitString;
             var selected_bitString;
-            var selected_bitString2;
-            var color_drivingFeatures = d3.scale.category10();        
-            var i_drivingFeatures=0;
             var filter_arch;
             var modified_filterArch;
-
-            var translate_tmp = [0,0];
-            var scale_tmp = 0;
-            var translate_tmp_local = [0,0];
-            var scale_tmp_local = 0;
-
 
             // Metadata
             var orbitList = [];
@@ -399,7 +385,6 @@ and open the template in the editor.
             var ninstr, norb;
             
             // Sign-in
-   
             var id_token;
             var session_timed_out = false;
             var account_id =-12345678;
@@ -407,7 +392,6 @@ and open the template in the editor.
             var remainingTime;
             
             // Scatter plot variables
-            
            	var architectures; // old: jsonObj_scatterPlot
             var newArchs = [];  newArchs.length = 0;    
             var infoBox_active = false;
@@ -423,8 +407,16 @@ and open the template in the editor.
             var xValue, xScale, xMap, xAxis, xBuffer, yBuffer,
                     yValue, yScale, yMap, yAxis;
                	
-            // Driving features variables
+            var translate_tmp = [0,0];
+            var scale_tmp = 0;
+            var translate_tmp_local = [0,0];
+            var scale_tmp_local = 0;            
             
+            
+            // Driving features variables
+                        
+            var color_drivingFeatures = d3.scale.category10();        
+            var i_drivingFeatures=0;
 			var sortedDFs=null;
            	var support_threshold = 0.015;
            	var confidence_threshold = 0.3;
@@ -444,14 +436,12 @@ and open the template in the editor.
             var userDefFilters = [];
             
             // Classification Tree variables
-            
             var classificationTree_window;
             var jsonObj_tree=null;
             var jsonObj_tree_nested;
             
             
             // Experiment-related
-            
             var buttonClickCount_drivingFeatures = 0;
             var buttonClickCount_classificationTree = 0;
             var buttonClickCount_filterOptions = 0;
@@ -505,22 +495,21 @@ and open the template in the editor.
 
             try {
 
-            function newDataFromResultFile(){
-                var filePath = "/results/1.rs";
-                
+            function import_new_data(){
+                var filePath = "/results/1.rs,/results/3.rs";
                 $.ajax(
                         {
-                            url: "resultsGUIServlet",
+                            url: "IFEEDServlet",
                             type: "POST",
-                            data: {ID: "resultFileURL_newData", filePath:filePath},
+                            data: {ID: "import_new_data", filePath:filePath},
                             async: false,
                             success: function (data, textStatus, jqXHR)
                             {
-
                             	architectures = JSON.parse(data);
                             },
                             complete: function () {
-                                reset_drawing_scatterPlot();
+                            	reset_drawing_scatterPlot();
+                            	draw_scatterPlot(architectures);                                 
                             },
                             error: function (jqXHR, textStatus, errorThrown)
                             {
@@ -535,46 +524,17 @@ and open the template in the editor.
 						for(var i=0;i<instrList.length;i++){
 							relabeledInstrList.push(relabel(instrList[i]));
 						}
-                       	addDataFromResultFile();
             }
             
-            function addDataFromResultFile(){
-                var filePath = "/results/3.rs";
-                
-                var selectedArchs = d3.selectAll("[class=dot_clicked]");
-                var numOfSelectedArchs = selectedArchs.size();
 
-                $.ajax({
-                	url: "resultsGUIServlet",
-                	type: "POST",
-                	data: {ID: "resultFileURL_addData",filePath:filePath},
-                	async: false,
-               		success: function (data, textStatus, jqXHR){
-                    	var tmp_architectures = JSON.parse(data);
-                    	for(var i=0;i<tmp_architectures.length;i++){
-                    		architectures.push(tmp_architectures[i]);
-                    	}
-                    },
-                    complete: function () {
-                    	reset_drawing_scatterPlot();
-                    	draw_scatterPlot(architectures);
-                    },
-                    error: function (jqXHR, textStatus, errorThrown)
-                    {
-                    	alert("error");
-                    }
-                });
 
-            }
+
             
-            
-
-
             
             function extractInfoFromBitString(bitString) {
                 var jsonObj_arch
                 $.ajax({
-                    url: "resultsGUIServlet",
+                    url: "IFEEDServlet",
                     type: "POST",
                     data: {ID: "extractInfoFromBitString", bitString: bitString},
                     async: false,
@@ -713,7 +673,7 @@ and open the template in the editor.
                 function getOrbitList() {
                     var orbitList
                     $.ajax({
-                        url: "resultsGUIServlet",
+                        url: "IFEEDServlet",
                         type: "POST",
                         data: {ID: "getOrbitList"},
                         async: false,
@@ -731,7 +691,7 @@ and open the template in the editor.
                 function getInstrumentList() {
                     var instrumentList
                     $.ajax({
-                        url: "resultsGUIServlet",
+                        url: "IFEEDServlet",
                         type: "POST",
                         data: {ID: "getInstrumentList"},
                         async: false,
@@ -748,45 +708,17 @@ and open the template in the editor.
                 }
 
 
-
-
-
-                
                 function getNinstr() {
-                    var output;
-                    $.ajax({
-                        url: "resultsGUIServlet",
-                        type: "POST",
-                        data: {ID: "getNinstr"},
-                        async: false,
-                        success: function (data, textStatus, jqXHR)
-                        {
-                            output = data;
-                        },
-                        error: function (jqXHR, textStatus, errorThrown)
-                        {
-                            alert("error");
-                        }
-                    });
-                    return output;
+                	if(instrList.length==0){
+                		instrList = getInstrumentList();
+                	}
+                	return instrList.length;
                 }
                 function getNorb() {
-                    var output;
-                    $.ajax({
-                        url: "resultsGUIServlet",
-                        type: "POST",
-                        data: {ID: "getNorb"},
-                        async: false,
-                        success: function (data, textStatus, jqXHR)
-                        {
-                            output = data;
-                        },
-                        error: function (jqXHR, textStatus, errorThrown)
-                        {
-                            alert("error");
-                        }
-                    });
-                    return output;
+                    if(orbitList.length==0){
+                    	orbitList = getOrbitList();
+                    }
+                    return orbitList.length;
                 }
 
             
@@ -865,59 +797,58 @@ and open the template in the editor.
             
             
             
-			var credential_verified = false;
-			var cred = window.location.search;
-			var startTime = Date.parse(new Date());
-			cred = cred.substring(1);
-			if(cred){
-	       		testType = cred.split("-")[0];
-	       		console.log(testType);
-	       		account_id = cred.split("-")[1];
-	       		console.log(account_id);
-	       		var access;
-				$.ajax(
-					{
-  		                 url: "loginServlet",
-  		                 type: "POST",
-  		                 data: {ID: "login", account_id: account_id, testType: testType, loginTime:startTime},
-  		                 async: false,
-  		                 success: function (data, textStatus, jqXHR)
-  		                 {
-  		                	remainingTime=data; 
-  		                 },
-  		                 error: function (jqXHR, textStatus, errorThrown)
-  		                 {
-  		                     alert("Initialization error");
-  		                 }
-  		             });
-      	       if(remainingTime!="accessDenied"){
-      	    	   // Credential verified
-      	    	   if( + remainingTime > 0){
-      	    		   remainingTime = + remainingTime;
-          	    	   credential_verified=true;
-          	    	  // Positive remaining time
-      	    	   }
-      	       }
-	       }else{
-	    	   // signout
-	    	   credential_verified=false;
-	       }
+// 			var credential_verified = false;
+// 			var cred = window.location.search;
+// 			var startTime = Date.parse(new Date());
+// 			cred = cred.substring(1);
+// 			if(cred){
+// 	       		testType = cred.split("-")[0];
+// 	       		console.log(testType);
+// 	       		account_id = cred.split("-")[1];
+// 	       		console.log(account_id);
+// 	       		var access;
+// 				$.ajax(
+// 					{
+//   		                 url: "loginServlet",
+//   		                 type: "POST",
+//   		                 data: {ID: "login", account_id: account_id, testType: testType, loginTime:startTime},
+//   		                 async: false,
+//   		                 success: function (data, textStatus, jqXHR)
+//   		                 {
+//   		                	remainingTime=data; 
+//   		                 },
+//   		                 error: function (jqXHR, textStatus, errorThrown)
+//   		                 {
+//   		                     alert("Initialization error");
+//   		                 }
+//   		             });
+//       	       if(remainingTime!="accessDenied"){
+//       	    	   // Credential verified
+//       	    	   if( + remainingTime > 0){
+//       	    		   remainingTime = + remainingTime;
+//           	    	   credential_verified=true;
+//           	    	  // Positive remaining time
+//       	    	   }
+//       	       }
+// 	       }else{
+// 	    	   // signout
+// 	    	   credential_verified=false;
+// 	       }
 			
 			
-			if(credential_verified){
-				var deadline = new Date(startTime + remainingTime);
-	         	initializeClock('clockdiv', deadline);
-	         	newDataFromResultFile();
-			}else{
-				window.location.replace("session_end.html");
-			}
+// 			if(credential_verified){
+// 				var deadline = new Date(startTime + remainingTime);
+// 	         	initializeClock('clockdiv', deadline);
+// 	         	newDataFromResultFile();
+// 			}else{
+// 				window.location.replace("session_end.html");
+// 			}
 
 //         	remainingTime = + 10*60*1000;
-//          	testType = "2";
+         	testType = "3";
 // 			var deadline = new Date(startTime + remainingTime);
 //          	initializeClock('clockdiv', deadline);
-//             newDataFromResultFile();
-
+            import_new_data();
 
             } catch (err) {
                 console.log(err.message);

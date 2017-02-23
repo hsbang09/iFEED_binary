@@ -125,7 +125,7 @@ public class DrivingFeaturesGenerator {
     
 
     public ArrayList<DrivingFeature> getDrivingFeatures (){
-
+    	System.out.println("getdrivingfeatures");
         Scheme scheme = new Scheme();
 
         scheme.setName("present");

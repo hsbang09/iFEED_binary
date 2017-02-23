@@ -69,21 +69,21 @@
 
 function buildClassificationTree(){
 	
-	var output;
-    $.ajax({
-        url: "drivingFeatureServlet",
-        type: "POST",
-        data: {ID: "buildClassificationTree"},
-        async: false,
-        success: function (data, textStatus, jqXHR)
-        {
-        	output = JSON.parse(data);
-        },
-        error: function (jqXHR, textStatus, errorThrown)
-        {alert("error");}
-    });
-    
-    return output;
+//	var output;
+//    $.ajax({
+//        url: "drivingFeatureServlet",
+//        type: "POST",
+//        data: {ID: "buildClassificationTree"},
+//        async: false,
+//        success: function (data, textStatus, jqXHR)
+//        {
+//        	output = JSON.parse(data);
+//        },
+//        error: function (jqXHR, textStatus, errorThrown)
+//        {alert("error");}
+//    });
+//    
+//    return output;
 }
 
 
