@@ -53,12 +53,12 @@ function runDataMining() {
 
         sortedDFs = generateDrivingFeatures(selected,non_selected,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
         if(testType=="3"){
-//            jsonObj_tree = buildClassificationTree();
+           // jsonObj_tree = buildClassificationTree();
         }
         
         display_drivingFeatures(sortedDFs,"lift");
         if(testType=="3"){
-//        	display_classificationTree(jsonObj_tree);
+        	//display_classificationTree(jsonObj_tree);
         }
         selection_changed = false;
         
@@ -68,21 +68,25 @@ function runDataMining() {
 
 
 
-
-
-
-
-
 function generateDrivingFeatures(selected,non_selected,
 		support_threshold,confidence_threshold,lift_threshold,
 		userDefFilters,sortBy){
+	
+	console.log(selected);
+	console.log(JSON.stringify(selected));
+	
 	var output;
     $.ajax({
         url: "IFEEDServlet",
         type: "POST",
-        data: {ID: "generateDrivingFeatures",selected: JSON.stringify(selected),non_selected:JSON.stringify(non_selected),
-        	supp:support_threshold,conf:confidence_threshold,lift:lift_threshold,
-        	userDefFilters:JSON.stringify(userDefFilters),sortBy:sortBy},
+        data: {ID: "get_driving_features",
+        	selected: JSON.stringify(selected),
+        	non_selected:JSON.stringify(non_selected),
+        	supp:support_threshold,
+        	conf:confidence_threshold,
+        	lift:lift_threshold,
+        	userDefFilters:JSON.stringify(userDefFilters),
+        	sortBy:sortBy},
         async: false,
         success: function (data, textStatus, jqXHR)
         {
@@ -90,7 +94,6 @@ function generateDrivingFeatures(selected,non_selected,
         		alert("No driving feature mined. Please try modifying the selection. (Try selecting more designs)");
         	}
         	output = JSON.parse(data);
-
         },
         error: function (jqXHR, textStatus, errorThrown)
         {alert("error");}

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.api.server.spi.SystemService;
 import com.google.gson.Gson;
 
 import rbsa.eoss.DrivingFeature;
@@ -149,13 +150,15 @@ public class IFEEDServlet extends HttpServlet {
                 Stack<Result> results = RC.getResults();
                 
                 int size = architectures.size();
+                int id = size;
                 for (int i=0;i<results.size();i++){
                 	Result resu = results.get(i);
                     if(resu.getScience()>=0.0001){
                         double sci = resu.getScience();
                         double cost = resu.getCost();
                         boolean[] bitString = resu.getArch().getBitString();
-                        ArchInfo arch = new ArchInfo(i+size,sci,cost,bitString);
+                        ArchInfo arch = new ArchInfo(id,sci,cost,bitString);
+                        id++;
                         arch.setStatus("originalData");
                         architectures.add(arch);                    	
                     }
@@ -187,111 +190,51 @@ public class IFEEDServlet extends HttpServlet {
             outputString = jsonObj;
         }
 
-        else if(requestID.equalsIgnoreCase("generateDrivingFeatures")){
-        	        	
-            double support_threshold = Double.parseDouble(request.getParameter("supp"));
-            double confidence_threshold = Double.parseDouble(request.getParameter("conf"));
-            double lift_threshold = Double.parseDouble(request.getParameter("lift")); 
+        else if(requestID.equalsIgnoreCase("get_driving_features")){
+        
+            double supp = Double.parseDouble(request.getParameter("supp"));
+            double conf = Double.parseDouble(request.getParameter("conf"));
+            double lift = Double.parseDouble(request.getParameter("lift")); 
             
-            //[1,2,3,5]
             String selected_raw = request.getParameter("selected");
             selected_raw = selected_raw.substring(1, selected_raw.length()-1);
             String[] selected_split = selected_raw.split(",");
-            //[1,2,3,5]
             String non_selected_raw = request.getParameter("non_selected");
             non_selected_raw = non_selected_raw.substring(1, non_selected_raw.length()-1);
             String[] non_selected_split = non_selected_raw.split(",");            
-                                                
-            ArrayList<int[][]> behavioral = new ArrayList<>();
-            ArrayList<int[][]> non_behavioral = new ArrayList<>();
+                   
+            ArrayList<Integer> behavioral = new ArrayList<>();
+            ArrayList<Integer> non_behavioral = new ArrayList<>();
             
             for (String selected:selected_split) {
             	int id = Integer.parseInt(selected);
-                int[][] temp = boolArray2IntMat(this.architectures.get(id).getBitString());
-                behavioral.add(temp);
+                behavioral.add(id);
             }
-            
-            
-            
-            System.out.println("why won't this be printed1");
             for (String non_selected:non_selected_split) {
             	int id = Integer.parseInt(non_selected);
-                int[][] temp = boolArray2IntMat(this.architectures.get(id).getBitString());
-                non_behavioral.add(temp);
+                non_behavioral.add(id);
             }
             
-            System.out.println("why won't this be printed2");
-            
-            System.out.println("b: " + behavioral.size() + " nb: " + non_behavioral.size());
-            
-            
             dfsGen = new DrivingFeaturesGenerator();
-            dfsGen.initialize2(behavioral, non_behavioral, support_threshold,confidence_threshold,lift_threshold);
-            
-////            "[{"name":"thisName","expression":"present(ACE_ORCA)&&present(DESD_LID)"},{"name":"secondOne","expression":"present(DESD_LID)||numOrbitUsed(3)"}]"
-//            String userDefFilters_raw = request.getParameter("userDefFilters");
+            dfsGen.initialize(behavioral, non_behavioral,architectures,supp,conf,lift);
 //
-//            if (userDefFilters_raw==null){
-//            }else{
-////                userDefFilters_raw = userDefFilters_raw.substring(2, userDefFilters_raw.length()-2);
-////              {"name":"thisName","expression":"present(ACE_ORCA)&&present(DESD_LID)"},{"name":"secondOne","expression":"present(DESD_LID)||numOrbitUsed(3)"}
-//
-//              while(true){
-//              	
-//              	if(!userDefFilters_raw.contains("},") && !userDefFilters_raw.contains("}]")){
-//              		if(!userDefFilters_raw.endsWith("}")){
-//              			break;
-//              		}
-//              	}
-//              	
-//              	int paren1 = userDefFilters_raw.indexOf("{");
-//                int paren2;
-//                
-//                if(userDefFilters_raw.indexOf("},")!=-1){
-//                	paren2 = userDefFilters_raw.indexOf("},");
-//                }else if (userDefFilters_raw.indexOf("}]")!=-1){
-//                	paren2 = userDefFilters_raw.indexOf("}]");
-//                } else {
-//                	paren2 = userDefFilters_raw.length()-1;
-//                }
-//                  
-//                String thisFilter = userDefFilters_raw.substring(paren1+1,paren2);
-//              	String thisFilterName = thisFilter.split(",",2)[0]; //"name":"thisName"
-//              	thisFilterName = thisFilterName.split(":")[1]; // "thisName"
-//              	thisFilterName = thisFilterName.substring(1, thisFilterName.length()-1); //thisName
-//              	String thisFilterExp = thisFilter.split(",",2)[1];  //"expression":"present(ACE_ORCA)&&present(DESD_LID)"
-//              	thisFilterExp = thisFilterExp.split(":")[1]; // "thisName"
-//              	thisFilterExp = thisFilterExp.substring(1, thisFilterExp.length()-1); //thisName
-//              	
-//              	dfsGen.addUserDefFilter(thisFilterName,thisFilterExp);
-//              	
-//              	if(userDefFilters_raw.substring(paren2).length()==1){
-//              		break;
-//              	}else{
-//              		userDefFilters_raw = userDefFilters_raw.substring(paren2+1);
-//              	}
-//              }
-//            	
-//            }
-            
-            
-            
-            
-            
-            
-            
             ArrayList<DrivingFeature> DFs;
-            DFs = dfsGen.getDrivingFeatures();
-            //Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);
-            String jsonObj = gson.toJson(DFs);
-            outputString = jsonObj;
-   
+            dfsGen.getPrimitiveDrivingFeatures(0);
+//            DFs = dfsGen.getDrivingFeatures();
+//            Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);
+//            String jsonObj = gson.toJson(DFs);
+//            outputString = jsonObj;
+//        	
+        	System.out.println("Driving feature extracted");
         }
-        
-        
+        else if (requestID.equalsIgnoreCase("buildClassificationTree")){
+        	//String graph = dfsGen.buildTree(false);
+        	//outputString = graph;
+        }        
         
         
         } catch(Exception e){
+        	System.out.println("Exception");
             System.out.println(e.getMessage());
         }
         
@@ -392,7 +335,7 @@ public class IFEEDServlet extends HttpServlet {
     }
     
     
-    class ArchInfo{
+    public class ArchInfo{
     	private int id;
     	private boolean[] bitString;
         private double science;
@@ -415,7 +358,9 @@ public class IFEEDServlet extends HttpServlet {
         public boolean[] getBitString(){
         	return this.bitString;
         }
-        
+        public int getID(){
+        	return this.id;
+        }
         
     }
     
