@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Stack;
 
 import javax.servlet.ServletConfig;
@@ -21,11 +20,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.api.server.spi.SystemService;
 import com.google.gson.Gson;
 
-import rbsa.eoss.DrivingFeature;
 import rbsa.eoss.DrivingFeaturesGenerator;
+import rbsa.eoss.DrivingFeature;
 import rbsa.eoss.Result;
 import rbsa.eoss.ResultCollection;
 import rbsa.eoss.ResultManager;
@@ -36,10 +34,6 @@ import rbsa.eoss.local.Params;
  *
  * @author Bang
  */
-
-
-
-
 @WebServlet(name = "IFEEDServlet", urlPatterns = {"/IFEEDServlet"})
 public class IFEEDServlet extends HttpServlet {
     
@@ -47,14 +41,13 @@ public class IFEEDServlet extends HttpServlet {
 
 	private Gson gson = new Gson();
     ResultManager RM = ResultManager.getInstance();
-    
+
     private static IFEEDServlet instance=null;
 	ServletContext sctxt;
 	ServletConfig sconfig;
     
 	ArrayList<IFEEDServlet.ArchInfo> architectures;
 	rbsa.eoss.DrivingFeaturesGenerator dfsGen;
-    
     
     /**
      *
@@ -63,16 +56,37 @@ public class IFEEDServlet extends HttpServlet {
     @Override
     public void init() throws ServletException{ 
     	instance = this;
+    	
     	sctxt = this.getServletContext();
     	sconfig = this.getServletConfig();
     	architectures = new ArrayList<>();
     }
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet IFEEDServlet</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet IFEEDServlet at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    }
 
-    
-    
-    
-    
-    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -85,13 +99,10 @@ public class IFEEDServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+//        processRequest(request, response);
     }
 
-    
-    
-    
-    
-    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -219,7 +230,7 @@ public class IFEEDServlet extends HttpServlet {
             dfsGen.initialize(behavioral, non_behavioral,architectures,supp,conf,lift);
 //
             ArrayList<DrivingFeature> DFs;
-            dfsGen.getPrimitiveDrivingFeatures(0);
+            dfsGen.getPrimitiveDrivingFeatures(new ArrayList<Integer>());
 //            DFs = dfsGen.getDrivingFeatures();
 //            Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);
 //            String jsonObj = gson.toJson(DFs);
@@ -234,14 +245,15 @@ public class IFEEDServlet extends HttpServlet {
         
         
         } catch(Exception e){
-        	System.out.println("Exception");
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         
         response.flushBuffer();
         response.setContentType("text/html");
         response.setHeader("Cache-Control", "no-cache");
-        response.getWriter().write(outputString);        
+        response.getWriter().write(outputString);    
+        
+//        processRequest(request, response);
     }
     
     
@@ -254,9 +266,15 @@ public class IFEEDServlet extends HttpServlet {
         return instance;
     }
 
-
-    
-    
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
     
     public int[][] bitString2IntMat(String bitString){
         int norb = Params.orbit_list.length;
@@ -335,9 +353,12 @@ public class IFEEDServlet extends HttpServlet {
     }
     
     
+    
+
     public class ArchInfo{
     	private int id;
     	private boolean[] bitString;
+    	private int[][] mat;
         private double science;
         private double cost;
         private String status;
@@ -350,6 +371,7 @@ public class IFEEDServlet extends HttpServlet {
         	this.science = science;
             this.cost = cost;
             this.bitString = bitString;
+            this.mat = boolArray2IntMat(bitString);
         }
         public void setStatus(String status){
             this.status=status;
@@ -361,10 +383,10 @@ public class IFEEDServlet extends HttpServlet {
         public int getID(){
         	return this.id;
         }
-        
+        public int[][] getIntMat(){
+        	return this.mat;
+        }
     }
-    
-    
     
     
 }

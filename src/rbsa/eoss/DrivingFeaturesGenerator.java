@@ -69,24 +69,27 @@ public class DrivingFeaturesGenerator {
     	thresholds[0] = supp;
     	thresholds[1] = lift;
     	thresholds[2] = conf;
-    	
-      this.supp_threshold=0.1;
-      this.conf_threshold=0;
-      this.lift_threshold=0;
       
-      this.behavioral = behavioral;
-      this.non_behavioral = non_behavioral;
-      this.population.addAll(behavioral);
-      this.population.addAll(non_behavioral);
+    	this.behavioral = behavioral;
+    	this.non_behavioral = non_behavioral;
+    	this.population = new ArrayList<>();
+    	this.population.addAll(behavioral);
+    	this.population.addAll(non_behavioral);
+      
+		
+		this.supp_threshold= (double) behavioral.size() / population.size() * 0.5 ;
+		this.conf_threshold=0;
+		this.lift_threshold=0;      
+		this.stepSize = supp_threshold * 0.7;
       
       this.archsInfo = archs;
-      this.ninstr = Params.ninstr;
-      this.norb = Params.norb;
+      this.ninstr = 12;
+      this.norb = 5;
       
       userDefFeatures = new ArrayList<>();
       drivingFeatures = new ArrayList<>();
       feh = new FilterExpressionHandler();
-      feh.setArchs(archs);
+      feh.setArchs(archs,behavioral,non_behavioral);      
   }    
     
     
@@ -139,11 +142,9 @@ public class DrivingFeaturesGenerator {
 
     
 
-    public ArrayList<DrivingFeature> getPrimitiveDrivingFeatures(int iter){
-    	
-    	System.out.println("get primitive dfs");
-    	
-    	
+    public ArrayList<DrivingFeature> getPrimitiveDrivingFeatures(ArrayList<Integer> hist){
+    	    	
+    	this.drivingFeatures = new ArrayList<>();
         ArrayList<int[]> satList = new ArrayList<>();
     	ArrayList<String> candidate_features = new ArrayList<>();
     	
@@ -205,15 +206,16 @@ public class DrivingFeaturesGenerator {
             candidate_features.add("{numOfInstruments[;;"+i+"]}");
         }
         
-        for(String feature:candidate_features){
+        
+        
+        for(String feature:candidate_features){        	
             String feature_expression_inside = feature.substring(1,feature.length()-1);
             String name = feature_expression_inside.split("\\[")[0];
-            ArrayList<Integer> matchedArchIDs = feh.processSingleFilterExpression(feature_expression_inside,true);
-            double[] metrics = this.computeMetrics(matchedArchIDs);
-            if(metrics[0]>supp_threshold && metrics[1] > lift_threshold && metrics[2] > conf_threshold && metrics[3] > conf_threshold){
+            double[] metrics = feh.processSingleFilterExpression_computeMetrics(feature_expression_inside);
+            if(metrics[0]>supp_threshold){
                 drivingFeatures.add(new DrivingFeature(name,feature,metrics,true));
-                int[] satArray = satisfactionArray(matchedArchIDs,population); 
-                satList.add(satArray);
+                //int[] satArray = satisfactionArray(matchedArchIDs,population); 
+                //satList.add(satArray);
             }
         }      	
     	
@@ -228,30 +230,45 @@ public class DrivingFeaturesGenerator {
                 double[] metrics = this.computeMetrics(matchedArchIDs);
                 if(metrics[0]>supp_threshold && metrics[1] > lift_threshold && metrics[2] > conf_threshold && metrics[3] > conf_threshold){
                     drivingFeatures.add(new DrivingFeature(exp,exp,metrics,false));
-                    int[] satArray = satisfactionArray(matchedArchIDs,population); 
-                    satList.add(satArray);
+                   // int[] satArray = satisfactionArray(matchedArchIDs,population); 
+                   // satList.add(satArray);
                 }             
             }
         }
 
-        // Get feature satisfaction matrix
-        this.dataFeatureMat = new double[population.size()][drivingFeatures.size()];
-        for(int i=0;i<population.size();i++){
-        	for(int j=0;j<drivingFeatures.size();j++){
-    			this.dataFeatureMat[i][j] = (double) satList.get(j)[i];
-        	}
-        }        
+//        // Get feature satisfaction matrix
+//        this.dataFeatureMat = new double[population.size()][drivingFeatures.size()];
+//        for(int i=0;i<population.size();i++){
+//        	for(int j=0;j<drivingFeatures.size();j++){
+//    			this.dataFeatureMat[i][j] = (double) satList.get(j)[i];
+//        	}
+//        }        
 
         
-	    if(drivingFeatures.size() > 500 || drivingFeatures.size() < 100 || iter < 3){
-	    	
-	    	if(drivingFeatures.size() > 500){
-	    		this.supp_threshold = this.supp_threshold - stepSize/(iter+1);
-	    	}else{
-	    		this.supp_threshold = this.supp_threshold + stepSize/(iter+1);
+	    if(drivingFeatures.size() > 300 || drivingFeatures.size() < 100){
+	    	System.out.println("Size: " + drivingFeatures.size() +" Treshold: "+ this.supp_threshold + " stepSize: " + stepSize);
+	    	if(hist.size() < 7){
+		    	int current = 0;
+		    	if(drivingFeatures.size()>300) current = 1;
+		    	else current = -1; 
+		    	int last = 0;
+		    	if(hist.size()>0) last = hist.get(hist.size()-1);
+
+		    	if(current!=last && last !=0){
+		    		stepSize = stepSize*0.7;
+		    	}
+		    	
+		    	if(current==1){
+		    		this.supp_threshold = this.supp_threshold + stepSize;
+		    	}else{
+		    		this.supp_threshold = this.supp_threshold - stepSize;	    		
+		    	}
+		    	hist.add(current);
+		    	this.drivingFeatures = this.getPrimitiveDrivingFeatures(hist);
 	    	}
-	    	this.drivingFeatures = this.getPrimitiveDrivingFeatures(iter+1);
-	    }
+
+	    }else{System.out.println("driving features extracted: " + drivingFeatures.size());}
+	    
 	    
 	    return drivingFeatures;        
     }

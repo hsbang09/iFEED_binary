@@ -9,4 +9,11 @@
 /war/WEB-INF/classes/
 /war/WEB-INF/deploy/
 /war/idetc_2016_2/
+/war/ifeed_binary/
 /build/
+src/log4j.properties
+src/rbsa/eoss/IFEED_binary.gwt.xml
+src/rbsa/eoss/client
+src/rbsa/eoss/server/.DS_Store
+src/rbsa/eoss/shared/
+
