@@ -517,7 +517,9 @@ and open the template in the editor.
                             }
                         });
 						orbitList = getOrbitList();
-						instrList = getInstrumentList();  
+						instrList = getInstrumentList(); 
+						norb = orbitList.length;
+						ninstr = instrList.length;
 						for(var i=0;i<orbitList.length;i++){
 							relabeledOrbitList.push(relabel(orbitList[i]));
 						}

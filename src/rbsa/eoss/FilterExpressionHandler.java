@@ -28,6 +28,11 @@ public class FilterExpressionHandler {
     private int ninstr;
     private JessExpressionAnalyzer jea;
     private ArrayList<ArchInfo> archs;
+    private ArrayList<Integer> behavioral;
+    private ArrayList<Integer> non_behavioral;
+    private ArrayList<Integer> population;
+    
+    private int[] satList;
     
             
     public FilterExpressionHandler(){
@@ -38,23 +43,100 @@ public class FilterExpressionHandler {
         jea = new JessExpressionAnalyzer();
     }
 
-    public void setArchs(ArrayList<ArchInfo> inputArchs){
+    public void setArchs(ArrayList<ArchInfo> inputArchs, ArrayList<Integer> b, ArrayList<Integer> nb, ArrayList<Integer> pop){
+    	this.behavioral = b;
+    	this.non_behavioral = nb;
+    	this.population=pop;
     	archs = inputArchs;
     }
     
     
-    public ArrayList<Integer> processSingleFilterExpression(String inputExpression){
-        boolean preset;
-        if(inputExpression.contains(":")){
-            preset=false;
+    
+    
+    public double[] processSingleFilterExpression_computeMetrics(String inputExpression){
+        // Examples of feature expressions 
+        // Preset filter: {presetName[orbits;instruments;numbers]}   
+        
+    	satList = new int[population.size()];
+    	ArrayList<Integer> matchedArchIDs = new ArrayList<>();
+    	
+    	
+        String exp;
+        if(inputExpression.startsWith("{") && inputExpression.endsWith("}")){
+            exp = inputExpression.substring(1,inputExpression.length()-1);
         }else{
-            preset=true;
+            exp = inputExpression;
         }
-        return processSingleFilterExpression(inputExpression,preset);
-    }
+        
+    
+        String presetName = exp.split("\\[")[0];
+        String arguments = exp.substring(0,exp.length()-1).split("\\[")[1];
+        
+        String[] argSplit = arguments.split(";");
+        String[] orbits = new String[1];
+        String[] instruments = new String[1];
+        String[] numbers = new String[1];
+        
+        if(argSplit.length>0){
+            orbits = argSplit[0].split(",");
+        }
+        if(argSplit.length>1){
+            instruments = argSplit[1].split(",");
+        }
+        if(argSplit.length>2){
+            numbers = argSplit[2].split(",");
+        }
+        
+    	double[] metrics = {0,0,0,0};
+        double cnt_all= (double) non_behavioral.size() + behavioral.size();
+        double cnt_F=0.0;
+        double cnt_S= (double) behavioral.size();
+        double cnt_SF=0.0;        
+
+        for(ArchInfo a:archs){
+            int ArchID = a.getID();
+            if(comparePresetFilter(a.getIntMat(), presetName,orbits,instruments,numbers)){
+                cnt_F++;
+                if(behavioral.contains(ArchID)) cnt_SF++;
+                matchedArchIDs.add(ArchID);
+            }
+        }
+        
+        satList = satisfactionArray(matchedArchIDs, this.population);
+        
+        
+//        double cnt_NS = cnt_all-cnt_S;
+//        double cnt_NF = cnt_all-cnt_F;
+//        double cnt_S_NF = cnt_S-cnt_SF;
+//        double cnt_F_NS = cnt_F-cnt_SF;
+        
+        double support = cnt_SF/cnt_all;
+//        double support_F = cnt_F/cnt_all;
+//        double support_S = cnt_S/cnt_all;
+        
+        double lift=0;
+        double conf_given_F=0;
+        if(cnt_F!=0){
+            lift = (cnt_SF/cnt_S) / (cnt_F/cnt_all);
+            conf_given_F = (cnt_SF)/(cnt_F);   // confidence (feature -> selection)
+        }
+        double conf_given_S = (cnt_SF)/(cnt_S);   // confidence (selection -> feature)
+
+    	metrics[0] = support;
+    	metrics[1] = lift;
+    	metrics[2] = conf_given_F;
+    	metrics[3] = conf_given_S;
+    	
+    	return metrics;        
+
+    }    
+        
     
     
-    public ArrayList<Integer> processSingleFilterExpression(String inputExpression, boolean preset){
+
+    
+    
+    public ArrayList<Integer> processSingleFilterExpression(String inputExpression){
         // Examples of feature expressions 
         // Preset filter: {presetName[orbits;instruments;numbers]}   
         
@@ -85,11 +167,9 @@ public class FilterExpressionHandler {
             numbers = argSplit[2].split(",");
         }
 
-
         for(ArchInfo a:archs){
             int ArchID = a.getID();
-            String bitString = boolArray2boolString(a.getBitString());
-            if(comparePresetFilter(bitString, presetName,orbits,instruments,numbers)){
+            if(comparePresetFilter(a.getIntMat(), presetName,orbits,instruments,numbers)){
                 matchedArchIDs.add(ArchID);
             }
         }
@@ -101,9 +181,7 @@ public class FilterExpressionHandler {
 
     
     
-    public boolean comparePresetFilter(String bitString, String type, String[] orbits, String[] instruments, String[] numbers){
-        
-        int[][] mat = booleanString2IntArray(bitString);
+    public boolean comparePresetFilter(int[][] mat, String type, String[] orbits, String[] instruments, String[] numbers){
         
         if(type.equalsIgnoreCase("present")){
             int instrument = Integer.parseInt(instruments[0]);
@@ -317,6 +395,25 @@ public class FilterExpressionHandler {
     
     
     
+    private int[] satisfactionArray(ArrayList<Integer> matchedArchIDs, ArrayList<Integer> allArchIDs){
+        int[] satArray = new int[allArchIDs.size()];
+        for(int i=0;i<allArchIDs.size();i++){
+            int id = allArchIDs.get(i);
+            if(matchedArchIDs.contains(id)){
+                satArray[i]=1;
+            }else{
+                satArray[i]=0;
+            }
+        }
+        return satArray;
+    }       
+    
+    public int[] getSatisfactionArray(){
+    	return this.satList;
+    }
+    
+    
+    
     public ArrayList<Integer> compareMatchedIDSets(String logic, ArrayList<Integer> set1, ArrayList<Integer> set2){
         ArrayList<Integer> output = new ArrayList<>();
         if(logic.equals("&&")){
@@ -339,17 +436,7 @@ public class FilterExpressionHandler {
     }
     
     
-    public String boolArray2boolString(boolean[] arr){
-    	String out= "";
-    	for(boolean b:arr){
-    		if(b) {
-    			out=out+"1";
-    		}else{
-    			out=out+"0";
-    		}
-    	}
-    	return out;
-    }
+
     
     
 

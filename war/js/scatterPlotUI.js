@@ -297,7 +297,7 @@ function selectArchsWithinRange() {
         }
     })
             .attr("class", "dot_clicked")
-            .style("fill", "#0040FF");
+            .style("fill", "#20DCCC");
 
     clickedArchs.filter(function (d) {
 
@@ -450,7 +450,7 @@ function dot_click(d) {
 
     } else {
         d3.select(this).attr("class", "dot_clicked")
-                .style("fill", "#0040FF");
+                .style("fill", "#20DCCC");
 
     }
     d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
@@ -611,7 +611,7 @@ function scatterPlot_option(selected_option){ // three options: zoom, drag_selec
                                 yCoord + margin.top >= b.y && yCoord + margin.top  <= b.y+b.height
                             ) {
                                 d3.select(d).attr("class","dot_clicked")
-                                        .style("fill", "#0040FF");      
+                                        .style("fill", "#20DCCC");      
                                 selection_changed = true;
                                 initialize_tabs_driving_features();
                                 initialize_tabs_classification_tree();

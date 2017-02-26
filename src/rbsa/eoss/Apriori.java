@@ -103,6 +103,8 @@ public class Apriori {
                 }
                 l=l+1;              
             }
+            
+            System.out.println("Number of extracted features: " + S.size());
             return S;
     }
     

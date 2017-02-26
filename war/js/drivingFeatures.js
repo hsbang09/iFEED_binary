@@ -11,7 +11,6 @@
 
 
 function runDataMining() {
-	
 	document.getElementById('tab3').click();
     highlight_basic_info_box()
     
@@ -35,7 +34,6 @@ function runDataMining() {
         buttonClickCount_drivingFeatures += 1;
         getDrivingFeatures_numOfArchs.push({numOfSelectedArchs,numOfNonSelectedArchs});
         getDrivingFeatures_thresholds.push({supp:support_threshold,lift:lift_threshold,conf:confidence_threshold});
-        
         
         var selected = [];
         var non_selected = [];
@@ -71,9 +69,6 @@ function runDataMining() {
 function generateDrivingFeatures(selected,non_selected,
 		support_threshold,confidence_threshold,lift_threshold,
 		userDefFilters,sortBy){
-	
-	console.log(selected);
-	console.log(JSON.stringify(selected));
 	
 	var output;
     $.ajax({
@@ -789,7 +784,7 @@ function applyFilter_new(){
         	var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +filterInput && rank >= 0){
                 d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
+                            .style("fill", "#20DCCC");
             }
         });
 
@@ -818,7 +813,7 @@ function applyFilter_new(){
             }
             else if (temp){
                 d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
+                            .style("fill", "#20DCCC");
             }
         });
     } else if(filterType == "defineNewFilter" || (filterType =="not_selected" && userDefFilters.length !== 0)){
@@ -830,7 +825,7 @@ function applyFilter_new(){
             var bitString = d.__data__.bitString;
             if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                 d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
+                            .style("fill", "#20DCCC");
             }
         });
 
@@ -845,7 +840,7 @@ function applyFilter_new(){
                     var bitString = d.__data__.bitString;
                     if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                         d3.select(d).attr("class", "dot_clicked")
-                                    .style("fill", "#0040FF");
+                                    .style("fill", "#20DCCC");
                     }
                 }); 
            } 
@@ -937,7 +932,7 @@ function applyFilter_within(){
                     var bitString = d.__data__.bitString;
                     if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                         d3.select(d).attr("class", "dot_clicked")
-                                    .style("fill", "#0040FF");
+                                    .style("fill", "#20DCCC");
                     }
                 }); 
            } 
@@ -963,7 +958,7 @@ function applyFilter_add(){
         	var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +filterInput && rank >= 0){
             	d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
+                            .style("fill", "#20DCCC");
             }
         });
 
@@ -995,7 +990,7 @@ function applyFilter_add(){
             }
             else if (temp){
                 d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
+                            .style("fill", "#20DCCC");
             }
         });
     }
@@ -1007,7 +1002,7 @@ function applyFilter_add(){
                     var bitString = d.__data__.bitString;
                     if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                         d3.select(d).attr("class", "dot_clicked")
-                                    .style("fill", "#0040FF");
+                                    .style("fill", "#20DCCC");
                     }
                 }); 
            } 
@@ -1298,14 +1293,15 @@ function display_drivingFeatures(source,sortby) {
                                                     var x = mouseLoc_x + featureInfoLoc.x;
                                                     var y = mouseLoc_y + featureInfoLoc.y;
                                                     return "translate(" + x + "," + y + ")";
-                                                })
+                                                 })
                                                 .attr("width",tooltip_width)
                                                 .attr("height",tooltip_height)
                                                 .style("fill","#4B4B4B")
                                                 .style("opacity", 0.92);
+                    
                     var tmp= d.id;
-                    var name = relabelDrivingFeatureName(d.name);
-                    var type = d.type;
+                    var name = d.name;
+                    var expression = d.expression;
                     var lift = d.metrics[1];
                     var supp = d.metrics[0];
                     var conf = d.metrics[2];
@@ -1318,81 +1314,26 @@ function display_drivingFeatures(source,sortby) {
                             return false;
                         }
                     }).style("stroke-width",1.5)
-                            .style("stroke","black");
+                        .style("stroke","black");
 
-                    
-                    if(type=="present" || type=="absent" || type=="inOrbit" ||type=="notInOrbit"||type=="together2"||
-                    		type=="togetherInOrbit2"||type=="separate2"||type=="together3"||type=="togetherInOrbit3"||
-                    		type=="separate3"||type=="emptyOrbit"||type=="numOrbits"|| type=="numOfInstruments"){
-                    	
-                    	var type_modified;
-                    	var filterInputs = [];
-                    	
-                    	if(type=="together2"||type=="together3"||type=="separate2"||type=="separate3"||
-                    		type=="togetherInOrbit2"||type=="togetherInOrbit3"){
-                    		type_modified = type.substring(0,type.length-1);
-                    	}else{
-                    		type_modified = type;
-                    	}
-                    	
-                    	var arg = name.substring(name.indexOf("[")+1,name.indexOf("]"));
-                            
-                        	
-                    	if(type_modified=="present" || type_modified=="absent" || type_modified=="emptyOrbit"
-                    				|| type_modified=="numOrbits" || type_modified=="together" 
-                    					|| type_modified=="separate" || type_modified=="numOfInstruments"){
-                    		filterInputs.push(arg);
-                    	}else if(type_modified=="inOrbit" || type_modified=="notInOrbit" || 
-                    											type_modified=="togetherInOrbit"){
-                    		var first = arg.substring(0,arg.indexOf(","));
-                    		var second = arg.substring(arg.indexOf(",")+1);
-                    		filterInputs.push(first);
-                    		filterInputs.push(second);
-                    	} else{
-                    		filterInputs.push(arg);
-                    	}
-                            
-                        d3.selectAll("[class=dot]")[0].forEach(function (d) {
-                        	var bitString = d.__data__.bitString;
-                            var temp = presetFilter2(type_modified,bitString,filterInputs,false);
-                            if(temp==null){
-                            	return;
-                            }
-                            else if (temp){
-                    			d3.select(d).attr("class", "dot_DFhighlighted")
-                    						.style("fill", "#F75082");
-                			}
-                        });
-                        d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
-                        	var bitString = d.__data__.bitString;
-                            var temp = presetFilter2(type_modified,bitString,filterInputs,false);
-                            if(temp==null){
-                            	return;
-                            }
-                            else if (temp){
-                    			d3.select(d).attr("class", "dot_selected_DFhighlighted")
-                    						.style("fill", "#F75082");
-                			}
-                        });
+                 // Preset filter: {presetName[orbits;instruments;numbers]}   
+           
+                    d3.selectAll("[class=dot]")[0].forEach(function (d) {
+                    	var bitString = d.__data__.bitString;
+                    	if(processFilterExpression(expression,bitString)===true){
+                    		d3.select(d).attr("class", "dot_DFhighlighted")
+    						.style("fill", "#F75082");
+                		}
+                    });
+                    d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
+                    	var bitString = d.__data__.bitString;
+                    	if(processFilterExpression(expression,bitString)===true){
+                			d3.select(d).attr("class", "dot_selected_DFhighlighted")
+    						.style("fill", "#F75082");
+                		}                    	
 
-                    }else{
-                    		type_modified = type;
-                            d3.selectAll("[class=dot]")[0].forEach(function (d) {
-                            	var bitString = d.__data__.bitString;
-                        		if (applyUserDefFilterFromExpression(type_modified,bitString)){
-                        			d3.select(d).attr("class", "dot_DFhighlighted")
-                        						.style("fill", "#F75082");
-                    			}
-                            });
-                            d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
-                            	var bitString = d.__data__.bitString;
-                        		if (applyUserDefFilterFromExpression(type_modified,bitString)){
-                        			d3.select(d).attr("class", "dot_selected_DFhighlighted")
-                        						.style("fill", "#F75082");
-                    			}
-                            });
-                    }
-                    
+                    });
+
 
                     
                     var fo = d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]")
@@ -1415,7 +1356,7 @@ function display_drivingFeatures(source,sortby) {
                                                 'class': 'fo_tooltip'
                                             });
                     var textdiv = fo_div.selectAll("div")
-                            .data([{name:name,supp:supp,conf:conf,conf2:conf2,lift:lift}])
+                            .data([{name:name,expression:expression,supp:supp,conf:conf,conf2:conf2,lift:lift}])
                             .enter()
                             .append("div")
                             .style("padding","15px");
@@ -1424,7 +1365,7 @@ function display_drivingFeatures(source,sortby) {
                           
 //                    
                     textdiv.html(function(d){
-                        var output= "" + d.name + "<br><br> The % of designs in the intersection out of all designs: " + round_num_2_perc(d.supp) + 
+                        var output= "" + d.expression + "<br><br> The % of designs in the intersection out of all designs: " + round_num_2_perc(d.supp) + 
                         "% <br> The % of selected designs among designs with the feature: " + round_num_2_perc(d.conf) + 
                         "%<br> The % of designs with the feature among selected designs: " + round_num_2_perc(d.conf2) +"%";
                         return output;
@@ -1459,7 +1400,7 @@ function display_drivingFeatures(source,sortby) {
                             });     
                     d3.selectAll("[class=dot_selected_DFhighlighted]")
                     		.attr("class", "dot_clicked")
-                            .style("fill","#0040FF");    
+                            .style("fill","#20DCCC");    
 
                 });
 
@@ -1519,8 +1460,239 @@ function openFilterOptions(){
 
 
 
+
+
+
+
+
+
+
+function processFilterExpression(expression,bitString){
+	if(expression.indexOf("&&")>=0){
+		var filters = expression.split("&&");
+		for(var i=0;i<filters.length;i++){
+			if(!presetFilter(filters[i],bitString)) return false;
+		}
+		return true;
+	}else{
+		return presetFilter(expression,bitString);
+	}
+}
+
+
+function presetFilter(expression,bitString){
+	// Preset filter: {presetName[orbits;instruments;numbers]}   
+	expression = expression.substring(1,expression.length-1);
+	var type = expression.split("[")[0];
+	var condition = expression.substring(0,expression.length-1).split("[")[1];
+	var condSplit = condition.split(";");
+	var orbit, instr, numb;
+	if(condSplit[0].length > 0){
+		orbit = +condSplit[0];
+	}else{
+		orbit = condSplit[0];
+	}
+	if(condSplit[1].length > 0){
+		if(condSplit[1].indexOf(",")==-1){
+			instr = +condSplit[1];
+		}else{
+			instr = condSplit[1];
+		}
+	}else{
+		instr = condSplit[1];
+	}
+	if(condSplit[2].length > 0){
+		numb = +condSplit[2];
+	}else{
+		numb = condSplit[2];
+	}
+    
+	if(type==="togetherInOrbit"){
+    	var instruments = instr.split(",");
+		for(var i=0;i<instruments.length;i++){
+			var temp = +instruments[j];
+			if(bitString[orbit*ninstr + temp]===false){
+				return false;
+			}
+		}
+		return true;
+	}
+}
                 
-   
+
+
+
+
+
+
+
+
+
+function presetFilter(expression,bitString){
+	// Preset filter: {presetName[orbits;instruments;numbers]}   
+	expression = expression.substring(1,expression.length-1);
+	var type = expression.split("[")[0];
+	var condition = expression.substring(0,expression.length-1).split("[")[1];
+	var condSplit = condition.split(";");
+	var orbit, instr, numb;
+	if(condSplit[0].length > 0){
+		orbit = +condSplit[0];
+	}else{
+		orbit = condSplit[0];
+	}
+	if(condSplit[1].length > 0){
+		if(condSplit[1].indexOf(",")==-1){
+			instr = +condSplit[1];
+		}else{
+			instr = condSplit[1];
+		}
+	}else{
+		instr = condSplit[1];
+	}
+	if(condSplit[2].length > 0){
+		numb = +condSplit[2];
+	}else{
+		numb = condSplit[2];
+	}
+
+	
+	switch(type) {
+    case "present":
+    	
+        for(var i=0;i<norb;i++){
+            if(bitString[ninstr*i+instr]===true){
+                return true;
+            }
+        }
+        return false;
+        break;
+    case "absent":
+        for(var i=0;i<norb;i++){
+            if(bitString[ninstr*i+instr]===true){
+                return false;
+            }
+        }
+        return true;
+        break;
+    case "inOrbit":
+        if(bitString[orbit*ninstr + instr]===true){
+        	return true;
+        }
+        return false;
+        break;
+    case "notInOrbit":
+        if(bitString[orbit*ninstr + instr]===true){
+        	return false;
+        }
+        return true;
+        break;
+    case "together":
+    	var instruments = instr.split(",");
+    	for(var i=0;i<norb;i++){
+    		var found = true;
+    		for(var j=0;j<instruments.length;j++){
+    			var temp = +instruments[j];
+    			if(bitString[i*ninstr+temp]===false){
+    				found=false;
+    			}
+    		}
+    		if(found===true){
+    			return true;
+    		}
+    	}
+    	return false;
+        break;
+
+    case "togetherInOrbit":
+    	var instruments = instr.split(",");
+		for(var j=0;j<instruments.length;j++){
+			var temp = +instruments[j];
+			if(bitString[orbit*ninstr + temp]===false){
+				return false;
+			}
+		}
+		return true;
+        break;
+
+    case "separate":
+    	var instruments = instr.split(",");
+    	for(var i=0;i<norb;i++){
+    		var together = true;
+    		for(var j=0;j<instruments.length;j++){
+    			var temp = +instruments[j];
+    			if(bitString[j*ninstr+temp]===false){
+    				together=false;
+    			}
+    		}
+    		if(together===true){
+    			return false;
+    		}
+    	}
+    	return true;
+        break;
+
+    case "emptyOrbit":
+    	for(var i=0;i<ninstr;i++){
+    		if(bitString[orbit*ninstr+i]===true){
+    			return false;
+    		}
+    	}
+    	return true;
+        break;
+
+    case "numOrbits":
+    	var count=0;
+    	for(var i=0;i<norb;i++){
+    		for(var j=0;j<ninstr;j++){
+    			if(bitString[i*ninstr+j]===true){
+    				count++;
+    				break;
+    			}
+    		}
+    	}
+    	if(numb===count){
+    		return true;
+    	}
+    	return false;
+        break;
+
+    case "numOfInstruments":
+    	var count=0;
+    	if(orbit===""){
+			// num of instruments across all orbits
+    		if(instr===""){
+    			// num of specified instrument
+    			for(var i=0;i<norb;i++){
+    				for(var j=0;j<ninstr;j++){
+    					if(bitString[i*ninstr+j]===true) count++;
+    				}
+    			}
+    		}else{
+    			// num of all instruments
+    			for(var i=0;i<norb;i++){
+    				if(bitString[i*ninstr+instr]===true){
+    					count++;
+    				}
+    			}
+    		}
+    	}else{
+    		// number of instruments in a specified orbit
+    		for(var i=0;i<ninstr;i++){
+    			if(bitString[orbit*ninstr+i]===true){
+    				count++;
+    			}
+    		}
+    	}
+		if(count===numb) return true;
+		return false;
+        break;
+    	
+    default:
+    	return false;
+	}
+	 
+	
+}
    
    
    
@@ -1904,7 +2076,7 @@ function applyFilter(filterType,filterInput){
         	var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +filterInput && rank >= 0){
                 d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
+                            .style("fill", "#20DCCC");
             }
         });
 
@@ -1922,7 +2094,7 @@ function applyFilter(filterType,filterInput){
             }
             else if (temp){
                 d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
+                            .style("fill", "#20DCCC");
             }
         });
     } else if(filterType == "defineNewFilter" || (filterType =="not_selected" && userDefFilters.length !== 0)){
@@ -1934,7 +2106,7 @@ function applyFilter(filterType,filterInput){
             var bitString = d.__data__.bitString;
             if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                 d3.select(d).attr("class", "dot_clicked")
-                            .style("fill", "#0040FF");
+                            .style("fill", "#20DCCC");
             }
         });
 
@@ -1950,7 +2122,7 @@ function applyFilter(filterType,filterInput){
                     var bitString = d.__data__.bitString;
                     if(applyUserDefFilterFromExpression(filterExpression,bitString)){
                         d3.select(d).attr("class", "dot_clicked")
-                                    .style("fill", "#0040FF");
+                                    .style("fill", "#20DCCC");
                     }
                 }); 
            } 

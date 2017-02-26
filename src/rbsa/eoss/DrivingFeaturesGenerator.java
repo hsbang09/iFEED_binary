@@ -41,9 +41,7 @@ public class DrivingFeaturesGenerator {
     private ArrayList<Integer> population;
     
     private double[][] dataFeatureMat;
-    private double supp_threshold;
-    private double conf_threshold;
-    private double lift_threshold;
+    private double adaptSupp;
     private double[] thresholds;
     
     private double ninstr;
@@ -55,7 +53,10 @@ public class DrivingFeaturesGenerator {
     private ArrayList<IFEEDServlet.ArchInfo> archsInfo;
     private FilterExpressionHandler feh;
     
-    double stepSize = 0.1;
+    
+    private int maxIter;
+    private int minRuleNum;
+    private int maxRuleNum;
     
 
     public DrivingFeaturesGenerator(){
@@ -69,24 +70,28 @@ public class DrivingFeaturesGenerator {
     	thresholds[0] = supp;
     	thresholds[1] = lift;
     	thresholds[2] = conf;
-    	
-      this.supp_threshold=0.1;
-      this.conf_threshold=0;
-      this.lift_threshold=0;
       
-      this.behavioral = behavioral;
-      this.non_behavioral = non_behavioral;
-      this.population.addAll(behavioral);
-      this.population.addAll(non_behavioral);
+    	this.behavioral = behavioral;
+    	this.non_behavioral = non_behavioral;
+    	this.population = new ArrayList<>();
+    	this.population.addAll(behavioral);
+    	this.population.addAll(non_behavioral);
+    	
+
+		this.adaptSupp= (double) behavioral.size() / population.size() * 0.5 ;  
+		minRuleNum = 50;
+		maxRuleNum = 150;
+		maxIter = 7;
+		
       
       this.archsInfo = archs;
-      this.ninstr = Params.ninstr;
-      this.norb = Params.norb;
+      this.ninstr = Params.instrument_list.length;
+      this.norb = Params.orbit_list.length;
       
       userDefFeatures = new ArrayList<>();
       drivingFeatures = new ArrayList<>();
       feh = new FilterExpressionHandler();
-      feh.setArchs(archs);
+      feh.setArchs(archs,behavioral,non_behavioral,population);      
   }    
     
     
@@ -139,11 +144,12 @@ public class DrivingFeaturesGenerator {
 
     
 
-    public ArrayList<DrivingFeature> getPrimitiveDrivingFeatures(int iter){
+    public ArrayList<DrivingFeature> getPrimitiveDrivingFeatures(double[] bounds, int iter, boolean apriori){
+        
     	
-    	System.out.println("get primitive dfs");
-    	
-    	
+    	iter++;
+
+    	this.drivingFeatures = new ArrayList<>();
         ArrayList<int[]> satList = new ArrayList<>();
     	ArrayList<String> candidate_features = new ArrayList<>();
     	
@@ -205,35 +211,58 @@ public class DrivingFeaturesGenerator {
             candidate_features.add("{numOfInstruments[;;"+i+"]}");
         }
         
-        for(String feature:candidate_features){
+        
+        
+        int feature_count = 0;
+        int added_feature_count = 0;
+        boolean maxCountReached = false;
+
+        for(String feature:candidate_features){ 
+        	feature_count++;
             String feature_expression_inside = feature.substring(1,feature.length()-1);
             String name = feature_expression_inside.split("\\[")[0];
-            ArrayList<Integer> matchedArchIDs = feh.processSingleFilterExpression(feature_expression_inside,true);
-            double[] metrics = this.computeMetrics(matchedArchIDs);
-            if(metrics[0]>supp_threshold && metrics[1] > lift_threshold && metrics[2] > conf_threshold && metrics[3] > conf_threshold){
-                drivingFeatures.add(new DrivingFeature(name,feature,metrics,true));
-                int[] satArray = satisfactionArray(matchedArchIDs,population); 
-                satList.add(satArray);
-            }
-        }      	
-    	
-        
-        // Test the user-defined features
-        if(!this.userDefFeatures.isEmpty()){
-            for(String exp:this.userDefFeatures){
-                if(exp.isEmpty()){
-                    continue;
+            double[] metrics = feh.processSingleFilterExpression_computeMetrics(feature_expression_inside);
+            
+            if(apriori){
+                if(metrics[0]>adaptSupp){
+                	added_feature_count++;
+                    drivingFeatures.add(new DrivingFeature(name,feature,metrics,true));
+                    satList.add(feh.getSatisfactionArray());
+                    if(added_feature_count > this.maxRuleNum && iter < maxIter){
+                    	maxCountReached=true;
+                    	break;
+                    }else if((candidate_features.size() - feature_count) + added_feature_count < this.minRuleNum){
+                    	break;
+                    }
                 }
-                ArrayList<Integer> matchedArchIDs = feh.processFilterExpression(exp, new ArrayList<Integer>(), "||");
-                double[] metrics = this.computeMetrics(matchedArchIDs);
-                if(metrics[0]>supp_threshold && metrics[1] > lift_threshold && metrics[2] > conf_threshold && metrics[3] > conf_threshold){
-                    drivingFeatures.add(new DrivingFeature(exp,exp,metrics,false));
-                    int[] satArray = satisfactionArray(matchedArchIDs,population); 
-                    satList.add(satArray);
-                }             
-            }
-        }
+           }else{
+               if(metrics[0]>this.thresholds[0]&&metrics[1]>thresholds[1]&&metrics[2]>thresholds[2]&&metrics[3]>thresholds[2]){
+                   drivingFeatures.add(new DrivingFeature(name,feature,metrics,true));
+                   satList.add(feh.getSatisfactionArray());
+               }
+           }
+        }      	
+        
+//        // Test the user-defined features
+//        if(!this.userDefFeatures.isEmpty() && !maxCountReached){
+//            for(String exp:this.userDefFeatures){
+//                if(exp.isEmpty()){
+//                    continue;
+//                }
+//                ArrayList<Integer> matchedArchIDs = feh.processFilterExpression(exp, new ArrayList<Integer>(), "||");
+//                double[] metrics = this.computeMetrics(matchedArchIDs);
+//                if(metrics[0]>supp_threshold && metrics[1] > lift_threshold && metrics[2] > conf_threshold && metrics[3] > conf_threshold){
+//                    drivingFeatures.add(new DrivingFeature(exp,exp,metrics,false));
+//                   // int[] satArray = satisfactionArray(matchedArchIDs,population); 
+//                   // satList.add(satArray);
+//                }             
+//            }
+//        }
 
+        
+        
+        
+        
         // Get feature satisfaction matrix
         this.dataFeatureMat = new double[population.size()][drivingFeatures.size()];
         for(int i=0;i<population.size();i++){
@@ -243,18 +272,44 @@ public class DrivingFeaturesGenerator {
         }        
 
         
-	    if(drivingFeatures.size() > 500 || drivingFeatures.size() < 100 || iter < 3){
+        int dfSize = drivingFeatures.size();
+	    if((dfSize > maxRuleNum || dfSize < minRuleNum) && apriori){
+	    	System.out.println("RuleSetSize: " + dfSize +" Treshold: "+ this.adaptSupp);
 	    	
-	    	if(drivingFeatures.size() > 500){
-	    		this.supp_threshold = this.supp_threshold - stepSize/(iter+1);
-	    	}else{
-	    		this.supp_threshold = this.supp_threshold + stepSize/(iter+1);
+	    	if(iter < maxIter){
+	    		
+	    		// max supp threshold is support_S
+	    		// min supp threshold is 0
+	    		
+	    		if(iter<=1){
+	    			bounds = new double[2];
+	    			bounds[0] = 0;
+	    			bounds[1] = (double) behavioral.size() / population.size();
+	    		}
+	    		
+	    		double a;
+    			if(dfSize > maxRuleNum){ // Too many rules -> increase threshold
+    				bounds[0] = this.adaptSupp;
+    				a = bounds[1];
+    			}else{ // too few rules -> decrease threshold
+    				bounds[1] = this.adaptSupp;
+    				a = bounds[0];
+    			}
+	    		
+	    		// Bisection
+	    		this.adaptSupp = (double) (this.adaptSupp + a) * 0.5;
+		    	this.drivingFeatures = this.getPrimitiveDrivingFeatures(bounds,iter, false);
 	    	}
-	    	this.drivingFeatures = this.getPrimitiveDrivingFeatures(iter+1);
-	    }
+
+	    }else{System.out.println("Driving features extracted in "+ iter +" steps with size: " + drivingFeatures.size() + ", threshold: " + this.adaptSupp);}
+	    
 	    
 	    return drivingFeatures;        
     }
+    
+    
+    
+    
     
     
     public ArrayList<DrivingFeature> getDrivingFeatures(){
