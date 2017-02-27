@@ -430,11 +430,11 @@ and open the template in the editor.
                 {value:"togetherInOrbit",text:"Together in orbit"},{value:"separate",text:"Separate"},
                 {value:"emptyOrbit",text:"Empty orbit"},{value:"numOrbitUsed",text:"Number of orbit used"},
                 {value:"numOfInstruments",text:"Number of instruments"},
-                {value:"subsetOfInstruments",text:"Num of instruments in a subset"},{value:"defineNewFilter",text:"Define new filter"}];
+                {value:"subsetOfInstruments",text:"Num of instruments in a subset"}];
             
-            var userDefFilterExpressionHistory = [];
-            userDefFilterExpressionHistory.length=0;
-            var userDefFilters = [];
+           	
+            var userdef_features = [];
+            
             
             
             // Classification Tree variables
@@ -662,7 +662,7 @@ and open the template in the editor.
                             }
                         })
                         .text(function (d) {
-                        	if(orbitList.indexOf(d)>-1){
+                        	if(d.type=="orbit"){
                         		return ActualName2DisplayName(d.content,"orbit");
                         	}
                         	return ActualName2DisplayName(d.content,"instrument");

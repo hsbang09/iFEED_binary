@@ -49,7 +49,7 @@ function runDataMining() {
             non_selected.push(id);
         }
 
-        sortedDFs = generateDrivingFeatures(selected,non_selected,support_threshold,confidence_threshold,lift_threshold,userDefFilters,"lift");
+        sortedDFs = generateDrivingFeatures(selected,non_selected,support_threshold,confidence_threshold,lift_threshold,userdef_features,"lift");
         if(testType=="3"){
            // jsonObj_tree = buildClassificationTree();
         }
