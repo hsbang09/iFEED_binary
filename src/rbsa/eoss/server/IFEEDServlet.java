@@ -236,8 +236,9 @@ public class IFEEDServlet extends HttpServlet {
             
             try{
             
-            DFs = dfsGen.getPrimitiveDrivingFeatures(new double[2], 0,false);
-            DFs = dfsGen.getDrivingFeatures();
+            DFs = dfsGen.getPrimitiveDrivingFeatures();
+
+            
             Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);
             String jsonObj = gson.toJson(DFs);
             outputString = jsonObj;

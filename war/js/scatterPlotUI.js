@@ -85,7 +85,7 @@ function draw_scatterPlot(source) {
                                 var yCoord = yMap(d);
                                 return "translate(" + xCoord + "," + yCoord + ")";
                             });
-                    svg.selectAll("[class=dot_clicked]")
+                    svg.selectAll("[class=dot_highlighted]")
                             .attr("transform", function (d) {
                                 var xCoord = xMap(d);
                                 var yCoord = yMap(d);
@@ -187,7 +187,7 @@ function draw_scatterPlot(source) {
 
     dots.on("mouseover", dot_mouseover)
             .on("mouseout", function (d) {
-                if (d3.select(this).attr("class") == "dot_clicked") {
+                if (d3.select(this).attr("class") == "dot_highlighted") {
                 } else if (d3.select(this)[0][0].__data__.status == "justAdded") {
                     d3.select(this).style("fill", "#20FE5B");
                 } else if (d3.select(this)[0][0].__data__.status == "added") {
@@ -267,7 +267,7 @@ function add_newArchs_to_scatterPlot() {
 
 function selectArchsWithinRange() {
 	
-    var clickedArchs = d3.selectAll("[class=dot_clicked]");
+    var clickedArchs = d3.selectAll("[class=dot_highlighted]");
     var unClickedArchs = d3.selectAll("[class=dot]");
 
     var minCost = d3.select("[id=selectArchsWithinRange_minCost]")[0][0].value;
@@ -296,7 +296,7 @@ function selectArchsWithinRange() {
             return true;
         }
     })
-            .attr("class", "dot_clicked")
+            .attr("class", "dot_highlighted")
             .style("fill", "#20DCCC");
 
     clickedArchs.filter(function (d) {
@@ -334,7 +334,7 @@ function selectArchsWithinRange() {
 }
 
 function cancelDotSelections(){
-    var clickedArchs = d3.selectAll("[class=dot_clicked]");
+    var clickedArchs = d3.selectAll("[class=dot_highlighted]");
 
     clickedArchs.attr("class", "dot")
             .style("fill", function (d) {
@@ -356,7 +356,7 @@ function cancelDotSelections(){
 
 function hideSelection(){
 
-    var clickedArchs = d3.selectAll("[class=dot_clicked]");
+    var clickedArchs = d3.selectAll("[class=dot_highlighted]");
 
     clickedArchs.attr("class", "dot_hidden")
             .style("opacity", 0.085);
@@ -406,7 +406,7 @@ function dot_mouseover(d) {
 	numOfArchViewed = numOfArchViewed+1;
 	
 	
-    if (d3.select(this).attr("class") == "dot_clicked") {
+    if (d3.select(this).attr("class") == "dot_highlighted") {
     } else {
         d3.select(this).style("fill", "#D32020");
     }
@@ -436,7 +436,7 @@ function dot_mouseover(d) {
 
 function dot_click(d) {
 
-    if (d3.select(this).attr("class") == "dot_clicked") {
+    if (d3.select(this).attr("class") == "dot_highlighted") {
         d3.select(this).attr("class", "dot")
                 .style("fill", function (d) {
                     if (d.status == "added") {
@@ -449,7 +449,7 @@ function dot_click(d) {
                 });
 
     } else {
-        d3.select(this).attr("class", "dot_clicked")
+        d3.select(this).attr("class", "dot_highlighted")
                 .style("fill", "#20DCCC");
 
     }
@@ -500,7 +500,7 @@ function scatterPlot_option(selected_option){ // three options: zoom, drag_selec
                                         var yCoord = yMap(d);
                                         return "translate(" + xCoord + "," + yCoord + ")";
                                     });
-                            svg.selectAll("[class=dot_clicked]")
+                            svg.selectAll("[class=dot_highlighted]")
                                     .attr("transform", function (d) {
                                         var xCoord = xMap(d);
                                         var yCoord = yMap(d);
@@ -610,7 +610,7 @@ function scatterPlot_option(selected_option){ // three options: zoom, drag_selec
                                 xCoord + margin.left>= b.x && xCoord + margin.left <= b.x+b.width && 
                                 yCoord + margin.top >= b.y && yCoord + margin.top  <= b.y+b.height
                             ) {
-                                d3.select(d).attr("class","dot_clicked")
+                                d3.select(d).attr("class","dot_highlighted")
                                         .style("fill", "#20DCCC");      
                                 selection_changed = true;
                                 initialize_tabs_driving_features();
@@ -619,7 +619,7 @@ function scatterPlot_option(selected_option){ // three options: zoom, drag_selec
                         });
 
                     }else{
-                        dots = d3.selectAll("[class=dot_clicked]")[0].forEach(function(d,i){
+                        dots = d3.selectAll("[class=dot_highlighted]")[0].forEach(function(d,i){
                             var sci = d.__data__.science;
                             var cost = d.__data__.cost;
                             var xCoord = xScale(sci);
@@ -823,85 +823,13 @@ function initialize_tabs_inspection(){
 			.style("font-size","21px")
 			.text("If you hover the mouse over a design, relevant information will be displayed here.");
 }
+
 function initialize_tabs_filter_options(){
-
-	d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g").remove();
-	var archInfoBox = d3.select("[id=basicInfoBox_div]").select("[id=view2]").append("g");
-    archInfoBox.append("div")
-            .attr("id","filter_title")
-            .style("width","90%")
-            .style("margin-top","10px")
-            .style("margin-bottom","15px")
-            .style("margin-left","2px")
-            .style("float","left")
-            .append("p")
-            .text("Filter Setting")
-            .style("font-size", "18px");
-    var filterOptions = archInfoBox.append("div")
-            .attr("id","filter_options")
-            .style("width","100%")
-            .style("height","40px")
-            .style("float","left")
-            .style("margin-bottom","10px");
-
-    var filterDropdownMenu = d3.select("[id=filter_options]")
-            .append("select")
-            .attr("id","dropdown_presetFilters")
-            .style("width","200px")
-            .style("float","left")
-            .style("margin-left","2px")
-            .style("height","24px");
-
-    filterDropdownMenu.selectAll("option").remove();
-    filterDropdownMenu.selectAll("option")
-            .data(filterDropdownOptions)
-            .enter()
-            .append("option")
-            .attr("value",function(d){
-                return d.value;
-            })
-            .text(function(d){
-                return d.text;
-            });
-
-    d3.select("[id=filter_options]").append("button")
-            .attr("id","applyFilterButton_new")
-            .attr("class","filterOptionButtons")
-            .style("margin-left","6px")
-            .style("float","left")
-            .text("Apply new filter");
-    d3.select("[id=filter_options]").append("button")
-            .attr("class","filterOptionButtons")
-            .attr("id","applyFilterButton_add")
-            .style("margin-left","6px")
-            .style("float","left")
-            .text("Add to selection");
-    d3.select("[id=filter_options]").append("button")
-            .attr("id","applyFilterButton_within")
-            .attr("class","filterOptionButtons")
-            .style("margin-left","6px")
-            .style("float","left")
-            .text("Search within selection");
-//    d3.select("[id=filter_options]").append("button")
-//		    .attr("id","applyFilterButton_complement")
-//		    .attr("class","filterOptionButtons")
-//		    .style("margin-left","6px")
-//		    .style("float","left")
-//		    .text("Select complement");
-    d3.select("[id=filter_options]").append("button")
-            .attr("id","saveFilter")
-            .attr("class","filterOptionButtons")
-            .style("margin-left","6px")
-            .style("float","left")
-            .text("Save this filter")
-            .attr('disabled', true);
-    
-    d3.select("[id=filter_options]").select("select").on("change",selectFilterOption);
-    d3.select("[id=applyFilterButton_add]").on("click",applyFilter_add);
-    d3.select("[id=applyFilterButton_new]").on("click",applyFilter_new);
-    d3.select("[id=applyFilterButton_within]").on("click",applyFilter_within);
-    
+    openFilterOptions(); 
 }
+
+
+
 function initialize_tabs_driving_features(){
 	
 	if(testType=="1"){

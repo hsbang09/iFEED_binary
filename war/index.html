@@ -14,6 +14,7 @@ and open the template in the editor.
         <script src="js/lib/d3.js"></script>
 	   <script src="js/lib/tabcontent.js" type="text/javascript"></script>
 	   <link href="js/lib/tabcontent.css" rel="stylesheet" type="text/css"/>
+	   <link href="css/filter.css" rel="stylesheet" type="text/css"/>
 	   
        <script src="https://apis.google.com/js/platform.js" async defer></script>
        <meta name="google-signin-client_id" content="564804694787-lnsp9md3u0q8086nftbamu43drid6d4t.apps.googleusercontent.com">
@@ -362,13 +363,15 @@ and open the template in the editor.
 		        </div>
 			</div>
 		</div>
-
+		
+		
+       <script src="js/filter.js" type="text/javascript"></script>
+       
        <script src="js/scatterPlotUI.js" type="text/javascript"></script>
        <script src="js/drivingFeatures.js" type="text/javascript"></script>
        <script src="js/classificationTree.js" type="text/javascript"></script>
        <script src="js/userDefinedFilter.js" type="text/javascript"></script>
        <script src="js/relabel.js" type="text/javascript"></script>
-       
        
        <script>
             var original_bitString;
@@ -380,8 +383,6 @@ and open the template in the editor.
             // Metadata
             var orbitList = [];
             var instrList = [];
-            var relabeledOrbitList = [];
-            var relabeledInstrList = [];
             var ninstr, norb;
             
             // Sign-in
@@ -423,7 +424,7 @@ and open the template in the editor.
            	var lift_threshold = 1;
             	
            	// Filter option variables
-            var filterDropdownOptions = [{value:"not_selected",text:"Preset Filters"},{value:"paretoFront",text:"Pareto front"},
+            var preset_filter_options = [{value:"not_selected",text:"Preset Filters"},{value:"paretoFront",text:"Pareto front"},
                 {value:"present",text:"Present"},{value:"absent",text:"Absent"},{value:"inOrbit",text:"In orbit"},
                 {value:"notInOrbit",text:"Not in orbit"},{value:"together",text:"Together"},
                 {value:"togetherInOrbit",text:"Together in orbit"},{value:"separate",text:"Separate"},
@@ -434,6 +435,7 @@ and open the template in the editor.
             var userDefFilterExpressionHistory = [];
             userDefFilterExpressionHistory.length=0;
             var userDefFilters = [];
+            
             
             // Classification Tree variables
             var classificationTree_window;
@@ -520,12 +522,6 @@ and open the template in the editor.
 						instrList = getInstrumentList(); 
 						norb = orbitList.length;
 						ninstr = instrList.length;
-						for(var i=0;i<orbitList.length;i++){
-							relabeledOrbitList.push(relabel(orbitList[i]));
-						}
-						for(var i=0;i<instrList.length;i++){
-							relabeledInstrList.push(relabel(instrList[i]));
-						}
             }
             
 
@@ -666,7 +662,10 @@ and open the template in the editor.
                             }
                         })
                         .text(function (d) {
-                            return relabel(d.content);
+                        	if(orbitList.indexOf(d)>-1){
+                        		return ActualName2DisplayName(d.content,"orbit");
+                        	}
+                        	return ActualName2DisplayName(d.content,"instrument");
                         })
                         .style("font-size", "13px");
 
@@ -726,13 +725,13 @@ and open the template in the editor.
             
             function numOfArchs(){
                 var leng1 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot]").size();
-                var leng2 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_clicked]").size();
+                var leng2 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_highlighted]").size();
                 var leng3 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_DFhighlighted]").size();
                 var leng4 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_selected_DFhighlighted]").size();
                 return leng1+leng2+leng3+leng4;
             }
             function numOfSelectedArchs(){
-                var leng1 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_clicked]").size();
+                var leng1 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_highlighted]").size();
                 var leng2 = d3.select("[id=scatterPlotFigure]").select("svg").selectAll("[class=dot_selected_DFhighlighted]").size();
                 return leng1+leng2;
             }

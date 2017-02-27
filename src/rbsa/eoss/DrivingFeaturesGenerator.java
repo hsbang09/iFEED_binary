@@ -79,8 +79,8 @@ public class DrivingFeaturesGenerator {
     	
 
 		this.adaptSupp= (double) behavioral.size() / population.size() * 0.5 ;  
-		minRuleNum = 50;
-		maxRuleNum = 150;
+		minRuleNum = 30;
+		maxRuleNum = 600;
 		maxIter = 7;
 		
       
@@ -144,13 +144,11 @@ public class DrivingFeaturesGenerator {
 
     
 
-    public ArrayList<DrivingFeature> getPrimitiveDrivingFeatures(double[] bounds, int iter, boolean apriori){
+    public ArrayList<DrivingFeature> getPrimitiveDrivingFeatures(){
         
     	
-    	iter++;
 
     	this.drivingFeatures = new ArrayList<>();
-        ArrayList<int[]> satList = new ArrayList<>();
     	ArrayList<String> candidate_features = new ArrayList<>();
     	
     	
@@ -213,36 +211,86 @@ public class DrivingFeaturesGenerator {
         
         
         
-        int feature_count = 0;
-        int added_feature_count = 0;
-        boolean maxCountReached = false;
-
+        try{
+        
+        ArrayList<String> featureData_name = new ArrayList<>();
+        ArrayList<String> featureData_exp = new ArrayList<>();
+        ArrayList<double[]> featureData_metrics = new ArrayList<>();
+        ArrayList<int[]> featureData_satList = new ArrayList<>();
+        
         for(String feature:candidate_features){ 
-        	feature_count++;
             String feature_expression_inside = feature.substring(1,feature.length()-1);
             String name = feature_expression_inside.split("\\[")[0];
             double[] metrics = feh.processSingleFilterExpression_computeMetrics(feature_expression_inside);
-            
-            if(apriori){
-                if(metrics[0]>adaptSupp){
-                	added_feature_count++;
-                    drivingFeatures.add(new DrivingFeature(name,feature,metrics,true));
-                    satList.add(feh.getSatisfactionArray());
-                    if(added_feature_count > this.maxRuleNum && iter < maxIter){
-                    	maxCountReached=true;
-                    	break;
-                    }else if((candidate_features.size() - feature_count) + added_feature_count < this.minRuleNum){
-                    	break;
-                    }
-                }
-           }else{
-               if(metrics[0]>this.thresholds[0]&&metrics[1]>thresholds[1]&&metrics[2]>thresholds[2]&&metrics[3]>thresholds[2]){
-                   drivingFeatures.add(new DrivingFeature(name,feature,metrics,true));
-                   satList.add(feh.getSatisfactionArray());
-               }
-           }
-        }      	
+            featureData_satList.add(feh.getSatisfactionArray());
+            featureData_name.add(name);
+            featureData_exp.add(feature);
+            featureData_metrics.add(metrics);
+        }
+
         
+        int iter=0;
+        ArrayList<Integer> addedFeatureIndices = new ArrayList<>();
+        boolean apriori=true;
+        double[] bounds = new double[2];
+		bounds[0] = 0;
+		bounds[1] = (double) behavioral.size() / population.size();
+		
+		
+		System.out.println("apriori activated");
+		
+		if(apriori){
+			while(addedFeatureIndices.size() < minRuleNum || addedFeatureIndices.size() > maxRuleNum){
+	        	
+	        	iter++;
+	        	if(iter > maxIter){
+	        		break;
+	        	}else if(iter > 1){
+		    		// max supp threshold is support_S
+		    		// min supp threshold is 0
+		    		double a;
+					if(addedFeatureIndices.size() > maxRuleNum){ // Too many rules -> increase threshold
+						bounds[0] = this.adaptSupp;
+						a = bounds[1];
+					}else{ // too few rules -> decrease threshold
+						bounds[1] = this.adaptSupp;
+						a = bounds[0];
+					}
+		    		// Bisection
+		    		this.adaptSupp = (double) (this.adaptSupp + a) * 0.5;	
+	        	}
+	            addedFeatureIndices = new ArrayList<>();
+		    	for(int i=0;i<featureData_name.size();i++){
+	            	double[] metrics = featureData_metrics.get(i);
+	                if(metrics[0]>adaptSupp){
+	                	addedFeatureIndices.add(i);
+	                    if(addedFeatureIndices.size() > this.maxRuleNum && iter < maxIter){
+	                    	break;
+	                    }else if(( candidate_features.size() - (i+1) ) + addedFeatureIndices.size() < this.minRuleNum){
+	                    	break;
+	                    }
+	                }
+	            }        	
+		    	System.out.println("RuleSetSize: " + addedFeatureIndices.size() +" Treshold: "+ this.adaptSupp);
+
+	        }		
+	    	System.out.println("Driving features extracted in "+ iter +" steps with size: " + addedFeatureIndices.size());
+		}else{
+			for(int i=0;i<featureData_name.size();i++){
+            	double[] metrics = featureData_metrics.get(i);
+				if(metrics[0]>this.thresholds[0]&&metrics[1]>thresholds[1]&&metrics[2]>thresholds[2]&&metrics[3]>thresholds[2]){
+					addedFeatureIndices.add(i);
+		    	}
+			}
+		}
+		
+        ArrayList<int[]> drivingFeatures_satList = new ArrayList<>();
+    	for(int i:addedFeatureIndices){
+    		this.drivingFeatures.add(new DrivingFeature(featureData_name.get(i), featureData_exp.get(i), featureData_metrics.get(i), true));
+    		drivingFeatures_satList.add(featureData_satList.get(i));
+    	}
+
+
 //        // Test the user-defined features
 //        if(!this.userDefFeatures.isEmpty() && !maxCountReached){
 //            for(String exp:this.userDefFeatures){
@@ -260,60 +308,33 @@ public class DrivingFeaturesGenerator {
 //        }
 
         
-        
-        
-        
         // Get feature satisfaction matrix
         this.dataFeatureMat = new double[population.size()][drivingFeatures.size()];
         for(int i=0;i<population.size();i++){
         	for(int j=0;j<drivingFeatures.size();j++){
-    			this.dataFeatureMat[i][j] = (double) satList.get(j)[i];
+    			this.dataFeatureMat[i][j] = (double) drivingFeatures_satList.get(j)[i];
         	}
         }        
-
         
-        int dfSize = drivingFeatures.size();
-	    if((dfSize > maxRuleNum || dfSize < minRuleNum) && apriori){
-	    	System.out.println("RuleSetSize: " + dfSize +" Treshold: "+ this.adaptSupp);
-	    	
-	    	if(iter < maxIter){
-	    		
-	    		// max supp threshold is support_S
-	    		// min supp threshold is 0
-	    		
-	    		if(iter<=1){
-	    			bounds = new double[2];
-	    			bounds[0] = 0;
-	    			bounds[1] = (double) behavioral.size() / population.size();
-	    		}
-	    		
-	    		double a;
-    			if(dfSize > maxRuleNum){ // Too many rules -> increase threshold
-    				bounds[0] = this.adaptSupp;
-    				a = bounds[1];
-    			}else{ // too few rules -> decrease threshold
-    				bounds[1] = this.adaptSupp;
-    				a = bounds[0];
-    			}
-	    		
-	    		// Bisection
-	    		this.adaptSupp = (double) (this.adaptSupp + a) * 0.5;
-		    	this.drivingFeatures = this.getPrimitiveDrivingFeatures(bounds,iter, false);
-	    	}
-
-	    }else{System.out.println("Driving features extracted in "+ iter +" steps with size: " + drivingFeatures.size() + ", threshold: " + this.adaptSupp);}
+        
+        //this.drivingFeatures = getDrivingFeatures();
+	    return drivingFeatures;       
+	    
+        }catch(Exception e){
+        	e.printStackTrace();
+        	return new ArrayList<>();
+        }
 	    
 	    
-	    return drivingFeatures;        
+	    
     }
     
     
     
-    
-    
+
     
     public ArrayList<DrivingFeature> getDrivingFeatures(){
-    	
+    	System.out.println("higher level feature extraced");
     	ArrayList<DrivingFeature> dfs=new ArrayList<>();
     	
     	int[] label_int = satisfactionArray(behavioral,population); 
