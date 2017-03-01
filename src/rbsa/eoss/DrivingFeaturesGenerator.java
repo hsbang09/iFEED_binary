@@ -43,6 +43,8 @@ public class DrivingFeaturesGenerator {
     private ArrayList<int[][]> behavioral;
     private ArrayList<int[][]> non_behavioral;
     private int[][] dataFeatureMat;
+    private int[] labels;
+    
     private double supp_threshold;
     private double confidence_threshold;
     private double lift_threshold;
@@ -404,20 +406,23 @@ public class DrivingFeaturesGenerator {
     public int[][] getDataFeatureMat(){
         
         int numData = behavioral.size() + non_behavioral.size();
-        int numFeature = drivingFeatures.size() + 1; // add class label as a last feature
+        int numFeature = drivingFeatures.size(); // add class label as a last feature
         int[][] dataMat = new int[numData][numFeature];
+        this.labels = new int[numData];
         
         for(int i=0;i<numData;i++){
         	int[][] d;
         	if(i<behavioral.size()){
         		d = behavioral.get(i);
+        		labels[i] = 1;
         	}else{
         		d = non_behavioral.get(i-behavioral.size());
+        		labels[i] = 0;
         	}
             Scheme s = new Scheme();
 
 //            presetFilter(String filterName, int[][] data, ArrayList<String> params
-            for(int j=0;j<numFeature-1;j++){
+            for(int j=0;j<numFeature;j++){
                 DrivingFeature f = drivingFeatures.get(j);
                 String name = f.getName();
                 String type = f.getType();
@@ -439,29 +444,7 @@ public class DrivingFeaturesGenerator {
                     }
                 }
             }
-            
-            boolean classLabel = false;
-            for (int[][] compData : behavioral) {
-                boolean match = true;
-                for(int k=0;k<d.length;k++){
-                    for(int l=0;l<d[0].length;l++){
-                        if(d[k][l]!=compData[k][l]){
-                            match = false;
-                            break;
-                        }
-                    }
-                    if(match==false) break;
-                }
-                if(match==true){
-                    classLabel = true;
-                    break;
-                }
-            }
-            if(classLabel==true){
-                dataMat[i][numFeature-1]=1;
-            } else{
-                dataMat[i][numFeature-1]=0;
-            }
+
         }
         dataFeatureMat = dataMat;
         return dataMat;
@@ -601,8 +584,8 @@ public class DrivingFeaturesGenerator {
         if(recomputeDFs){
         	getDrivingFeatures();
         }
-        int[][] mat = getDataFeatureMat();
-        ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(mat);
+ 
+        ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(getDataFeatureMat(),labels);
         
         try{
             ctb.setDrivingFeatures(drivingFeatures);

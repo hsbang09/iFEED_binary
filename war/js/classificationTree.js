@@ -96,22 +96,16 @@ function constructNestedTreeStructure(tree_objs){
 function addBranches(parent,objs){
 	
 	if (parent.name==="leaf"){
-//		parent.children = false;
 		return;
 	} 
-	var i = searchByNodeID(parent.id_c1,objs);
-	var j = searchByNodeID(parent.id_c2,objs);
+	var c1 = searchByNodeID(parent.id_c1,objs);
+	var c2 = searchByNodeID(parent.id_c2,objs);
 	
 	if(i>=0 && j>=0){
-		var c1 = objs[i];
 		addBranches(c1,objs);
 		c1.cond = true;
-//		parent.child1 = c1;
-		var c2 = objs[j];
 		addBranches(c2,objs);
 		c2.cond = false;
-//		parent.child2 = c2;
-//		parent.hasChildren = true;
 		parent.children = [c1, c2];
 	} else{
 //		parent.hasChildren = false;
@@ -121,10 +115,10 @@ function addBranches(parent,objs){
 function searchByNodeID(id,objs){
 	for(var i=0;i<objs.length;i++){
 		if(objs[i].nodeID===id){
-			return i;
+			return objs[i];
 		}
 	}
-	return -1;
+	return null;
 }
 
 
@@ -415,7 +409,6 @@ function update(source) {
 
 // Toggle children.
 function toggle_tree(d) {
-
     if (d.children) {
       d._children = d.children;
       d.children = null;

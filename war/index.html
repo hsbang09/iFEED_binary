@@ -236,16 +236,16 @@ and open the template in the editor.
 				<h2>iFEED GUI</h2>
         </div>
 
-		<div id="clockdiv">
-			  <div>
-			    <span class="minutes"></span>
-			    <div class="smalltext">Minutes</div>
-			  </div>
-			  <div>
-			    <span class="seconds"></span>
-			    <div class="smalltext">Seconds</div>
-			  </div>
-		</div>
+<!-- 		<div id="clockdiv"> -->
+<!-- 			  <div> -->
+<!-- 			    <span class="minutes"></span> -->
+<!-- 			    <div class="smalltext">Minutes</div> -->
+<!-- 			  </div> -->
+<!-- 			  <div> -->
+<!-- 			    <span class="seconds"></span> -->
+<!-- 			    <div class="smalltext">Seconds</div> -->
+<!-- 			  </div> -->
+<!-- 		</div> -->
 		
 		
 		<div style="float:left;width:100%; margin-top: 20px">
@@ -865,58 +865,58 @@ and open the template in the editor.
             
             
             
-			var credential_verified = false;
-			var cred = window.location.search;
-			var startTime = Date.parse(new Date());
-			cred = cred.substring(1);
-			if(cred){
-	       		testType = cred.split("-")[0];
-	       		console.log(testType);
-	       		account_id = cred.split("-")[1];
-	       		console.log(account_id);
-	       		var access;
-				$.ajax(
-					{
-  		                 url: "loginServlet",
-  		                 type: "POST",
-  		                 data: {ID: "login", account_id: account_id, testType: testType, loginTime:startTime},
-  		                 async: false,
-  		                 success: function (data, textStatus, jqXHR)
-  		                 {
-  		                	remainingTime=data; 
-  		                 },
-  		                 error: function (jqXHR, textStatus, errorThrown)
-  		                 {
-  		                     alert("Initialization error");
-  		                 }
-  		             });
-      	       if(remainingTime!="accessDenied"){
-      	    	   // Credential verified
-      	    	   if( + remainingTime > 0){
-      	    		   remainingTime = + remainingTime;
-          	    	   credential_verified=true;
-          	    	  // Positive remaining time
-      	    	   }
-      	       }
-	       }else{
-	    	   // signout
-	    	   credential_verified=false;
-	       }
+// 			var credential_verified = false;
+// 			var cred = window.location.search;
+// 			var startTime = Date.parse(new Date());
+// 			cred = cred.substring(1);
+// 			if(cred){
+// 	       		testType = cred.split("-")[0];
+// 	       		console.log(testType);
+// 	       		account_id = cred.split("-")[1];
+// 	       		console.log(account_id);
+// 	       		var access;
+// 				$.ajax(
+// 					{
+//   		                 url: "loginServlet",
+//   		                 type: "POST",
+//   		                 data: {ID: "login", account_id: account_id, testType: testType, loginTime:startTime},
+//   		                 async: false,
+//   		                 success: function (data, textStatus, jqXHR)
+//   		                 {
+//   		                	remainingTime=data; 
+//   		                 },
+//   		                 error: function (jqXHR, textStatus, errorThrown)
+//   		                 {
+//   		                     alert("Initialization error");
+//   		                 }
+//   		             });
+//       	       if(remainingTime!="accessDenied"){
+//       	    	   // Credential verified
+//       	    	   if( + remainingTime > 0){
+//       	    		   remainingTime = + remainingTime;
+//           	    	   credential_verified=true;
+//           	    	  // Positive remaining time
+//       	    	   }
+//       	       }
+// 	       }else{
+// 	    	   // signout
+// 	    	   credential_verified=false;
+// 	       }
 			
 			
-			if(credential_verified){
-				var deadline = new Date(startTime + remainingTime);
-	         	initializeClock('clockdiv', deadline);
-	         	newDataFromResultFile();
-			}else{
-				window.location.replace("session_end.html");
-			}
+// 			if(credential_verified){
+// 				var deadline = new Date(startTime + remainingTime);
+// 	         	initializeClock('clockdiv', deadline);
+// 	         	newDataFromResultFile();
+// 			}else{
+// 				window.location.replace("session_end.html");
+// 			}
 
 //         	remainingTime = + 10*60*1000;
-//          	testType = "2";
+         	testType = "3";
 // 			var deadline = new Date(startTime + remainingTime);
 //          	initializeClock('clockdiv', deadline);
-//             newDataFromResultFile();
+            newDataFromResultFile();
 
 
             } catch (err) {
