@@ -6,34 +6,41 @@ import java.util.ArrayList;
 public class ClassificationTreeBuilder{
 	
 	private int[][] inputData;
-	private int[] labels;
+	private int[] inputLabels;
 	private int currentNodeID;
-	private ArrayList<Node> tree;
-	private ArrayList<Node> uncheckedNodes; // test nodes whose children have not been added yet
+	private ArrayList<TreeNode> tree;
+	private ArrayList<TreeNode> uncheckedNodes; // test nodes whose children have not been added yet
 	private ArrayList<DrivingFeature> drivingFeatures;
-
+	private int counter=0;
 	
 	
 	public ClassificationTreeBuilder(int[][] inputData, int[] labels){
 		this.inputData = inputData;
 		tree = new ArrayList<>();
-		this.labels=labels;
+		this.inputLabels=labels;
 		currentNodeID = 0;
 		uncheckedNodes = new ArrayList<>();
 	}
 	
 	public void buildTree(){
-		Node root = new Node(currentNodeID,-1,inputData,labels); 
+		TreeNode root = new TreeNode(currentNodeID,-1,inputData,inputLabels); 
 		currentNodeID++;
 		uncheckedNodes.add(root);
 		int cnt = 0;
 		while(true){
-			Node node = uncheckedNodes.get(0);
+			TreeNode node = uncheckedNodes.get(0);
+			
 			addBranch(node);
 			uncheckedNodes.remove(0);
 			
 			cnt++;
-			if(uncheckedNodes.size()==0 || cnt > 40){
+			if(uncheckedNodes.size()==0){
+				break;
+			}else if(cnt > 120){
+				for(TreeNode n:uncheckedNodes){
+					n.setLeaf();
+					tree.add(n);
+				}
 				break;
 			}
 		}
@@ -41,24 +48,29 @@ public class ClassificationTreeBuilder{
 	
 
 	
-	public void addBranch(Node parent){
+	public void addBranch(TreeNode parent){
 		
 		if(parent.isLeaf()){
 			tree.add(parent);
 			return;
 		}
-
 		int[][] dat = parent.getData();
+		int[] lab = parent.getLabels();
 		int testFeatureID = parent.setTestFeature();
 		int[][] child1Data = this.splitData(dat, testFeatureID, 1);
 		int[][] child2Data = this.splitData(dat, testFeatureID, 0);
-		int[] child1Label = this.splitLabelData(dat, testFeatureID, 1);
-		int[] child2Label = this.splitLabelData(dat, testFeatureID, 0);
+		int[] child1Label = this.splitLabelData(dat,lab, testFeatureID, 1);
+		int[] child2Label = this.splitLabelData(dat,lab, testFeatureID, 0);
 		
+		if(child1Label.length==0 || child2Label.length==0){
+			parent.setLeaf();
+			tree.add(parent);
+			return;
+		}
 		
-		Node child1 = new Node(this.currentNodeID,parent.getID(),child1Data,child1Label);
+		TreeNode child1 = new TreeNode(this.currentNodeID,parent.getID(),child1Data,child1Label);
 		currentNodeID++;
-		Node child2 = new Node(this.currentNodeID,parent.getID(),child2Data,child2Label);
+		TreeNode child2 = new TreeNode(this.currentNodeID,parent.getID(),child2Data,child2Label);
 		currentNodeID++;
 
 		// pruning criteria. needs to be refined later
@@ -83,10 +95,6 @@ public class ClassificationTreeBuilder{
 	
 
 
-
-
-	
-
 	public int[][] splitData(int[][] data, int featureIndex, int featureVal){
 		ArrayList<Integer> matched = new ArrayList<>();
 		for(int i=0;i<data.length;i++){
@@ -100,7 +108,8 @@ public class ClassificationTreeBuilder{
 		}
 		return reduced_data;		
 	}
-	public int[] splitLabelData(int[][] data, int featureIndex, int featureVal){
+	
+	public int[] splitLabelData(int[][] data,int[] label ,int featureIndex, int featureVal){
 		ArrayList<Integer> matched = new ArrayList<>();
 		for(int i=0;i<data.length;i++){
 			if(data[i][featureIndex]==featureVal){
@@ -109,25 +118,81 @@ public class ClassificationTreeBuilder{
 		}
 		int[] reduced_label = new int[matched.size()];
 		for(int i=0;i<matched.size();i++){
-			reduced_label[i] = labels[matched.get(i)];
+			reduced_label[i] = label[matched.get(i)];
 		}
 		return reduced_label;		
+	}
+	
+	
+
+	
+	public void setDrivingFeatures(ArrayList<DrivingFeature> drivingFeatures){
+		this.drivingFeatures = drivingFeatures;
+	}
+
+
+	
+	
+
+	
+	
+	
+	public String printTree_json(){
+		
+		try{
+//		{"id":id,"test":test,"numDat":numDat,"id_c1":id_c1,"id_c2":id_c2},
+//		{"id":id,"test":"root","numDat":numDat,"id_c1":id_c1,"id_c2":id_c2},
+//		{"id":id,"test":"leaf","numDat":numDat,"num_b":num_b,"num_nb":num_nb},
+		
+//      [id,"root",numDat,id_c1,id_c2]		
+//		[id,test,numDat,id_c1,id_c2]
+//		[id,"leaf",numDat,num_b,num_nb]
+		
+		String out = "";
+		
+		for(int i=0;i<tree.size();i++){
+			TreeNode thisNode = tree.get(i);
+			
+			int num_behavioral = thisNode.getNumBehavioral();
+			int num_nonbehavioral = thisNode.getNumNonBehavioral();
+
+			if(!thisNode.isLeaf()){ // Test Node
+				int testFeature = thisNode.getTestFeature();
+				DrivingFeature df = drivingFeatures.get(testFeature);
+				if(thisNode.isRoot()){
+					out = out + "[{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getName() + "\",\"numDat\":" + thisNode.getData().length 
+							+ ",\"id_c1\":" + thisNode.getChild1() +",\"id_c2\":" + thisNode.getChild2()
+							+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
+				}else{
+					out = out + ",{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getName() +"\",\"numDat\":" + thisNode.getData().length 
+							+ ",\"id_c1\":" + thisNode.getChild1() +",\"id_c2\":" + thisNode.getChild2()
+							+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
+				}
+			} 
+			else{  // Leaf Node
+				out = out + ",{\"nodeID\":" + thisNode.getID() + ",\"name\":\"leaf\",\"numDat\":" + thisNode.getData().length 
+						+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
+
+			}
+		}
+		//System.out.println(out);
+		return out + "]";
+		}catch(Exception e){
+			e.printStackTrace();
+			return "";
+		}
 	}
 	
 	
 	public static double log2(double n)
 	{
 	    return (Math.log(n) / Math.log(2));
-	}
+	}	
 	
-	public void setDrivingFeatures(ArrayList<DrivingFeature> drivingFeatures){
-		this.drivingFeatures = drivingFeatures;
-	}
-
 	
-
-	public class Node{
-
+	
+	public class TreeNode{
+	
 		private int id;
 		private int[][] data;
 		private int[] labels;
@@ -145,16 +210,19 @@ public class ClassificationTreeBuilder{
 		private int behavioral;
 		private int non_behavioral;
 		
-		public Node(int id,int parent,int[][] data,int[] labels){
+		public TreeNode(int id,int parent,int[][] data,int[] labels){
 			this.id=id;
 			this.data=data;
 			this.parentID=parent;
 			this.labels=labels;
 			this.numData = data.length;
 			this.numFeat = data[0].length;
+			
+			//System.out.println("id:"+id+", behavioral:"+getNumOfValues(labels,1) +", non:"+getNumOfValues(labels,0));
+			
 			countData();
 		}
-
+	
 		private void countData(){
 			has_feature_b = new ArrayList<>();
 			has_feature_nb = new ArrayList<>();
@@ -214,7 +282,7 @@ public class ClassificationTreeBuilder{
 			//  Normalization is necessary otherwise.
 			return entropy() - (num_has_feature/total*entropy(featureIndex,1) + num_no_feature/total*entropy(featureIndex,0));
 		}
-
+	
 		private double entropy(){
 			double info = 0;
 			for(int i=0;i<2;i++){
@@ -285,6 +353,9 @@ public class ClassificationTreeBuilder{
 		public int[][] getData(){
 			return data;
 		}
+		public int[] getLabels(){
+			return labels;
+		}
 		public void setLeaf(){
 			this.leaf = true;
 		}
@@ -304,65 +375,22 @@ public class ClassificationTreeBuilder{
 			return this.non_behavioral;
 		}
 		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public String printTree_json(){
 		
-		try{
-//		{"id":id,"test":test,"numDat":numDat,"id_c1":id_c1,"id_c2":id_c2},
-//		{"id":id,"test":"root","numDat":numDat,"id_c1":id_c1,"id_c2":id_c2},
-//		{"id":id,"test":"leaf","numDat":numDat,"num_b":num_b,"num_nb":num_nb},
-		
-//      [id,"root",numDat,id_c1,id_c2]		
-//		[id,test,numDat,id_c1,id_c2]
-//		[id,"leaf",numDat,num_b,num_nb]
-		
-		String out = "";
-		
-		for(int i=0;i<tree.size();i++){
-			Node thisNode = tree.get(i);
-			
-			int num_behavioral = thisNode.getNumBehavioral();
-			int num_nonbehavioral = thisNode.getNumNonBehavioral();
-
-			if(!thisNode.isLeaf()){ // Test Node
-				int testFeature = thisNode.getTestFeature();
-				DrivingFeature df = drivingFeatures.get(testFeature);
-				if(thisNode.isRoot()){
-					out = out + "[{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getName() + "\",\"numDat\":" + thisNode.getData().length 
-							+ ",\"id_c1\":" + thisNode.getChild1() +",\"id_c2\":" + thisNode.getChild2()
-							+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
-				}else{
-					out = out + ",{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getName() +"\",\"numDat\":" + thisNode.getData().length 
-							+ ",\"id_c1\":" + thisNode.getChild1() +",\"id_c2\":" + thisNode.getChild2()
-							+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
+	
+		public int getNumOfValues(int[] arr,int val){
+			int cnt = 0;
+			for(int i=0;i<arr.length;i++){
+				if(arr[i]==val){
+					cnt++;
 				}
-			} 
-			else{  // Leaf Node
-				out = out + ",{\"nodeID\":" + thisNode.getID() + ",\"name\":\"leaf\",\"numDat\":" + thisNode.getData().length 
-						+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
-
 			}
+			return cnt;
 		}
-		System.out.println(out);
-		return out + "]";
-		}catch(Exception e){
-			e.printStackTrace();
-			return "";
-		}
+			
+		
 	}
+	
+	
 }
 
 

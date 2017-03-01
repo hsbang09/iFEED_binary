@@ -585,7 +585,12 @@ public class DrivingFeaturesGenerator {
         	getDrivingFeatures();
         }
  
-        ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(getDataFeatureMat(),labels);
+        int[][] mat = getDataFeatureMat();
+        
+        System.out.println(mat.length + " X " + mat[0].length);
+        
+        
+        ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(mat,labels);
         
         try{
             ctb.setDrivingFeatures(drivingFeatures);

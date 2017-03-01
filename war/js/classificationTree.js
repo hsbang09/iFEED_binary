@@ -101,14 +101,12 @@ function addBranches(parent,objs){
 	var c1 = searchByNodeID(parent.id_c1,objs);
 	var c2 = searchByNodeID(parent.id_c2,objs);
 	
-	if(i>=0 && j>=0){
+	if(c1!==null && c2!==null){
+		c1.cond=true;
 		addBranches(c1,objs);
-		c1.cond = true;
+		c2.cond=false;
 		addBranches(c2,objs);
-		c2.cond = false;
 		parent.children = [c1, c2];
-	} else{
-//		parent.hasChildren = false;
 	}
 
 }

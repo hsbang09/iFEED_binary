@@ -1094,5 +1094,6 @@ function set_selection_option(selected_option){
 
 
 function round_num_2_perc(num){
-	return num.toFixed(3)*100;
+	var temp = num*100;
+	return temp.toFixed(1);
 }
