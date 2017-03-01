@@ -118,6 +118,8 @@ function newFilter_addFeature(){
                     		
                     		 var newExpression = prevExpression + selectedOption + "(" + filterInput1 + filterInput2 + filterInput3 + ")";
 
+                    	}else if(selectedOption==="paretoFront"){
+                    		var newExpression = prevExpression + "{paretoFront("+filterInput1+")}";
                     	}else{
                     		var expression
                             for(var i=0;i<userDefFilters.length;i++){
@@ -337,7 +339,7 @@ function applyUserDefFilter_single(expression,prev,logic,bitString){
     else if (filterType === "paretoFront"){
         var paretoRank = params[0];
         var a = d3.selectAll("[class=dot]")[0].filter(function(d){
-            if(d3.select(d).attr("paretoRank")!== ""+paretoRank){
+            if(d3.select(d).attr("paretoRank") > +paretoRank){
                 return false;
             }
             var thisBitString = d.__data__.archBitString;
@@ -349,7 +351,7 @@ function applyUserDefFilter_single(expression,prev,logic,bitString){
             return true;
         });
         var b = d3.selectAll("[class=dot_clicked]")[0].filter(function(d){
-            if(d3.select(d).attr("paretoRank")!== ""+paretoRank){
+            if(d3.select(d).attr("paretoRank") > +paretoRank){
                 return false;
             }
             var thisBitString = d.__data__.archBitString;
