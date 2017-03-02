@@ -456,42 +456,164 @@ function get_number_of_inputs(){
 
 
 
-function processFilterExpression(expression,bitString,rank){
-	
-	
-	
-	
-	if(expression.indexOf("&&")>=0){
-		var filters = expression.split("&&");
-		for(var i=0;i<filters.length;i++){
-			if(!applyPresetFilter(filters[i],bitString,rank)) return false;
+
+
+
+
+
+
+
+
+
+
+function get_nested_parenthesis_depth(expression){
+	var leng = expression.length;
+	var level = 0;
+	var maxLevel = 0;
+	for(var i=0;i<leng;i++){
+		if(expression[i]==="("){
+			level++;
+			if(level>maxLevel) maxLevel=level;
 		}
-		return true;
-	}else{
-		return applyPresetFilter(expression,bitString,rank);
+		else if(expression[i]===")"){
+			level--;
+		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	return maxLevel;
+}
+function collapse_paren_into_symbol(expression){
+	var leng = expression.length;
+	var modified_expression = "";
+	var level = 0;
+	for(var i=0;i<leng;i++){
+
+		if(expression[i]==="("){
+			level++;
+		}
+		else if(expression[i]===")"){
+			level--;
+		}
+		if(expression[i]==="(" && level==1){
+			modified_expression=modified_expression + expression[i];
+		}
+		else if(level>=1){
+			modified_expression=modified_expression + "X";
+		}else{
+			modified_expression=modified_expression + expression[i];
+		}
+	}
+	return modified_expression;
+}
+
+
+function compareMatchedIDSets(logic,set1,set2){
+	var output = [];
+    if(logic=="&&"){
+        for(var i=0;i<set1.length;i++){
+            if(set2.indexOf(set1[i])>-1){
+                output.push(set1[i]);
+            }
+        }
+    }else{ // OR
+        for(var i=0;i<set1.length;i++){
+            output.push(set1[i]);
+        }
+        for(var j=0;j<set2.length;j++){
+            if(output.indexOf(set2[j])==-1){
+                output.push(set2[j]);
+            }
+        }
+    }
+    return output;
 }
 
 
 
+function processFilterExpression(expression, prev_matched, prev_logic, arch_info){
 
+	var e=expression;
+    // Remove outer parenthesis
+    if(e.startsWith("(") && e.endsWith(")")){
+            e=e.substring(1,e.length()-1);
+    }
+    var current_matched = [];
+    var first = true;
+    var e_collapsed;
+        
+    if(get_nested_parenthesis_depth(e)==0){
+        // Given expression does not have a nested structure
+        if(e.indexOf("&&")>-1 || e.indexOf("||")>-1){
+        	// Logical connectives are present
+           e_collapsed=e; 
+        }else{
+        	// Single filter expression
+        	var matched = [];
+        	console.log(prev_matched.length);
+        	for(var i=0;i<prev_matched.length;i++){
+        		var index = prev_matched[i];
+        		//archInfo = {bitStrings:bitStrings,paretoRankings:paretoRankings};
+        		if(applyPresetFilter(e,arch_info.bitStrings[index],arch_info.paretoRankings[index])){
+        			matched.push(index);
+        		}
+        	}
+        	current_matched = matched;
+        	console.log(e);
+        	console.log(current_matched);
+            return compareMatchedIDSets(prev_logic, current_matched, prev_matched);
+        }
+    }else{
+        // Removes the nested structure
+        e_collapsed = collapse_paren_into_symbol(e);
+    }
 
-
-
-
-
+    while(true){
+        var current_collapsed;
+        var prev;
+        
+        if(first){
+            // The first filter in a series to be applied
+            prev = '&&'
+            current_matched = prev_matched;
+            first = false;
+        }else{
+            prev = e_collapsed.substring(0,2);
+            e_collapsed = e_collapsed.substring(2);
+            e = e.substring(2);
+        }
+        
+        var next; // The imediate next logical connective
+        var and = e_collapsed.indexOf("&&");
+        var or = e_collapsed.indexOf("||");
+        if(and==-1 && or==-1){
+            next = "";
+        } else if(and==-1){ 
+            next = "||";
+        } else if(or==-1){
+            next = "&&";
+        } else if(and < or){
+            next = "&&";
+        } else{
+            next = "||";
+        }
+        
+        if(next.length!==0){
+            if(next=="||"){
+                current_collapsed = e_collapsed.split("||",1)[0];
+            }else{
+                current_collapsed = e_collapsed.split("&&",1)[0];
+            }
+            var current = e.substring(0,current_collapsed.length);
+            e_collapsed = e_collapsed.substring(current_collapsed.length);
+            e = e.substring(current_collapsed.length);
+            current_matched = processFilterExpression(current,current_matched,prev,arch_info); 
+        }else{
+        	current_matched = processFilterExpression(e,current_matched,prev,arch_info); 
+            break;
+        }
+    }
+    return compareMatchedIDSets(prev_logic, current_matched, prev_matched);
+}
+ 
 
 
 
@@ -502,6 +624,7 @@ function processFilterExpression(expression,bitString,rank){
              
 
 function applyPresetFilter(expression,bitString,rank){
+	
 	// Preset filter: {presetName[orbits;instruments;numbers]}   
 	expression = expression.substring(1,expression.length-1);
 	var type = expression.split("[")[0];
@@ -859,29 +982,40 @@ function applyComplexFilter(){
         return;
     }
 
-    cancelDotSelections();
+	cancelDotSelections();
+
+	var ids = [];
+	var bitStrings = [];
+	var paretoRankings = [];
     d3.selectAll('.dot')[0].forEach(function(d){
-    	
-    	
-    	
-    	var bitString = d.__data__.bitString;
-        var rank = parseInt(d3.select(d).attr("paretoRank"));
-        if(processFilterExpression(filterExpression,bitString,rank)){
-            d3.select(d).attr('class','dot_highlighted')
-                        .style("fill", "#20DCCC");
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
     });  
+    
+    
+    var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
+    var indices = [];
+    for(var i=0;i<ids.length;i++){
+    	indices.push(i);
+    }
+    // Note that indices and ids are different!
+    var matchedIndices = processFilterExpression(filterExpression, indices, "&&", arch_info);
+            
+    var matchedIDs = [];
+    for(var i=0;i<matchedIndices.length;i++){
+    	var index = matchedIndices[i];
+    	matchedIDs.push(ids[index]);
+    }
+
+
+    d3.selectAll('.dot')[0].forEach(function(d){
+    	if(matchedIDs.indexOf(d.__data__.id)>-1){
+            d3.select(d).attr('class','dot_highlighted')
+        	.style("fill", "#20DCCC");
+    	}
+    });  
+    
     d3.select("[id=numOfSelectedArchs_inputBox]").text("" + numOfSelectedArchs());  
 }
 
