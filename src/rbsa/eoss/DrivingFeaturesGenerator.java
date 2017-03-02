@@ -17,8 +17,8 @@ import java.util.ArrayList;
 //import java.io.File;
 //import java.awt.BorderLayout;
 import java.util.Arrays;
-//import javax.swing.JFrame;
 
+import rbsa.eoss.ClassificationTreeBuilder;
 import rbsa.eoss.Apriori.Feature;
 import rbsa.eoss.local.Params;
 import rbsa.eoss.server.IFEEDServlet;
@@ -35,12 +35,17 @@ import weka.core.Instances;
  * @author Bang
  */
 public class DrivingFeaturesGenerator {
+	
 
     private ArrayList<Integer> behavioral;
     private ArrayList<Integer> non_behavioral;
     private ArrayList<Integer> population;
+    private int[] labels;
     
     private double[][] dataFeatureMat;
+    private int[][] dataFeatureMatInt;
+    
+    
     private double adaptSupp;
     private double[] thresholds;
     
@@ -65,7 +70,7 @@ public class DrivingFeaturesGenerator {
     
     public void initialize(ArrayList<Integer> behavioral, ArrayList<Integer> non_behavioral, ArrayList<IFEEDServlet.ArchInfo> archs,
     					double supp, double conf, double lift){
-        
+       
     	this.thresholds = new double[3];
     	thresholds[0] = supp;
     	thresholds[1] = lift;
@@ -231,7 +236,7 @@ public class DrivingFeaturesGenerator {
         
         int iter=0;
         ArrayList<Integer> addedFeatureIndices = new ArrayList<>();
-        boolean apriori=true;
+        boolean apriori=false;
         double[] bounds = new double[2];
 		bounds[0] = 0;
 		bounds[1] = (double) behavioral.size() / population.size();
@@ -310,26 +315,41 @@ public class DrivingFeaturesGenerator {
         
         // Get feature satisfaction matrix
         this.dataFeatureMat = new double[population.size()][drivingFeatures.size()];
+        this.dataFeatureMatInt = new int[population.size()][drivingFeatures.size()];
+        this.labels = new int[population.size()];
+        
         for(int i=0;i<population.size();i++){
         	for(int j=0;j<drivingFeatures.size();j++){
     			this.dataFeatureMat[i][j] = (double) drivingFeatures_satList.get(j)[i];
+    			dataFeatureMatInt[i][j] = drivingFeatures_satList.get(j)[i];
         	}
+        	
+        	if(behavioral.contains(population.get(i))){
+        		labels[i]=1;
+        	}else{
+        		labels[i]=0;
+        	}
+        	
         }        
-        
-        
-        //this.drivingFeatures = getDrivingFeatures();
-	    return drivingFeatures;       
-	    
+
+        if(apriori) return getDrivingFeatures();
+        else return drivingFeatures;
+ 
+
         }catch(Exception e){
         	e.printStackTrace();
         	return new ArrayList<>();
         }
-	    
-	    
-	    
     }
     
     
+    
+   public String buildClassificationTree(){
+       ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(dataFeatureMatInt,labels);
+       ctb.buildTree();
+       String graph = ctb.printTree_json();
+       return graph;
+   }
     
 
     
@@ -413,17 +433,8 @@ public class DrivingFeaturesGenerator {
         return intVector;
     }
     
-//    public static DrivingFeaturesGenerator getInstance()
-//    {
-//        if( instance == null ) 
-//        {
-//            instance = new DrivingFeaturesGenerator();
-//        }
-//        return instance;
-//    }
 
 
-    
     private int[] satisfactionArray(ArrayList<Integer> matchedArchIDs, ArrayList<Integer> allArchIDs){
         int[] satArray = new int[allArchIDs.size()];
         for(int i=0;i<allArchIDs.size();i++){
@@ -437,240 +448,6 @@ public class DrivingFeaturesGenerator {
         return satArray;
     }    
     
-    
-//    public ArrayList<String> minRedundancyMaxRelevance(int numSelectedFeatures){
-//        
-//        int[][] m = dataFeatureMat;
-//        int numFeatures = m[0].length;
-//        int numData = m.length;
-//        ArrayList<String> selected = new ArrayList<>();
-//        
-//        while(selected.size() < numSelectedFeatures){
-//            double phi = -10000;
-//            int save=0;
-//            for(int i=0;i<numFeatures-1;i++){
-//                if(selected.contains(""+i)){
-//                    continue;
-//                }
-//
-//                double D = getMutualInformation(i,numFeatures-1);
-//                double R = 0;
-//
-//                for (String selected1 : selected) {
-//                    R = R + getMutualInformation(i, Integer.parseInt(selected1));
-//                }
-//                if(!selected.isEmpty()){
-//                   R = (double) R/selected.size();
-//                }
-//                
-////                System.out.println(D-R);
-//                
-//                if(D-R > phi){
-//                    phi = D-R;
-//                    save = i;
-//                }
-//            }
-////            System.out.println(save);
-//            selected.add(""+save);
-//        }
-//        return selected;
-//    }  
-//    public double getMutualInformation(int feature1, int feature2){
-//        
-//        int[][] m = dataFeatureMat;
-//        int numFeatures = m[0].length;
-//        int numData = m.length;
-//        double I;
-//        
-//        int x1=0,x2=0;
-//        int x1x2=0,nx1x2=0,x1nx2=0,nx1nx2=0;      
-//
-//        for(int k=0;k<numData;k++){
-//            if(m[k][feature1]==1){ // x1==1
-//                x1++;
-//                if(m[k][feature2]==1){ // x2==1
-//                    x2++;
-//                    x1x2++;
-//                } else{ // x2!=1
-//                    x1nx2++;
-//                }
-//            } else{ // x1!=1
-//                if(m[k][feature2]==1){ // x2==1 
-//                    x2++;
-//                    nx1x2++;
-//                }else{ // x2!=1
-//                    nx1nx2++;
-//                }
-//            }
-//        }
-//        double p_x1 =(double) x1/numData;
-//        double p_nx1 = (double) 1-p_x1;
-//        double p_x2 = (double) x2/numData;
-//        double p_nx2 = (double) 1-p_x2;
-//        double p_x1x2 = (double) x1x2/numData;
-//        double p_nx1x2 = (double) nx1x2/numData;
-//        double p_x1nx2 = (double) x1nx2/numData;
-//        double p_nx1nx2 = (double) nx1nx2/numData;
-//        
-//        if(p_x1==0){p_x1 = 0.0001;}
-//        if(p_nx1==0){p_nx1=0.0001;}
-//        if(p_x2==0){p_x2=0.0001;}
-//        if(p_nx2==0){p_nx2=0.0001;}
-//        if(p_x1x2==0){p_x1x2=0.0001;}
-//        if(p_nx1x2==0){p_nx1x2=0.0001;}
-//        if(p_x1nx2==0){p_x1nx2=0.0001;}
-//        if(p_nx1nx2==0){p_nx1nx2=0.0001;}
-//        
-//        double i1 = p_x1x2*Math.log(p_x1x2/(p_x1*p_x2));
-//        double i2 = p_x1nx2*Math.log(p_x1nx2/(p_x1*p_nx2));
-//        double i3 = p_nx1x2*Math.log(p_nx1x2/(p_nx1*p_x2));
-//        double i4 = p_nx1nx2*Math.log(p_nx1nx2/(p_nx1*p_nx2));
-//
-//        I = i1 + i2 + i3 + i4;
-//        return I;
-//    }
-    
-    
-//    public FastVector setDataFormat(){
-//        
-//            FastVector bool = new FastVector();
-//            bool.addElement("false");
-//            bool.addElement("true");
-//            FastVector attributes = new FastVector();
-//
-//            for(DrivingFeature df:drivingFeatures){
-//                String name = df.getName();
-//                attributes.addElement(new Attribute(name,bool));
-//            }
-//            
-//            FastVector bool2 = new FastVector();
-//            bool2.addElement("not selected");
-//            bool2.addElement("selected ");
-//            
-//            attributes.addElement(new Attribute("class",bool2));
-//            
-//            return attributes;
-//    }
-//    
-//    public Instances addData(Instances dataset){
-//        
-//        for(int i=0;i<behavioral.size()+non_behavioral.size();i++){
-//            double[] values = new double[drivingFeatures.size()+1];
-//            for(int j=0;j<drivingFeatures.size()+1;j++){
-//                values[j] = (double) dataFeatureMat[i][j];
-//            }
-//            Instance thisInstance = new Instance(1.0,values);
-//            dataset.add(thisInstance);
-//        }
-//        return dataset;
-//    }
-//    
-//
-//
-//    public String buildTree(boolean recomputeDFs) {
-//    	  
-//        String graph="";
-//        if(recomputeDFs){
-//        	getDrivingFeatures();
-//        }
-//        int[][] mat = getDataFeatureMat();
-//        ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(mat);
-//        
-//        try{
-//            ctb.setDrivingFeatures(drivingFeatures);
-//        	ctb.buildTree();
-//        	graph = ctb.printTree_json();
-//        	
-//
-//        } catch(Exception e){
-//            e.printStackTrace();
-//        }
-//        
-//        return graph;
-//    }
-//    
-//    
-//    public String buildTree_Weka() { // using WEKA
-//  
-//        String graph="";
-////        long t0 = System.currentTimeMillis();
-//        J48 tree = new J48();
-//        getDrivingFeatures();
-//        getDataFeatureMat();
-//        try{
-//            
-//            FastVector attributes = setDataFormat();
-//            Instances dataset = new Instances("Tree_dataset", attributes, 100000);
-//            dataset.setClassIndex(dataset.numAttributes()-1);
-//            dataset = addData(dataset);
-//            dataset.compactify();
-//
-////            // save as CSV
-////            CSVSaver saver = new CSVSaver();
-////            saver.setInstances(dataset);
-////            saver.setFile(new File(Params.path + "\\tmp_treeData.clp"));
-////            saver.writeBatch();
-//            
-//            System.out.println("numAttributes: " + dataset.numAttributes());
-//            System.out.println("num instances: " + dataset.numInstances());
-//            
-//            String [] options = new String[2];
-//            options[0] = "-C";
-//            options[1] = "0.05";
-//            tree.setOptions(options);
-//            
-////            Evaluation eval = new Evaluation(dataset);
-////            eval.crossValidateModel(tree, dataset, 10, new Random(1));
-//            tree.buildClassifier(dataset);
-//            
-////            System.out.println(eval.toSummaryString("\nResults\n\n", false));
-////            System.out.println(eval.toMatrixString());
-////            System.out.println(tree.toSummaryString());
-////            String summary = tree.toSummaryString();
-////            String evalSummary = eval.toSummaryString("\nResults\n\n", false);
-////            String confusion = eval.toMatrixString();
-//            graph = tree.graph();
-//            
-//
-//            
-////Number of leaves: 21
-////Size of the tree: 41
-////Results
-////Correctly Classified Instances        2550               97.3654 %
-////Incorrectly Classified Instances        69                2.6346 %
-////Kappa statistic                          0.9385
-////Mean absolute error                      0.0418
-////Root mean squared error                  0.1603
-////Relative absolute error                  9.6708 %
-////Root relative squared error             34.4579 %
-////Total Number of Instances             2619
-////=== Confusion Matrix ===
-////    a    b   <-- classified as
-//// 1771   19 |    a = false
-////   50  779 |    b = true
-//
-//            
-//            
-////            System.out.println(graph);
-//            
-////            TreeVisualizer tv = new TreeVisualizer(null, tree.graph(), new PlaceNode2());
-////            JFrame jf = new JFrame("Weka Classifier Tree Visualizer: J48");
-////            jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-////            jf.setSize(800, 600);
-////            jf.getContentPane().setLayout(new BorderLayout());
-////            jf.getContentPane().add(tv, BorderLayout.CENTER);
-////            jf.setVisible(true);
-////            // adjust tree
-////            tv.fitToScreen();
-//            
-////            long t1 = System.currentTimeMillis();
-////            System.out.println( "Tree building done in: " + String.valueOf(t1-t0) + " msec");
-//        } catch(Exception e){
-//            e.printStackTrace();
-//        }
-//        
-//        return graph;
-//    }
     
 
     

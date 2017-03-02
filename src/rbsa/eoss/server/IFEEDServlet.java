@@ -250,9 +250,11 @@ public class IFEEDServlet extends HttpServlet {
             long t1 = System.currentTimeMillis();
             System.out.println( "Feature extraction done in: " + String.valueOf(t1-t0) + " msec");
         }
-        else if (requestID.equalsIgnoreCase("buildClassificationTree")){
-        	//String graph = dfsGen.buildTree(false);
-        	//outputString = graph;
+        
+        
+        else if (requestID.equalsIgnoreCase("build_classification_tree")){
+        	String graph = dfsGen.buildClassificationTree();
+        	outputString = graph;
         }        
         
         

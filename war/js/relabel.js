@@ -69,15 +69,23 @@ function ActualName2Index(name, type){
 }
 
 
-function DisplayName2Index(name, type){
-    var name=name.trim();
-    if(type=="orbit"){
-        return $.inArray(name,orbitList_displayName);
-    }else if(type=="instrument"){
-        return $.inArray(name,instrList_displayName);
-    }else{
-        return "Naming Error";
-    }
+function DisplayName2Index(input, type){
+    var input=input.trim();
+	var split = input.split(',');
+	var output='';
+	for(var i=0;i<split.length;i++){
+		var name = split[i];
+		if(i>0) output=output+",";
+		
+	    if(type=="orbit"){
+	        output=output+$.inArray(name,orbitList_displayName);
+	    }else if(type=="instrument"){
+	        output=output+$.inArray(name,instrList_displayName);
+	    }else{
+	        return "Naming Error";
+	    }
+	}
+	return output;
 }
 
 
@@ -162,6 +170,10 @@ function ppdf(expression){
 	        exp = exp.substring(1,exp.length-1);
 	    }
 	    var featureName = exp.split("[")[0];
+	    
+	    if(featureName==="paretoFront"){return expression;}
+	    
+	    
 	    var featureArg = exp.split("[")[1];
 	    featureArg = featureArg.substring(0,featureArg.length-1);
 	    

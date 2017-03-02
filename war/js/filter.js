@@ -427,24 +427,91 @@ function get_number_of_inputs(){
 
 
 
-function processFilterExpression(expression,bitString){
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function processFilterExpression(expression,bitString,rank){
+	
+	
+	
+	
 	if(expression.indexOf("&&")>=0){
 		var filters = expression.split("&&");
 		for(var i=0;i<filters.length;i++){
-			if(!applyPresetFilter(filters[i],bitString)) return false;
+			if(!applyPresetFilter(filters[i],bitString,rank)) return false;
 		}
 		return true;
 	}else{
-		return applyPresetFilter(expression,bitString);
+		return applyPresetFilter(expression,bitString,rank);
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
              
 
-function applyPresetFilter(expression,bitString){
+function applyPresetFilter(expression,bitString,rank){
 	// Preset filter: {presetName[orbits;instruments;numbers]}   
 	expression = expression.substring(1,expression.length-1);
 	var type = expression.split("[")[0];
+	
+	if(type==="paretoFront"){
+		var arg = +expression.substring(0,expression.length-1).split("[")[1];
+		if(rank<= +arg && rank >=0) return true;
+		else return false;
+	}
+	
 	var condition = expression.substring(0,expression.length-1).split("[")[1];
 	var condSplit = condition.split(";");
 	var orbit, instr, numb;
@@ -604,8 +671,6 @@ function applyPresetFilter(expression,bitString){
     default:
     	return false;
 	}
-	 
-	
 }
    
    
@@ -627,8 +692,7 @@ function applyFilter(option){
     var wrong_arg = false;
     
     var filterExpression;
-    var preset = false;
-    var matchedArchIDs = null;
+    var matchedArchIDs = [];
 
     var dropdown = d3.select("#filter_options_dropdown_1")[0][0].value;
 
@@ -698,55 +762,46 @@ function applyFilter(option){
     }
     else if(dropdown==="paretoFront"){
         // To be implemented    
-        var matchedArchIDs = [];
         var filterInput = d3.select("#filter_inputs_div_1").select('.filter_inputs_textbox')[0][0].value;
-        d3.selectAll(".dot")[0].forEach(function (d) {
-            var rank = parseInt(d3.select(d).attr("paretoRank"));
-            if (rank <= +filterInput && rank >= 0){
-                d3.select(d).attr('class','dot_highlighted')
-                	.style("fill", "#20DCCC");
-            }
-        });  
-        d3.selectAll(".dot_highlighted")[0].forEach(function (d) {
-            var rank = parseInt(d3.select(d).attr("paretoRank"));
-            if (rank <= +filterInput && rank >= 0){
-                d3.select(d).attr('class','dot_highlighted')
-                	.style("fill", "#20DCCC");
-            }
-        });  
+        filterExpression = "paretoFront["+filterInput+"]";
     }
     else{// not selected
         return;
     }
     filterExpression = "{" + filterExpression + "}";
     update_filter_application_status(filterExpression,option);
-    
 
-    if(option==="new"){
-        cancelDotSelections();
-        d3.selectAll('.dot')[0].forEach(function(d){
-            var bitString = d.__data__.bitString;
-            if(applyPresetFilter(filterExpression,bitString)){
-                d3.select(d).attr('class','dot_highlighted')
-                            .style("fill", "#20DCCC");
-            }
-        });
-    }else if(option==="add"){
-        d3.selectAll('.dot')[0].forEach(function(d){
-            var bitString = d.__data__.bitString;
-            if(applyPresetFilter(filterExpression,bitString)){
-                d3.select(d).attr('class','dot_highlighted')
-                            .style("fill", "#20DCCC");
-            }
-        });
-    }else if(option==="within"){
-        d3.selectAll('.dot_highlighted')[0].forEach(function(d){
-            var bitString = d.__data__.bitString;
-            if(applyPresetFilter(filterExpression,bitString)){
-                d3.select(d).attr('class','dot')
-                .style("fill", function (d) {return "#000000";});   
-            }
-        });     
+    
+    if(filterExpression.indexOf('paretoFront')!=-1){
+    	var filterInput = d3.select("#filter_inputs_div_1").select('.filter_inputs_textbox')[0][0].value;
+    	applyParetoFilter(option,filterInput);
+    }else{
+        if(option==="new"){
+            cancelDotSelections();
+            d3.selectAll('.dot')[0].forEach(function(d){
+                var bitString = d.__data__.bitString;
+                if(applyPresetFilter(filterExpression,bitString)){
+                    d3.select(d).attr('class','dot_highlighted')
+                                .style("fill", "#20DCCC");
+                }
+            });
+        }else if(option==="add"){
+            d3.selectAll('.dot')[0].forEach(function(d){
+                var bitString = d.__data__.bitString;
+                if(applyPresetFilter(filterExpression,bitString)){
+                    d3.select(d).attr('class','dot_highlighted')
+                                .style("fill", "#20DCCC");
+                }
+            });
+        }else if(option==="within"){
+            d3.selectAll('.dot_highlighted')[0].forEach(function(d){
+                var bitString = d.__data__.bitString;
+                if(applyPresetFilter(filterExpression,bitString)){
+                    d3.select(d).attr('class','dot')
+                    .style("fill", function (d) {return "#000000";});   
+                }
+            });     
+        }
     }
 
 
@@ -764,6 +819,38 @@ function applyFilter(option){
 
 
 
+function applyParetoFilter(option, arg){
+    if(option==="new"){
+        cancelDotSelections();
+        d3.selectAll(".dot")[0].forEach(function (d) {
+            var rank = parseInt(d3.select(d).attr("paretoRank"));
+            if (rank <= +arg && rank >= 0){
+                d3.select(d).attr('class','dot_highlighted')
+                	.style("fill", "#20DCCC");
+            }
+        });  
+    }else if(option==="add"){
+        d3.selectAll(".dot")[0].forEach(function (d) {
+            var rank = parseInt(d3.select(d).attr("paretoRank"));
+            if (rank <= +arg && rank >= 0){
+                d3.select(d).attr('class','dot_highlighted')
+                	.style("fill", "#20DCCC");
+            }
+        });  
+    }else if(option==="within"){
+        d3.selectAll(".dot_highlighted")[0].forEach(function (d) {
+            var rank = parseInt(d3.select(d).attr("paretoRank"));
+            if (rank <= +arg && rank >= 0){
+                d3.select(d).attr('class','dot_highlighted')
+                	.style("fill", "#20DCCC");
+            }
+        }); 
+    }
+}
+
+
+
+
 
 function applyComplexFilter(){
     var filterExpression = parse_filter_application_status();
@@ -774,11 +861,26 @@ function applyComplexFilter(){
 
     cancelDotSelections();
     d3.selectAll('.dot')[0].forEach(function(d){
-        var bitString = d.__data__.bitString;
-        if(processFilterExpression(filterExpression,bitString)){
+    	
+    	
+    	
+    	var bitString = d.__data__.bitString;
+        var rank = parseInt(d3.select(d).attr("paretoRank"));
+        if(processFilterExpression(filterExpression,bitString,rank)){
             d3.select(d).attr('class','dot_highlighted')
                         .style("fill", "#20DCCC");
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     });  
     d3.select("[id=numOfSelectedArchs_inputBox]").text("" + numOfSelectedArchs());  
 }

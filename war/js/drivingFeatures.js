@@ -196,7 +196,6 @@ function display_drivingFeatures(source,sortby) {
 
     var size = source.length;
     var drivingFeatures = [];
-    var drivingFeatureNames = [];
     var drivingFeatureTypes = [];
     i_drivingFeatures=0;
     var lifts=[];
@@ -211,10 +210,6 @@ function display_drivingFeatures(source,sortby) {
         conf2s.push(source[i].metrics[3]);
         drivingFeatures.push(source[i]);
         if(source[i].preset===true){
-            drivingFeatureNames.push(source[i].name);
-            drivingFeatureTypes.push(source[i].type);
-        } else{
-            drivingFeatureNames.push(source[i].type);
             drivingFeatureTypes.push(source[i].name);
         }
     }

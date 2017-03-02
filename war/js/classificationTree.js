@@ -5,75 +5,13 @@
  */
 
 
-//function getClassificationTree(){
-//	
-//    highlight_basic_info_box()
-//	
-//	if(selection_changed == false && jsonObj_tree != null){
-//		display_classificationTree(jsonObj_tree);
-//		return;
-//	}
-//
-//    var selectedArchs = d3.selectAll("[class=dot_clicked]");
-//    var nonSelectedArchs = d3.selectAll("[class=dot]");
-//    var numOfSelectedArchs = selectedArchs.size();
-//    var numOfNonSelectedArchs = nonSelectedArchs.size();
-//    var selectedBitStrings = [];
-//    var nonSelectedBitStrings = [];
-//    selectedBitStrings.length = 0;
-//    nonSelectedBitStrings.length=0;
-//    
-//    
-//    buttonClickCount_classificationTree += 1;
-//    getClassificationTree_numOfArchs.push([{numOfSelectedArchs,numOfNonSelectedArchs}]);
-//
-//    
-//    for (var i = 0; i < numOfSelectedArchs; i++) {
-//        var tmpBitString = booleanArray2String(selectedArchs[0][i].__data__.archBitString);
-//        selectedBitStrings.push(tmpBitString);
-//    }
-//    for (var i = 0; i < numOfNonSelectedArchs; i++) {
-//        var tmpBitString = booleanArray2String(nonSelectedArchs[0][i].__data__.archBitString);
-//        nonSelectedBitStrings.push(tmpBitString);
-//    }
-//   
-//    jsonObj_tree = buildClassificationTree(selectedBitStrings,nonSelectedBitStrings,support_threshold,confidence_threshold,lift_threshold,userDefFilters);
-//    display_classificationTree(jsonObj_tree);
-//    selection_changed = false;
-//    
-//}
-
-
-//function buildClassificationTree(selected,nonSelected,
-//		support_threshold,confidence_threshold,lift_threshold,
-//		userDefFilters){
-//	
-//	var output;
-//    $.ajax({
-//        url: "classificationTreeServlet",
-//        type: "POST",
-//        data: {ID: "buildClassificationTree",selected: JSON.stringify(selected),nonSelected:JSON.stringify(nonSelected),
-//        	supp:support_threshold,conf:confidence_threshold,lift:lift_threshold,
-//        	userDefFilters:JSON.stringify(userDefFilters)},
-//        async: false,
-//        success: function (data, textStatus, jqXHR)
-//        {
-//        	output = JSON.parse(data);
-//        },
-//        error: function (jqXHR, textStatus, errorThrown)
-//        {alert("error");}
-//    });
-//    
-//    return output;
-//}
-
 function buildClassificationTree(){
 	
 	var output;
     $.ajax({
         url: "IFEEDServlet",
         type: "POST",
-        data: {ID: "buildClassificationTree"},
+        data: {ID: "build_classification_tree"},
         async: false,
         success: function (data, textStatus, jqXHR)
         {
@@ -96,38 +34,28 @@ function constructNestedTreeStructure(tree_objs){
 function addBranches(parent,objs){
 	
 	if (parent.name==="leaf"){
-//		parent.children = false;
 		return;
 	} 
-	var i = searchByNodeID(parent.id_c1,objs);
-	var j = searchByNodeID(parent.id_c2,objs);
+	var c1 = searchByNodeID(parent.id_c1,objs);
+	var c2 = searchByNodeID(parent.id_c2,objs);
 	
-	if(i>=0 && j>=0){
-		var c1 = objs[i];
+	if(c1!==null && c2!==null){
+		c1.cond=true;
 		addBranches(c1,objs);
-		c1.cond = true;
-//		parent.child1 = c1;
-		var c2 = objs[j];
+		c2.cond=false;
 		addBranches(c2,objs);
-		c2.cond = false;
-//		parent.child2 = c2;
-//		parent.hasChildren = true;
 		parent.children = [c1, c2];
-	} else{
-//		parent.hasChildren = false;
 	}
 
 }
 function searchByNodeID(id,objs){
 	for(var i=0;i<objs.length;i++){
 		if(objs[i].nodeID===id){
-			return i;
+			return objs[i];
 		}
 	}
-	return -1;
+	return null;
 }
-
-
 
 
 
