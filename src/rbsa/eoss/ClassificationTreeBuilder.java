@@ -14,12 +14,13 @@ public class ClassificationTreeBuilder{
 	private int counter=0;
 	
 	
-	public ClassificationTreeBuilder(int[][] inputData, int[] labels){
+	public ClassificationTreeBuilder(int[][] inputData, int[] labels, ArrayList<DrivingFeature> drivingFeatures){
 		this.inputData = inputData;
 		tree = new ArrayList<>();
 		this.inputLabels=labels;
 		currentNodeID = 0;
 		uncheckedNodes = new ArrayList<>();
+		this.drivingFeatures=drivingFeatures;
 	}
 	
 	public void buildTree(){
@@ -158,13 +159,16 @@ public class ClassificationTreeBuilder{
 
 			if(!thisNode.isLeaf()){ // Test Node
 				int testFeature = thisNode.getTestFeature();
+				if(testFeature>=drivingFeatures.size()){
+					System.out.println("dfsize: " + drivingFeatures.size() + " testFeature: " + testFeature);
+				}
 				DrivingFeature df = drivingFeatures.get(testFeature);
 				if(thisNode.isRoot()){
-					out = out + "[{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getName() + "\",\"numDat\":" + thisNode.getData().length 
+					out = out + "[{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getExpression() + "\",\"numDat\":" + thisNode.getData().length 
 							+ ",\"id_c1\":" + thisNode.getChild1() +",\"id_c2\":" + thisNode.getChild2()
 							+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
 				}else{
-					out = out + ",{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getName() +"\",\"numDat\":" + thisNode.getData().length 
+					out = out + ",{\"nodeID\":" + thisNode.getID() + ",\"name\":\""+ df.getExpression() +"\",\"numDat\":" + thisNode.getData().length 
 							+ ",\"id_c1\":" + thisNode.getChild1() +",\"id_c2\":" + thisNode.getChild2()
 							+ ",\"num_b\":" + num_behavioral +",\"num_nb\":" + num_nonbehavioral + ",\"x\":0,\"y\":0}";
 				}

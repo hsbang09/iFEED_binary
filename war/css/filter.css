@@ -84,10 +84,10 @@
 }
 .filter_application_activate {
 	float:left;
-	margin-right:4px;
 }
 .filter_application_logical_connective {
 	float: left;
+    margin-left: 4px;
 	margin-right:4px;
 }
 .filter_application_expression{

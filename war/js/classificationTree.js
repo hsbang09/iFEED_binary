@@ -135,17 +135,11 @@ function update(source) {
             var highlighted = d3.selectAll("[class=dot_DFhighlighted]");
             highlighted.attr("class", "dot")
                     .style("fill", function (d) {
-                        if (d.status == "added") {
-                            return "#188836";
-                        } else if (d.status == "justAdded") {
-                            return "#20FE5B";
-                        } else {
                             return "#000000";
-                        }
                     });     
             d3.selectAll("[class=dot_selected_DFhighlighted]")
-            		.attr("class", "dot_clicked")
-                    .style("fill","#0040FF");     
+            		.attr("class", "dot_highlighted")
+                    .style("fill","#20DCCC");     
         });
     
     nodeEnter.append("svg:circle")
@@ -203,7 +197,7 @@ function update(source) {
             var out="";
 
             if(d.children){
-            	out += relabelDrivingFeatureName(d.name) + "?";
+            	out += ppdf(d.name) + "?";
             }else { // leafNode
             	if(d.num_b >= d.num_nb){
             		// classified as selected
@@ -354,151 +348,33 @@ function toggle_tree(d) {
 }
 
 
-function apply_filter_name(name, isFirst, condInput){
-	
-	var paren = name.indexOf("[");
-	
-	var type;
-	if (paren == -1){
-		type = name;
-	} else{
-		type = name.substring(0,paren);
-	}
-	
-    if(type=="present" || type=="absent" || type=="inOrbit" ||type=="notInOrbit"||type=="together2"||
-    		type=="togetherInOrbit2"||type=="separate2"||type=="together3"||type=="togetherInOrbit3"||
-    		type=="separate3"||type=="emptyOrbit"||type=="numOrbits" || type=="numOfInstruments"){
-    	
-    	var type_modified;
-    	var filterInputs = [];
-    	if(type=="together2"||type=="together3"||type=="separate2"||type=="separate3"||
-    		type=="togetherInOrbit2"||type=="togetherInOrbit3"){
-    		type_modified = type.substring(0,type.length-1);
-    	}else{
-    		type_modified = type;
-    	}
-    	var arg = name.substring(name.indexOf("[")+1,name.indexOf("]"));
-            
-    	if(type_modified=="present" || type_modified=="absent" || type_modified=="emptyOrbit"
-    				|| type_modified=="numOrbits" || type_modified=="together" 
-    					|| type_modified=="separate"|| type_modified=="numOfInstruments"){
-    		
-    		filterInputs.push(arg);
-    		
-    	}else if(type_modified=="inOrbit" || type_modified=="notInOrbit" || 
-    											type_modified=="togetherInOrbit"){
-    		var first = arg.substring(0,arg.indexOf(","));
-    		var second = arg.substring(arg.indexOf(",")+1);
-    		filterInputs.push(first);
-    		filterInputs.push(second);
-    	} else{
-    		filterInputs.push(arg);
-    	}
-            
-    	if(isFirst==true){
-            d3.selectAll("[class=dot]")[0].forEach(function (d) {
-            	var bitString = d.__data__.archBitString;
-        		if (presetFilter2(type_modified,bitString,filterInputs,false)==condInput){
-        			d3.select(d).attr("class", "dot_DFhighlighted")
-        						.style("fill", "#F75082");
-    			}
-            });
-            d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
-            	var bitString = d.__data__.archBitString;
-        		if (presetFilter2(type_modified,bitString,filterInputs,false)==condInput){
-        			d3.select(d).attr("class", "dot_selected_DFhighlighted")
-        						.style("fill", "#F75082");
-    			}
-            });
-    	}else{
-            d3.selectAll("[class=dot_DFhighlighted]")[0].forEach(function (d) {
-            	var bitString = d.__data__.archBitString;
-        		if (presetFilter2(type_modified,bitString,filterInputs,false) != condInput){
-        			d3.select(d).attr("class", "dot")
-                            .style("fill", function (d) {
-                                if (d.status == "added") {
-                                    return "#188836";
-                                } else if (d.status == "justAdded") {
-                                    return "#20FE5B";
-                                } else {
-                                    return "#000000";
-                                }
-                            });   
-    			}
-            });
-            d3.selectAll("[class=dot_selected_DFhighlighted]")[0].forEach(function (d) {
-            	var bitString = d.__data__.archBitString;
-        		if (presetFilter2(type_modified,bitString,filterInputs,false) != condInput){
-                   
-        			d3.select(d).attr("class", "dot_clicked")
-                    		.style("fill","#0040FF");     
-    			}
-            });
-    	}
-    }else{
-    		type_modified = type;
-        	if(first==true){
-                d3.selectAll("[class=dot]")[0].forEach(function (d) {
-                	var bitString = d.__data__.archBitString;
-            		if (applyUserDefFilterFromExpression(type_modified,bitString) == condInput){
-            			d3.select(d).attr("class", "dot_DFhighlighted")
-            						.style("fill", "#F75082");
-        			}
-                });
-                d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
-                	var bitString = d.__data__.archBitString;
-            		if (applyUserDefFilterFromExpression(type_modified,bitString) == condInput){
-            			d3.select(d).attr("class", "dot_selected_DFhighlighted")
-            						.style("fill", "#F75082");
-        			}
-                });
-        	}else{
-                d3.selectAll("[class=dot_DFhighlighted]")[0].forEach(function (d) {
-                	var bitString = d.__data__.archBitString;
-            		if (applyUserDefFilterFromExpression(type_modified,bitString) != condInput){
-                        
-            			d3.select(d).attr("class", "dot")
-                                .style("fill", function (d) {
-                                    if (d.status == "added") {
-                                        return "#188836";
-                                    } else if (d.status == "justAdded") {
-                                        return "#20FE5B";
-                                    } else {
-                                        return "#000000";
-                                    }
-                                });   
-        			}
-                });
-                d3.selectAll("[class=dot_selected_DFhighlighted]")[0].forEach(function (d) {
-                	var bitString = d.__data__.archBitString;
-            		if (applyUserDefFilterFromExpression(type_modified,bitString) != condInput){
-                       
-            			d3.select(d).attr("class", "dot_clicked")
-                        		.style("fill","#0040FF");     
-        			}
-                });
-        	}
-    }
-}
+
+
+
 
 
 function tree_node_mouse_over(d){
 
 	if(d.children==null){
-		
 		if(d.depth==0){
 			return;
 		}
-		
 		var condition = d.cond;
 		var currentNode = d.parent;
 		var name = currentNode.name;
+
+		var expression = "";
 		
+
 		for(var i=0;i<d.depth;i++){
-			if(i==0){
-				apply_filter_name(name, true, condition);
-			}else{
-				apply_filter_name(name, false, condition);
+			if(i>0){
+				expression = expression + "&&";
+			}
+			
+			if(condition){ // true
+				expression = expression + name;
+			}else{ // false
+				expression = expression + "{~" + name.substring(1,name.length);
 			}
 			if (currentNode.depth==0){
 				break;
@@ -507,7 +383,62 @@ function tree_node_mouse_over(d){
 			currentNode = currentNode.parent;
 			name = currentNode.name;
 		}
+		
+		console.log(expression);
+		
+
+		var ids = [];
+		var bitStrings = [];
+		var paretoRankings = [];
+		d3.selectAll('.dot')[0].forEach(function(d){
+			ids.push(d.__data__.id);
+			bitStrings.push(d.__data__.bitString);
+		    paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+		});  
+		d3.selectAll('.dot_highlighted')[0].forEach(function(d){
+			ids.push(d.__data__.id);
+			bitStrings.push(d.__data__.bitString);
+		    paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+		});  
+
+		var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
+		var indices = [];
+		for(var i=0;i<ids.length;i++){
+			indices.push(i);
+		}
+		// Note that indices and ids are different!
+		var matchedIndices = processFilterExpression(expression, indices, "&&", arch_info);
+		var matchedIDs = [];
+		for(var i=0;i<matchedIndices.length;i++){
+			var index = matchedIndices[i];
+			matchedIDs.push(ids[index]);
+		}
+		
+		
+		var highlighted = 0;
+		d3.selectAll("[class=dot]")[0].forEach(function (d) {
+			if(matchedIDs.indexOf(d.__data__.id)>-1){
+				d3.select(d).attr("class", "dot_DFhighlighted")
+				.style("fill", "#F75082");
+				highlighted++;
+			}
+		});
+		d3.selectAll("[class=dot_highlighted]")[0].forEach(function (d) {
+			if(matchedIDs.indexOf(d.__data__.id)>-1){
+				d3.select(d).attr("class", "dot_selected_DFhighlighted")
+				.style("fill", "#F75082");
+				highlighted++;
+			}          
+		});
+		
+		console.log(highlighted);
+		
 	}else{
 		return;
 	}
 }
+
+
+
+
+

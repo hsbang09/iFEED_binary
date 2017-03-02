@@ -51,7 +51,7 @@ function runDataMining() {
 
         sortedDFs = generateDrivingFeatures(selected,non_selected,support_threshold,confidence_threshold,lift_threshold,userdef_features,"lift");
         if(testType=="3"){
-           // jsonObj_tree = buildClassificationTree();
+           jsonObj_tree = buildClassificationTree();
         }
         
         if(sortedDFs.length==0){
@@ -60,7 +60,7 @@ function runDataMining() {
         
         display_drivingFeatures(sortedDFs,"lift");
         if(testType=="3"){
-        	//display_classificationTree(jsonObj_tree);
+        	display_classificationTree(jsonObj_tree);
         }
         selection_changed = false;
         
@@ -476,16 +476,43 @@ function display_drivingFeatures(source,sortby) {
 
                  // Preset filter: {presetName[orbits;instruments;numbers]}   
            
+                    
+                	var ids = [];
+                	var bitStrings = [];
+                	var paretoRankings = [];
+                    d3.selectAll('.dot')[0].forEach(function(d){
+                    	ids.push(d.__data__.id);
+                    	bitStrings.push(d.__data__.bitString);
+                        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+                    });  
+                    d3.selectAll('.dot_highlighted')[0].forEach(function(d){
+                    	ids.push(d.__data__.id);
+                    	bitStrings.push(d.__data__.bitString);
+                        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+                    });  
+                    
+                    
+                    var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
+                    var indices = [];
+                    for(var i=0;i<ids.length;i++){
+                    	indices.push(i);
+                    }
+                    // Note that indices and ids are different!
+                    var matchedIndices = processFilterExpression(expression, indices, "&&", arch_info);
+                    var matchedIDs = [];
+                    for(var i=0;i<matchedIndices.length;i++){
+                    	var index = matchedIndices[i];
+                    	matchedIDs.push(ids[index]);
+                    }
+
                     d3.selectAll("[class=dot]")[0].forEach(function (d) {
-                    	var bitString = d.__data__.bitString;
-                    	if(processFilterExpression(expression,bitString)===true){
+                    	if(matchedIDs.indexOf(d.__data__.id)>-1){
                     		d3.select(d).attr("class", "dot_DFhighlighted")
     						.style("fill", "#F75082");
                 		}
                     });
                     d3.selectAll("[class=dot_highlighted]")[0].forEach(function (d) {
-                    	var bitString = d.__data__.bitString;
-                    	if(processFilterExpression(expression,bitString)===true){
+                    	if(matchedIDs.indexOf(d.__data__.id)>-1){
                 			d3.select(d).attr("class", "dot_selected_DFhighlighted")
     						.style("fill", "#F75082");
                 		}                    	

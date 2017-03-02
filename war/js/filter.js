@@ -534,7 +534,9 @@ function processFilterExpression(expression, prev_matched, prev_logic, arch_info
 	var e=expression;
     // Remove outer parenthesis
     if(e.startsWith("(") && e.endsWith(")")){
-            e=e.substring(1,e.length()-1);
+    	while(e.startsWith("(") && e.endsWith(")")){
+    		e=e.substring(1,e.length-1);
+    	}   
     }
     var current_matched = [];
     var first = true;
@@ -548,7 +550,6 @@ function processFilterExpression(expression, prev_matched, prev_logic, arch_info
         }else{
         	// Single filter expression
         	var matched = [];
-        	console.log(prev_matched.length);
         	for(var i=0;i<prev_matched.length;i++){
         		var index = prev_matched[i];
         		//archInfo = {bitStrings:bitStrings,paretoRankings:paretoRankings};
@@ -557,8 +558,6 @@ function processFilterExpression(expression, prev_matched, prev_logic, arch_info
         		}
         	}
         	current_matched = matched;
-        	console.log(e);
-        	console.log(current_matched);
             return compareMatchedIDSets(prev_logic, current_matched, prev_matched);
         }
     }else{
@@ -619,14 +618,17 @@ function processFilterExpression(expression, prev_matched, prev_logic, arch_info
 
 
 
-
-
-             
-
 function applyPresetFilter(expression,bitString,rank){
 	
 	// Preset filter: {presetName[orbits;instruments;numbers]}   
 	expression = expression.substring(1,expression.length-1);
+	
+	var flip=false;
+	if(expression.startsWith("~")){
+		flip=true;
+		expression = expression.substring(1,expression.length);
+	}
+	
 	var type = expression.split("[")[0];
 	
 	if(type==="paretoFront"){
@@ -653,44 +655,46 @@ function applyPresetFilter(expression,bitString,rank){
 		instr = condSplit[1];
 	}
 	if(condSplit[2].length > 0){
-		numb = +condSplit[2];
+		if(condSplit[2].length==1) numb = +condSplit[2];
+		else numb = condSplit[2];
 	}else{
 		numb = condSplit[2];
 	}
 
-	
+	var resu;
 	switch(type) {
     case "present":
     	if(instr==-1) return false;
+    	resu=false;
         for(var i=0;i<norb;i++){
             if(bitString[ninstr*i+instr]===true){
-                return true;
+                resu=true;break;
             }
         }
-        return false;
         break;
     case "absent":
     	if(instr==-1) return false;
+    	resu=true;
         for(var i=0;i<norb;i++){
             if(bitString[ninstr*i+instr]===true){
-                return false;
+                resu=false;break;
             }
         }
-        return true;
         break;
     case "inOrbit":
+    	resu=false;
         if(bitString[orbit*ninstr + instr]===true){
-        	return true;
+        	resu=true;
         }
-        return false;
         break;
     case "notInOrbit":
+    	resu=true;
         if(bitString[orbit*ninstr + instr]===true){
-        	return false;
+        	resu=false;
         }
-        return true;
         break;
     case "together":
+    	resu=false;
     	var instruments = instr.split(",");
     	for(var i=0;i<norb;i++){
     		var found = true;
@@ -701,24 +705,24 @@ function applyPresetFilter(expression,bitString,rank){
     			}
     		}
     		if(found===true){
-    			return true;
+    			resu=true;break;
     		}
     	}
-    	return false;
         break;
 
     case "togetherInOrbit":
+    	resu=true;
     	var instruments = instr.split(",");
 		for(var j=0;j<instruments.length;j++){
 			var temp = +instruments[j];
 			if(bitString[orbit*ninstr + temp]===false){
-				return false;
+				resu= false;break;
 			}
 		}
-		return true;
         break;
 
     case "separate":
+    	resu=true;
     	var instruments = instr.split(",");
     	for(var i=0;i<norb;i++){
     		var together = true;
@@ -729,23 +733,23 @@ function applyPresetFilter(expression,bitString,rank){
     			}
     		}
     		if(together===true){
-    			return false;
+    			resu= false;break;
     		}
     	}
-    	return true;
         break;
 
     case "emptyOrbit":
+    	resu=true;
     	for(var i=0;i<ninstr;i++){
     		if(bitString[orbit*ninstr+i]===true){
-    			return false;
+    			resu= false;break;
     		}
     	}
-    	return true;
         break;
 
     case "numOrbits":
     	var count=0;
+    	resu=false;
     	for(var i=0;i<norb;i++){
     		for(var j=0;j<ninstr;j++){
     			if(bitString[i*ninstr+j]===true){
@@ -755,13 +759,37 @@ function applyPresetFilter(expression,bitString,rank){
     		}
     	}
     	if(numb===count){
-    		return true;
+    		resu= true;
     	}
-    	return false;
+        break;
+
+    case "subsetOfInstruments":
+    	var count = 0;    	
+    	var instruments = instr.split(",");
+    	var numbers = "" + numb;
+    	var numbers = numbers.split(",");
+    	resu=false;
+    	
+		for(var j=0;j<instruments.length;j++){
+			var temp = +instruments[j];
+			if(bitString[orbit*ninstr + temp]===true){
+				count++;
+			}
+		}
+		if(numbers.length==1){
+			if(count >= +numbers[0]){
+				resu= true;
+			}
+		}else{
+			if(count >= +numbers[0] && count <= +numbers[1]){
+				resu= true;
+			}
+		}
         break;
 
     case "numOfInstruments":
     	var count=0;
+    	resu=false;
     	if(orbit===""){
 			// num of instruments across all orbits
     		if(instr===""){
@@ -787,13 +815,20 @@ function applyPresetFilter(expression,bitString,rank){
     			}
     		}
     	}
-		if(count===numb) return true;
-		return false;
+		if(count===numb) resu= true;
         break;
     	
     default:
     	return false;
 	}
+	
+	
+	if(flip==true){
+		return !resu;
+	}else{
+		return resu;
+	}
+	
 }
    
    
@@ -844,19 +879,24 @@ function applyFilter(option){
     var presetFilter = dropdown;
     if(presetFilter=="present" || presetFilter=="absent" || presetFilter=="together" || presetFilter=="separate"){
         var instrument = input_textbox[0];
-        filterExpression = presetFilter + "[;" + DisplayName2Index(instrument,"instrument") + ";]";
+        instrument = instrument.replace(/\s+/, "");
+        filterExpression = presetFilter + "[;" + DisplayName2Index(instrument.toUpperCase(),"instrument") + ";]";
     }else if(presetFilter == "inOrbit" || presetFilter == "notInOrbit" || presetFilter=="togetherInOrbit"){
-        var orbit = input_textbox[0];
+        var orbit = input_textbox[0].trim();
         var instrument = input_textbox[1];
-        filterExpression = presetFilter + "["+ DisplayName2Index(orbit,"orbit") + ";" + DisplayName2Index(instrument,"instrument")+ ";]";
+        instrument = instrument.replace(/\s+/, "");
+        filterExpression = presetFilter + "["+ DisplayName2Index(orbit,"orbit") + ";" + DisplayName2Index(instrument.toUpperCase(),"instrument")+ ";]";
     }else if(presetFilter =="emptyOrbit"){
-        var orbit = input_textbox[0];
+        var orbit = input_textbox[0].trim();
         filterExpression = presetFilter + "[" + DisplayName2Index(orbit,"orbit") + ";;]";
     }else if(presetFilter=="numOrbits"){
-        var number = input_textbox[0];
+        var number = input_textbox[0].trim();
         filterExpression = presetFilter + "[;;" + number + "]";
     }else if(presetFilter=="subsetOfInstruments"){
-        // To be implemented
+    	var orbit = input_textbox[0].trim();
+    	var instrument = input_textbox[2].replace(/\s+/, "");
+    	var numbers = input_textbox[1].trim();
+        filterExpression = presetFilter + "["+ DisplayName2Index(orbit,"orbit") + ";" + DisplayName2Index(instrument.toUpperCase(),"instrument")+ ";"+ numbers+"]";
     }else if(presetFilter=="numOfInstruments"){
         var orbit = input_textbox[0];
         var instrument = input_textbox[1];
@@ -877,13 +917,14 @@ function applyFilter(option){
             filterExpression=presetFilter + "[;;" + number + "]";
         }else if(orbitEmpty){
             // Count the number of specified instrument
-            filterExpression=presetFilter + "[;" + DisplayName2Index(instrument,"instrument") + ";" + number + "]";
+        	instrument = instrument.replace(/\s+/, "");
+            filterExpression=presetFilter + "[;" + DisplayName2Index(instrument.toUpperCase(),"instrument") + ";" + number + "]";
         }else if(instrumentEmpty){
             // Count the number of instruments in an orbit
+        	orbit = orbit.trim();
             filterExpression=presetFilter + "[" + DisplayName2Index(orbit,"orbit") + ";;" + number + "]";
         }
-    }
-    else if(dropdown==="paretoFront"){
+    } else if(dropdown==="paretoFront"){
         // To be implemented    
         var filterInput = d3.select("#filter_inputs_div_1").select('.filter_inputs_textbox')[0][0].value;
         filterExpression = "paretoFront["+filterInput+"]";
@@ -1070,31 +1111,43 @@ function update_filter_application_status(inputExpression,option){
             })
             .text(ppdf(inputExpression));
     
-//    thisFilter.append('img')
-//            .attr('src','img/left_arrow.png')
-//            .attr('id','left_arrow')
-//            .attr('width','21')
-//            .attr('height','21')
-//            .style('float','left')
-//            .style('margin-left','7px');
-//    thisFilter.append('img')
-//            .attr('src','img/left_arrow.png')
-//            .attr('id','right_arrow')
-//            .attr('class','img-hor-vert')
-//            .attr('width','21')
-//            .attr('height','21')
-//            .style('float','left')
-//            .style('margin-left','4px')
-//            .style('margin-right','7px'); 
-//    
-//    thisFilter.append('button')
-//            .attr('class','filter_application_saveThis')
-//            .text('Add this filter')
-//            .on('click',function(d){
-//                save_user_defined_filter(inputExpression);
-//            });
+    thisFilter.append('img')
+            .attr('src','img/left_arrow.png')
+            .attr('id',function(){
+                var num = count+1;
+                return 'leftarrow_' + num;
+            })
+            .attr('width','20')
+            .attr('height','20')
+            .style('float','left')
+            .style('margin-left','13px');
+    thisFilter.append('img')
+            .attr('src','img/left_arrow.png')
+            .attr('id',function(){
+                var num = count+1;
+                return 'rightarrow_' + num;
+            })
+            .attr('class','img-hor-vert')
+            .attr('width','20')
+            .attr('height','20')
+            .style('float','left')
+            .style('margin-left','4px')
+            .style('margin-right','7px'); 
     
+    thisFilter.append('button')
+            .attr('class','filter_application_saveThis')
+            .text('Add this filter')
+            .on('click',function(d){
+                save_user_defined_filter(inputExpression);
+            });
     
+    var num = count+1;
+    d3.selectAll("#leftarrow_"+num).on("click",function(d){
+    	click_left_arrow(num);
+    });
+    d3.selectAll("#rightarrow_"+num).on("click",function(d){
+    	click_right_arrow(num);
+    });
     
     thisFilter.append('button')
             .attr('class','filter_application_delete')
@@ -1147,27 +1200,114 @@ function update_filter_application_status(inputExpression,option){
 }
 
 
+var arrow_margin = 30;
+function click_right_arrow(n){
+	var id = "" + n;
+	var appliedFilter = d3.select("#applied_filter_"+id);
+	if(appliedFilter.attr('level')==null){
+		appliedFilter.attr('level',1);
+	}
+	else{
+		var level = +appliedFilter.attr('level');
+		appliedFilter.attr('level',function(){
+			return level+1;
+		});
+	}
+	var level = +appliedFilter.attr('level');
+	
+	appliedFilter.select('.filter_application_activate').style('margin-right',function(){
+		var margin = level*arrow_margin
+		return level*arrow_margin+"px";
+	});
+	applyComplexFilter();
+}
+function click_left_arrow(n){
+	var id = "" + n;
+	var appliedFilter = d3.select("#applied_filter_"+id);
+	if(appliedFilter.attr('level')==null){
+		appliedFilter.attr('level',0);
+	}else if(appliedFilter.attr('level')==0){
+		// do nothing
+	}else{
+		var level = +appliedFilter.attr('level');
+		appliedFilter.attr('level',function(){
+			return level-1;
+		});
+	}
+	var level = +appliedFilter.attr('level');
+	appliedFilter.select('.filter_application_activate').style('margin-right',function(){
+		var margin = level*arrow_margin
+		return level*arrow_margin+"px";
+	});
+	applyComplexFilter();
+}
+
+
 
 function parse_filter_application_status(){
+	
     var application_status = d3.select('#filter_application_status');
     var count = application_status.selectAll('.applied_filter').size();
     var filter_expressions = [];
     var filter_logical_connective = [];
+    var filter_level = [];
+    
     application_status.selectAll('.applied_filter')[0].forEach(function(d){
+    	
         var activated = d3.select(d).select('.filter_application_activate')[0][0].checked;
         var expression = d3.select(d).select('.filter_application_expression').attr('expression');
         var logic = d3.select(d).select('.filter_application_logical_connective')[0][0].value;
+        var level = d3.select(d).attr('level');
+
         if(activated){
             filter_expressions.push(expression);
             filter_logical_connective.push(logic);
+        	if(level==null){
+        		filter_level.push(0);
+        	}else{
+        		var levelNum = + level;
+        		filter_level.push(levelNum);
+        	}
         }
     });
     var filterExpression = "";
+    var prev_level = 0;
     for(var i=0;i<filter_expressions.length;i++){
+    	var level = filter_level[i];
         if(i > 0){
-            filterExpression = filterExpression + filter_logical_connective[i];
+            if(level > prev_level){
+            	filterExpression = filterExpression + filter_logical_connective[i];
+            	while(prev_level != level){
+            		filterExpression = filterExpression + "(";
+            		prev_level++;
+            	}
+            }else if(level < prev_level){
+            	while(prev_level > level){
+            		filterExpression = filterExpression + ")";
+            		prev_level--;
+            	}
+            	filterExpression = filterExpression + filter_logical_connective[i];
+            }else{
+            	filterExpression = filterExpression + filter_logical_connective[i];
+            }
+        }else if(i==0){ // i=0
+            if(level > 0){
+            	while(prev_level < level){
+	            	filterExpression = filterExpression + "(";
+	            	prev_level++;
+            	}
+        	}
         }
         filterExpression = filterExpression + filter_expressions[i];
     }
+    //console.log(prev_level);
+    if(prev_level>0){
+    	while(prev_level!=0){
+        	filterExpression = filterExpression + ")";
+        	prev_level--;
+    	}
+    }
+    
+    console.log(filterExpression);
     return filterExpression;
 }

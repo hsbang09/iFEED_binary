@@ -24,11 +24,11 @@ import rbsa.eoss.local.Params;
 import rbsa.eoss.server.IFEEDServlet;
 
 
-import weka.classifiers.trees.J48;
-import weka.core.Attribute;
-import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
+//import weka.classifiers.trees.J48;
+//import weka.core.Attribute;
+//import weka.core.FastVector;
+//import weka.core.Instance;
+//import weka.core.Instances;
 
 /**
  *
@@ -241,8 +241,7 @@ public class DrivingFeaturesGenerator {
 		bounds[0] = 0;
 		bounds[1] = (double) behavioral.size() / population.size();
 		
-		
-		System.out.println("apriori activated");
+
 		
 		if(apriori){
 			while(addedFeatureIndices.size() < minRuleNum || addedFeatureIndices.size() > maxRuleNum){
@@ -345,7 +344,8 @@ public class DrivingFeaturesGenerator {
     
     
    public String buildClassificationTree(){
-       ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(dataFeatureMatInt,labels);
+       ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(dataFeatureMatInt,labels,drivingFeatures);
+       //ctb.setDrivingFeatures(drivingFeatures);
        ctb.buildTree();
        String graph = ctb.printTree_json();
        return graph;

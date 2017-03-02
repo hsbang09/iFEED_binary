@@ -299,7 +299,21 @@ public class FilterExpressionHandler {
             return false;
             
         } else if(type.equalsIgnoreCase("subsetOfInstruments")){ 
-            // To be implemented later
+
+            int orbit = Integer.parseInt(orbits[0]);
+            int count = 0;
+
+            for(int i=0;i<instruments.length;i++){
+                int instrument = Integer.parseInt(instruments[i]);
+                if(mat[orbit][instrument]==1){count++;}
+            }
+            if(numbers.length==1){
+            	return count >= Integer.parseInt(numbers[0]);
+            }else{
+            	return (count>=Integer.parseInt(numbers[0]) && count<=Integer.parseInt(numbers[1]));
+            }
+        
+        
         }
         
         return false;
