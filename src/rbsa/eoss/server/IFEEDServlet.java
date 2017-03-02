@@ -239,7 +239,7 @@ public class IFEEDServlet extends HttpServlet {
             DFs = dfsGen.getPrimitiveDrivingFeatures();
 
             
-            Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);
+            //Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);
             String jsonObj = gson.toJson(DFs);
             outputString = jsonObj;
             
@@ -253,8 +253,8 @@ public class IFEEDServlet extends HttpServlet {
         
         
         else if (requestID.equalsIgnoreCase("build_classification_tree")){
-        	String graph = dfsGen.buildClassificationTree();
-        	outputString = graph;
+        	//String graph = dfsGen.buildClassificationTree();
+        	//outputString = graph;
         }        
         
         

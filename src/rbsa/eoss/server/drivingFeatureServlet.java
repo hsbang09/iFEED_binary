@@ -22,7 +22,7 @@ import rbsa.eoss.DrivingFeaturesGenerator;
 import rbsa.eoss.ResultManager;
 import rbsa.eoss.Scheme;
 import rbsa.eoss.local.Params;
-import rbsa.eoss.Apriori;
+//import rbsa.eoss.Apriori;
 
 /**
  *

@@ -1134,12 +1134,12 @@ function update_filter_application_status(inputExpression,option){
             .style('margin-left','4px')
             .style('margin-right','7px'); 
     
-    thisFilter.append('button')
-            .attr('class','filter_application_saveThis')
-            .text('Add this filter')
-            .on('click',function(d){
-                save_user_defined_filter(inputExpression);
-            });
+//    thisFilter.append('button')
+//            .attr('class','filter_application_saveThis')
+//            .text('Add this filter')
+//            .on('click',function(d){
+//                save_user_defined_filter(inputExpression);
+//            });
     
     var num = count+1;
     d3.selectAll("#leftarrow_"+num).on("click",function(d){

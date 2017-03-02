@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import rbsa.eoss.ClassificationTreeBuilder;
-import rbsa.eoss.Apriori.Feature;
+//import rbsa.eoss.Apriori.Feature;
 import rbsa.eoss.local.Params;
 import rbsa.eoss.server.IFEEDServlet;
 
@@ -244,41 +244,41 @@ public class DrivingFeaturesGenerator {
 
 		
 		if(apriori){
-			while(addedFeatureIndices.size() < minRuleNum || addedFeatureIndices.size() > maxRuleNum){
-	        	
-	        	iter++;
-	        	if(iter > maxIter){
-	        		break;
-	        	}else if(iter > 1){
-		    		// max supp threshold is support_S
-		    		// min supp threshold is 0
-		    		double a;
-					if(addedFeatureIndices.size() > maxRuleNum){ // Too many rules -> increase threshold
-						bounds[0] = this.adaptSupp;
-						a = bounds[1];
-					}else{ // too few rules -> decrease threshold
-						bounds[1] = this.adaptSupp;
-						a = bounds[0];
-					}
-		    		// Bisection
-		    		this.adaptSupp = (double) (this.adaptSupp + a) * 0.5;	
-	        	}
-	            addedFeatureIndices = new ArrayList<>();
-		    	for(int i=0;i<featureData_name.size();i++){
-	            	double[] metrics = featureData_metrics.get(i);
-	                if(metrics[0]>adaptSupp){
-	                	addedFeatureIndices.add(i);
-	                    if(addedFeatureIndices.size() > this.maxRuleNum && iter < maxIter){
-	                    	break;
-	                    }else if(( candidate_features.size() - (i+1) ) + addedFeatureIndices.size() < this.minRuleNum){
-	                    	break;
-	                    }
-	                }
-	            }        	
-		    	System.out.println("RuleSetSize: " + addedFeatureIndices.size() +" Treshold: "+ this.adaptSupp);
-
-	        }		
-	    	System.out.println("Driving features extracted in "+ iter +" steps with size: " + addedFeatureIndices.size());
+//			while(addedFeatureIndices.size() < minRuleNum || addedFeatureIndices.size() > maxRuleNum){
+//	        	
+//	        	iter++;
+//	        	if(iter > maxIter){
+//	        		break;
+//	        	}else if(iter > 1){
+//		    		// max supp threshold is support_S
+//		    		// min supp threshold is 0
+//		    		double a;
+//					if(addedFeatureIndices.size() > maxRuleNum){ // Too many rules -> increase threshold
+//						bounds[0] = this.adaptSupp;
+//						a = bounds[1];
+//					}else{ // too few rules -> decrease threshold
+//						bounds[1] = this.adaptSupp;
+//						a = bounds[0];
+//					}
+//		    		// Bisection
+//		    		this.adaptSupp = (double) (this.adaptSupp + a) * 0.5;	
+//	        	}
+//	            addedFeatureIndices = new ArrayList<>();
+//		    	for(int i=0;i<featureData_name.size();i++){
+//	            	double[] metrics = featureData_metrics.get(i);
+//	                if(metrics[0]>adaptSupp){
+//	                	addedFeatureIndices.add(i);
+//	                    if(addedFeatureIndices.size() > this.maxRuleNum && iter < maxIter){
+//	                    	break;
+//	                    }else if(( candidate_features.size() - (i+1) ) + addedFeatureIndices.size() < this.minRuleNum){
+//	                    	break;
+//	                    }
+//	                }
+//	            }        	
+//		    	System.out.println("RuleSetSize: " + addedFeatureIndices.size() +" Treshold: "+ this.adaptSupp);
+//
+//	        }		
+//	    	System.out.println("Driving features extracted in "+ iter +" steps with size: " + addedFeatureIndices.size());
 		}else{
 			for(int i=0;i<featureData_name.size();i++){
             	double[] metrics = featureData_metrics.get(i);
@@ -354,68 +354,68 @@ public class DrivingFeaturesGenerator {
 
     
     public ArrayList<DrivingFeature> getDrivingFeatures(){
-    	System.out.println("higher level feature extraced");
-    	ArrayList<DrivingFeature> dfs=new ArrayList<>();
+//    	System.out.println("higher level feature extraced");
+//    	ArrayList<DrivingFeature> dfs=new ArrayList<>();
     	
-    	int[] label_int = satisfactionArray(behavioral,population); 
-    	double[] label = new double[label_int.length];
-    	for(int i=0;i<label_int.length;i++){
-    		label[i] = (double) label_int[i];
-    	}
-
-        // Create a new instance of Apriori
-        Apriori ap = new Apriori(drivingFeatures, this.dataFeatureMat, label, thresholds);
-        
-        // Run Apriori algorithm
-        ArrayList<Apriori.Feature> new_features = ap.runApriori(2,false,100);
-
-        // Create a new list of driving features (assign new IDs)
-        int id=0;
-        for(int f=0;f<new_features.size();f++){
-            
-            Apriori.Feature feat = new_features.get(f);
-            String expression="";
-            String name="";
-            ArrayList<Integer> featureIndices = feat.getElements();
-            
-            int[] indices_array = new int[featureIndices.size()];
-            
-            for(int i=0;i<featureIndices.size();i++){
-                indices_array[i] = featureIndices.get(i);
-            }
-
-            boolean first = true;
-            for(int index:featureIndices){
-                if(first){
-                    first = false;
-                }
-                else{
-                    expression = expression + "&&";
-                    name = name + "&&";
-                }
-                DrivingFeature thisDF = this.drivingFeatures.get(index);
-                expression = expression + thisDF.getExpression();
-                name = name + thisDF.getName();
-            }
-            double[] metrics = feat.getMetrics();
-            DrivingFeature df = new DrivingFeature(name,expression, metrics, false);
-
-            dfs.add(df);
-        }
-        
-//        // Define the new feature satisfaction matrix       
-//        DoubleMatrix prev_sat_matrix = new DoubleMatrix(this.drivingFeaturesMatrix);
-//        DoubleMatrix new_sat_matrix = prev_sat_matrix.mmul(mapping_old_and_new_feature_indices);        
+//    	int[] label_int = satisfactionArray(behavioral,population); 
+//    	double[] label = new double[label_int.length];
+//    	for(int i=0;i<label_int.length;i++){
+//    		label[i] = (double) label_int[i];
+//    	}
+//
+//        // Create a new instance of Apriori
+//        Apriori ap = new Apriori(drivingFeatures, this.dataFeatureMat, label, thresholds);
 //        
-//        DoubleMatrix newDrivingFeaturesMatrix = DoubleMatrix.zeros(new_sat_matrix.getRows(), new_sat_matrix.getColumns());
-//        for(int i=0;i<new_sat_matrix.getColumns();i++){
-//            DoubleMatrix col = new_sat_matrix.getColumn(i);
-//            col = col.eq(save_feature_length[i]);
-//            newDrivingFeaturesMatrix.putColumn(i, col);
+//        // Run Apriori algorithm
+//        ArrayList<Apriori.Feature> new_features = ap.runApriori(2,false,100);
+//
+//        // Create a new list of driving features (assign new IDs)
+//        int id=0;
+//        for(int f=0;f<new_features.size();f++){
+//            
+//            Apriori.Feature feat = new_features.get(f);
+//            String expression="";
+//            String name="";
+//            ArrayList<Integer> featureIndices = feat.getElements();
+//            
+//            int[] indices_array = new int[featureIndices.size()];
+//            
+//            for(int i=0;i<featureIndices.size();i++){
+//                indices_array[i] = featureIndices.get(i);
+//            }
+//
+//            boolean first = true;
+//            for(int index:featureIndices){
+//                if(first){
+//                    first = false;
+//                }
+//                else{
+//                    expression = expression + "&&";
+//                    name = name + "&&";
+//                }
+//                DrivingFeature thisDF = this.drivingFeatures.get(index);
+//                expression = expression + thisDF.getExpression();
+//                name = name + thisDF.getName();
+//            }
+//            double[] metrics = feat.getMetrics();
+//            DrivingFeature df = new DrivingFeature(name,expression, metrics, false);
+//
+//            dfs.add(df);
 //        }
-        
-//        this.drivingFeaturesMatrix = newDrivingFeaturesMatrix.toArray2();
-        this.drivingFeatures = dfs;
+//        
+////        // Define the new feature satisfaction matrix       
+////        DoubleMatrix prev_sat_matrix = new DoubleMatrix(this.drivingFeaturesMatrix);
+////        DoubleMatrix new_sat_matrix = prev_sat_matrix.mmul(mapping_old_and_new_feature_indices);        
+////        
+////        DoubleMatrix newDrivingFeaturesMatrix = DoubleMatrix.zeros(new_sat_matrix.getRows(), new_sat_matrix.getColumns());
+////        for(int i=0;i<new_sat_matrix.getColumns();i++){
+////            DoubleMatrix col = new_sat_matrix.getColumn(i);
+////            col = col.eq(save_feature_length[i]);
+////            newDrivingFeaturesMatrix.putColumn(i, col);
+////        }
+//        
+////        this.drivingFeaturesMatrix = newDrivingFeaturesMatrix.toArray2();
+//        this.drivingFeatures = dfs;
     	
     	return this.drivingFeatures;
     }
