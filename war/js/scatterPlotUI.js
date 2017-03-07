@@ -164,14 +164,13 @@ function draw_scatterPlot(source) {
             .data(source)
             .enter().append("circle")
             .attr("class", "dot")
-            .attr("r", 4)
+            .attr("r", 3.3)
             .attr("transform", function (d) {
                 var xCoord = xMap(d);
                 var yCoord = yMap(d);
                 return "translate(" + xCoord + "," + yCoord + ")";
             })
-//                .attr("cx", xMap)
-//                .attr("cy", yMap)
+
             .style("fill", function (d) {
                 if (d.status == "origianlData") {
                     return "#000000";

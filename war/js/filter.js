@@ -728,7 +728,7 @@ function applyPresetFilter(expression,bitString,rank){
     		var together = true;
     		for(var j=0;j<instruments.length;j++){
     			var temp = +instruments[j];
-    			if(bitString[j*ninstr+temp]===false){
+    			if(bitString[i*ninstr+temp]===false){
     				together=false;
     			}
     		}
@@ -960,7 +960,7 @@ function applyFilter(option){
         }else if(option==="within"){
             d3.selectAll('.dot_highlighted')[0].forEach(function(d){
                 var bitString = d.__data__.bitString;
-                if(applyPresetFilter(filterExpression,bitString)){
+                if(!applyPresetFilter(filterExpression,bitString)){
                     d3.select(d).attr('class','dot')
                     .style("fill", function (d) {return "#000000";});   
                 }

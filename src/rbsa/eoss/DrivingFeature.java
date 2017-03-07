@@ -14,6 +14,8 @@ import java.util.Comparator;
  
 public class DrivingFeature implements Comparable<DrivingFeature>, java.io.Serializable{
         
+	
+		private int id;
         private String name; // specific names
         private String expression; // inOrbit, together, separate, present, absent, etc.
         private String[] param;
@@ -22,13 +24,15 @@ public class DrivingFeature implements Comparable<DrivingFeature>, java.io.Seria
         
 
 
-        public DrivingFeature( String name, String expression){
+        public DrivingFeature(int id, String name, String expression){
+        	this.id=id;
             this.name = name;
             this.expression=expression;
             this.preset = false;
         }
-        public DrivingFeature(String name, String expression, double[] metrics, boolean preset){
-            this.name = name;
+        public DrivingFeature(int id, String name, String expression, double[] metrics, boolean preset){
+            this.id=id;
+        	this.name = name;
             this.expression = expression;
             this.metrics = metrics;
             this.preset = preset;
@@ -62,7 +66,9 @@ public class DrivingFeature implements Comparable<DrivingFeature>, java.io.Seria
         
         
         
-        
+        public int getID(){
+        	return this.id;
+        }
         public String getExpression(){return expression;}
         public String getName(){return name;}
         public double[] getMetrics(){return metrics;}

@@ -172,10 +172,31 @@ public class IFEEDServlet extends HttpServlet {
                         ArchInfo arch = new ArchInfo(id,sci,cost,bitString);
                         id++;
                         arch.setStatus("originalData");
-                        architectures.add(arch);                    	
+                          
+                        // Remove redundant data
+                        boolean foundMatch = false;
+                        for(int a=0;a<architectures.size();a++){
+                        	boolean match = true;
+                        	boolean[] bitString2 = architectures.get(a).bitString;
+                        	for(int b=0;b<bitString.length;b++){
+                        		if(bitString[b]!=bitString2[b]){
+                        			match=false;
+                        			break;
+                        		}
+                        	}
+                        	if(match){
+                        		foundMatch=true;
+                        		break;
+                        	}
+                        }
+                        if(!foundMatch){
+                        	architectures.add(arch);                           	
+                        }
+
                     }
                 }
             }
+            
             String jsonObj = gson.toJson(architectures);
             outputString = jsonObj;
         }
@@ -237,9 +258,8 @@ public class IFEEDServlet extends HttpServlet {
             try{
             
             DFs = dfsGen.getPrimitiveDrivingFeatures();
-
             
-            //Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);
+            Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);
             String jsonObj = gson.toJson(DFs);
             outputString = jsonObj;
             
@@ -253,8 +273,9 @@ public class IFEEDServlet extends HttpServlet {
         
         
         else if (requestID.equalsIgnoreCase("build_classification_tree")){
-        	//String graph = dfsGen.buildClassificationTree();
-        	//outputString = graph;
+        	String graph = dfsGen.buildClassificationTree();
+        	outputString = graph;
+        	System.out.println(outputString);
         }        
         
         

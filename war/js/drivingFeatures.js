@@ -356,7 +356,8 @@ function display_drivingFeatures(source,sortby) {
     var objects = svg_df.append("svg")
             .attr("class","dfbars_svg")
             .attr("width",width_df)
-            .attr("height",height_df);
+            .attr("height",height_df)
+            .style('margin-bottom','60px');
 
     //Create main 0,0 axis lines:
     objects.append("svg:line")
@@ -504,6 +505,8 @@ function display_drivingFeatures(source,sortby) {
                     	var index = matchedIndices[i];
                     	matchedIDs.push(ids[index]);
                     }
+                    
+                    //console.log(matchedIDs.length);
 
                     d3.selectAll("[class=dot]")[0].forEach(function (d) {
                     	if(matchedIDs.indexOf(d.__data__.id)>-1){
@@ -518,7 +521,6 @@ function display_drivingFeatures(source,sortby) {
                 		}                    	
 
                     });
-
 
                     
                     var fo = d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]")

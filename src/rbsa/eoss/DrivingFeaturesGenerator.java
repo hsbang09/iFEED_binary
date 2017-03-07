@@ -42,9 +42,12 @@ public class DrivingFeaturesGenerator {
     private ArrayList<Integer> population;
     private int[] labels;
     
+    private ArrayList<DrivingFeature> drivingFeatures;
+    private ArrayList<String> userDefFeatures;
+    
     private double[][] dataFeatureMat;
     private int[][] dataFeatureMatInt;
-    
+    private ArrayList<int[]> drivingFeatures_satList;
     
     private double adaptSupp;
     private double[] thresholds;
@@ -52,8 +55,7 @@ public class DrivingFeaturesGenerator {
     private double ninstr;
     private double norb;
     
-    private ArrayList<DrivingFeature> drivingFeatures;
-    private ArrayList<String> userDefFeatures;
+
     
     private ArrayList<IFEEDServlet.ArchInfo> archsInfo;
     private FilterExpressionHandler feh;
@@ -95,6 +97,7 @@ public class DrivingFeaturesGenerator {
       
       userDefFeatures = new ArrayList<>();
       drivingFeatures = new ArrayList<>();
+      drivingFeatures_satList = new ArrayList<>();
       feh = new FilterExpressionHandler();
       feh.setArchs(archs,behavioral,non_behavioral,population);      
   }    
@@ -154,6 +157,7 @@ public class DrivingFeaturesGenerator {
     	
 
     	this.drivingFeatures = new ArrayList<>();
+    	this.drivingFeatures_satList = new ArrayList<>();
     	ArrayList<String> candidate_features = new ArrayList<>();
     	
     	
@@ -288,10 +292,11 @@ public class DrivingFeaturesGenerator {
 			}
 		}
 		
-        ArrayList<int[]> drivingFeatures_satList = new ArrayList<>();
+        int id=0;
     	for(int i:addedFeatureIndices){
-    		this.drivingFeatures.add(new DrivingFeature(featureData_name.get(i), featureData_exp.get(i), featureData_metrics.get(i), true));
-    		drivingFeatures_satList.add(featureData_satList.get(i));
+    		this.drivingFeatures.add(new DrivingFeature(id,featureData_name.get(i), featureData_exp.get(i), featureData_metrics.get(i), true));
+    		this.drivingFeatures_satList.add(featureData_satList.get(i));
+    		id++;
     	}
 
 
@@ -311,25 +316,7 @@ public class DrivingFeaturesGenerator {
 //            }
 //        }
 
-        
-        // Get feature satisfaction matrix
-        this.dataFeatureMat = new double[population.size()][drivingFeatures.size()];
-        this.dataFeatureMatInt = new int[population.size()][drivingFeatures.size()];
-        this.labels = new int[population.size()];
-        
-        for(int i=0;i<population.size();i++){
-        	for(int j=0;j<drivingFeatures.size();j++){
-    			this.dataFeatureMat[i][j] = (double) drivingFeatures_satList.get(j)[i];
-    			dataFeatureMatInt[i][j] = drivingFeatures_satList.get(j)[i];
-        	}
-        	
-        	if(behavioral.contains(population.get(i))){
-        		labels[i]=1;
-        	}else{
-        		labels[i]=0;
-        	}
-        	
-        }        
+
 
         if(apriori) return getDrivingFeatures();
         else return drivingFeatures;
@@ -344,12 +331,42 @@ public class DrivingFeaturesGenerator {
     
     
    public String buildClassificationTree(){
+	   setDrivingFeatureSatisfactionData();
        ClassificationTreeBuilder ctb = new ClassificationTreeBuilder(dataFeatureMatInt,labels,drivingFeatures);
        //ctb.setDrivingFeatures(drivingFeatures);
        ctb.buildTree();
        String graph = ctb.printTree_json();
        return graph;
    }
+   
+   
+   
+   public void setDrivingFeatureSatisfactionData(){
+	   
+       // Get feature satisfaction matrix
+       this.dataFeatureMat = new double[population.size()][drivingFeatures.size()];
+       this.dataFeatureMatInt = new int[population.size()][drivingFeatures.size()];
+       this.labels = new int[population.size()];
+       
+       for(int i=0;i<population.size();i++){
+       	for(int j=0;j<drivingFeatures.size();j++){
+       		
+       		DrivingFeature df = drivingFeatures.get(j);
+       		int index = df.getID();
+   			this.dataFeatureMat[i][j] = (double) drivingFeatures_satList.get(index)[i];
+   			dataFeatureMatInt[i][j] = drivingFeatures_satList.get(index)[i];
+       	}
+       	
+       	if(behavioral.contains(population.get(i))){
+       		labels[i]=1;
+       	}else{
+       		labels[i]=0;
+       	}
+       	
+       }         
+   }
+   
+   
     
 
     

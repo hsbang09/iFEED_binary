@@ -431,7 +431,7 @@ function tree_node_mouse_over(d){
 			}          
 		});
 		
-		console.log(highlighted);
+		//console.log(highlighted);
 		
 	}else{
 		return;

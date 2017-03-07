@@ -63,6 +63,7 @@ public class ClassificationTreeBuilder{
 		int[] child1Label = this.splitLabelData(dat,lab, testFeatureID, 1);
 		int[] child2Label = this.splitLabelData(dat,lab, testFeatureID, 0);
 		
+		
 		if(child1Label.length==0 || child2Label.length==0){
 			parent.setLeaf();
 			tree.add(parent);
@@ -156,6 +157,7 @@ public class ClassificationTreeBuilder{
 			
 			int num_behavioral = thisNode.getNumBehavioral();
 			int num_nonbehavioral = thisNode.getNumNonBehavioral();
+			
 
 			if(!thisNode.isLeaf()){ // Test Node
 				int testFeature = thisNode.getTestFeature();
@@ -223,7 +225,6 @@ public class ClassificationTreeBuilder{
 			this.numFeat = data[0].length;
 			
 			//System.out.println("id:"+id+", behavioral:"+getNumOfValues(labels,1) +", non:"+getNumOfValues(labels,0));
-			
 			countData();
 		}
 	
@@ -259,8 +260,6 @@ public class ClassificationTreeBuilder{
 				if(labels[i]==1){behavioral++;}
 				else{non_behavioral++;}
 			}
-			
-			
 		}		
 		
 		public int setTestFeature(){

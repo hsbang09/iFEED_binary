@@ -148,7 +148,6 @@ public class FilterExpressionHandler {
             exp = inputExpression;
         }
         
-    
         String presetName = exp.split("\\[")[0];
         String arguments = exp.substring(0,exp.length()-1).split("\\[")[1];
         
