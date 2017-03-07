@@ -822,7 +822,8 @@ function applyFilter_new(){
         d3.selectAll("[class=dot]")[0].forEach(function(d){
         	
             var bitString = d.__data__.archBitString;
-            if(applyUserDefFilterFromExpression(filterExpression,bitString)){
+            var rank = +d3.select(d).attr("paretoRank");
+            if(applyUserDefFilterFromExpression(filterExpression,bitString,rank)){
                 d3.select(d).attr("class", "dot_clicked")
                             .style("fill", "#0040FF");
             }
@@ -837,7 +838,8 @@ function applyFilter_new(){
                 var filterExpression = userDefFilters[k].expression;
                 d3.selectAll("[class=dot]")[0].forEach(function(d){
                     var bitString = d.__data__.archBitString;
-                    if(applyUserDefFilterFromExpression(filterExpression,bitString)){
+                    var rank = +d3.select(d).attr("paretoRank");
+                    if(applyUserDefFilterFromExpression(filterExpression,bitString,rank)){
                         d3.select(d).attr("class", "dot_clicked")
                                     .style("fill", "#0040FF");
                     }
@@ -929,7 +931,8 @@ function applyFilter_within(){
                 var filterExpression = userDefFilters[k].expression;
                 d3.selectAll("[class=dot_clicked]")[0].forEach(function(d){
                     var bitString = d.__data__.archBitString;
-                    if(applyUserDefFilterFromExpression(filterExpression,bitString)){
+                    var rank = +d3.select(d).attr("paretoRank");
+                    if(applyUserDefFilterFromExpression(filterExpression,bitString,rank)){
                         d3.select(d).attr("class", "dot_clicked")
                                     .style("fill", "#0040FF");
                     }
@@ -999,7 +1002,8 @@ function applyFilter_add(){
                 var filterExpression = userDefFilters[k].expression;
                 d3.selectAll("[class=dot]")[0].forEach(function(d){
                     var bitString = d.__data__.archBitString;
-                    if(applyUserDefFilterFromExpression(filterExpression,bitString)){
+                    var rank = +d3.select(d).attr("paretoRank");
+                    if(applyUserDefFilterFromExpression(filterExpression,bitString,rank)){
                         d3.select(d).attr("class", "dot_clicked")
                                     .style("fill", "#0040FF");
                     }
@@ -1373,14 +1377,16 @@ function display_drivingFeatures(source,sortby) {
                     		type_modified = type;
                             d3.selectAll("[class=dot]")[0].forEach(function (d) {
                             	var bitString = d.__data__.archBitString;
-                        		if (applyUserDefFilterFromExpression(type_modified,bitString)){
+                            	var rank = +d3.select(d).attr("paretoRank");
+                        		if (applyUserDefFilterFromExpression(type_modified,bitString,rank)){
                         			d3.select(d).attr("class", "dot_DFhighlighted")
                         						.style("fill", "#F75082");
                     			}
                             });
                             d3.selectAll("[class=dot_clicked]")[0].forEach(function (d) {
                             	var bitString = d.__data__.archBitString;
-                        		if (applyUserDefFilterFromExpression(type_modified,bitString)){
+                            	var rank = +d3.select(d).attr("paretoRank");
+                        		if (applyUserDefFilterFromExpression(type_modified,bitString,rank)){
                         			d3.select(d).attr("class", "dot_selected_DFhighlighted")
                         						.style("fill", "#F75082");
                     			}
@@ -1926,7 +1932,8 @@ function applyFilter(filterType,filterInput){
         d3.selectAll("[class=dot]")[0].forEach(function(d){
         	
             var bitString = d.__data__.archBitString;
-            if(applyUserDefFilterFromExpression(filterExpression,bitString)){
+            var rank = +d3.select(d).attr("paretoRank");
+            if(applyUserDefFilterFromExpression(filterExpression,bitString,rank)){
                 d3.select(d).attr("class", "dot_clicked")
                             .style("fill", "#0040FF");
             }
@@ -1942,7 +1949,8 @@ function applyFilter(filterType,filterInput){
                 var filterExpression = userDefFilters[k].expression;
                 d3.selectAll("[class=dot]")[0].forEach(function(d){
                     var bitString = d.__data__.archBitString;
-                    if(applyUserDefFilterFromExpression(filterExpression,bitString)){
+                    var rank = +d3.select(d).attr("paretoRank");
+                    if(applyUserDefFilterFromExpression(filterExpression,bitString,rank)){
                         d3.select(d).attr("class", "dot_clicked")
                                     .style("fill", "#0040FF");
                     }

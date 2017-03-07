@@ -197,7 +197,7 @@ function newFilter_back(){
 }
 
 
-function applyUserDefFilterFromExpression(filterExpression,bitString){ // bitString: boolean array
+function applyUserDefFilterFromExpression(filterExpression,bitString,rank){ // bitString: boolean array
                    // present(DESD_SAR)&&inOrbit(SSO-600-SSO-PM;CNES_KaRIN)
 //                   something(arg)&&{{present(DESD_SAR)&&inOrbit(SSO-600-SSO-PM)}||inOrbit(SSO-600_SSO-AM)}
     
@@ -251,7 +251,7 @@ function applyUserDefFilterFromExpression(filterExpression,bitString){ // bitStr
                 var innermostExpression = fe.substring(innermostParenLoc+1); 
                 var innermostParenEndLoc = innermostExpression.indexOf("}");
                 innermostExpression = innermostExpression.substring(0,innermostParenEndLoc);
-                var tmp = applyUserDefFilter_withoutParen(innermostExpression,bitString);
+                var tmp = applyUserDefFilter_withoutParen(innermostExpression,bitString,rank);
                 var fe1,fe2;
                 if(innermostParenLoc==0){ fe1 = "";}
                 else {fe1 = fe.substring(0,innermostParenLoc);}
@@ -265,7 +265,7 @@ function applyUserDefFilterFromExpression(filterExpression,bitString){ // bitStr
                 }
             }
         } else {
-            output = applyUserDefFilter_withoutParen(fe,bitString);
+            output = applyUserDefFilter_withoutParen(fe,bitString,rank);
             break;
         }
     }
@@ -274,7 +274,7 @@ function applyUserDefFilterFromExpression(filterExpression,bitString){ // bitStr
                 
                 
 
-function applyUserDefFilter_withoutParen(filterExpression,bitString){
+function applyUserDefFilter_withoutParen(filterExpression,bitString,rank){
     var output = true;
     var fe = filterExpression;
     var connection = "and";
@@ -286,7 +286,7 @@ function applyUserDefFilter_withoutParen(filterExpression,bitString){
         var nextConn;
         if (andLoc === -1 && orLoc===-1){ //  no logic expression used: single feature
             var thisFilter = fe; //apply filter
-            output = applyUserDefFilter_single(thisFilter,output,connection,bitString);
+            output = applyUserDefFilter_single(thisFilter,output,connection,bitString,rank);
             break;
         } else{ 
             if(andLoc === -1){
@@ -303,7 +303,7 @@ function applyUserDefFilter_withoutParen(filterExpression,bitString){
                 nextConn = "or";
             }
             var thisFilter = fe.substring(0,firstLogicLoc); // apply filter
-            output = applyUserDefFilter_single(thisFilter,output,connection,bitString);
+            output = applyUserDefFilter_single(thisFilter,output,connection,bitString,rank);
             var fe = fe.substring(firstLogicLoc+2); // rest of the expression
         }
         connection = nextConn;
@@ -311,7 +311,7 @@ function applyUserDefFilter_withoutParen(filterExpression,bitString){
     return output;
 }
                 
-function applyUserDefFilter_single(expression,prev,logic,bitString){
+function applyUserDefFilter_single(expression,prev,logic,bitString,rank){
 //                    inOrbit(SSO-600-SSO-PM;CNES_KaRIN)
     var paren1 = expression.indexOf("(");
     var paren2 = expression.indexOf(")");
@@ -337,36 +337,14 @@ function applyUserDefFilter_single(expression,prev,logic,bitString){
         output = false;
     } 
     else if (filterType === "paretoFront"){
-        var paretoRank = params[0];
-        var a = d3.selectAll("[class=dot]")[0].filter(function(d){
-            if(d3.select(d).attr("paretoRank") > +paretoRank){
-                return false;
-            }
-            var thisBitString = d.__data__.archBitString;
-            for(var i=0;i<thisBitString.length;i++){
-                if(thisBitString[i]!==bitString[i]){
-                    return false;
-                }
-            }
-            return true;
-        });
-        var b = d3.selectAll("[class=dot_clicked]")[0].filter(function(d){
-            if(d3.select(d).attr("paretoRank") > +paretoRank){
-                return false;
-            }
-            var thisBitString = d.__data__.archBitString;
-            for(var i=0;i<thisBitString.length;i++){
-                if(thisBitString[i]!==bitString[i]){
-                    return false;
-                }
-            }
-            return true;
-        });
-        if(a.length===0 && b.length===0){
-            output = false;
-        } else{
-            output = true;
+    	
+        var paretoRank = +params[0];
+        if(rank >=0 && rank <= paretoRank){
+        	output=true;
+        }else{
+        	output=false;
         }
+
     } else {
 
     	var neg = false;
