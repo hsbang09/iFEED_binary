@@ -250,9 +250,27 @@ public class IFEEDServlet extends HttpServlet {
                 non_behavioral.add(id);
             }
             
+
             dfsGen = new DrivingFeaturesGenerator();
             dfsGen.initialize(behavioral, non_behavioral,architectures,supp,conf,lift);
-//
+            
+            
+            String user_def_features_raw = request.getParameter("userDefFilters");
+            user_def_features_raw = user_def_features_raw.substring(1,user_def_features_raw.length()-1);
+            String [] user_def_features = user_def_features_raw.split("\",\"");
+            
+            for(int i=0;i<user_def_features.length;i++){
+            	String user_def_feature = user_def_features[i];
+            	if(user_def_feature.length()==0){continue;}
+            	else{
+            		if(user_def_feature.startsWith("\"")) user_def_feature = user_def_feature.substring(1);
+            		if(user_def_feature.endsWith("\"")) user_def_feature = user_def_feature.substring(0,user_def_feature.length()-1);
+        		}
+            	System.out.println(user_def_feature);
+            	dfsGen.addUserDefFeature(user_def_feature);
+            }
+
+            
             ArrayList<DrivingFeature> DFs;            
             
             try{

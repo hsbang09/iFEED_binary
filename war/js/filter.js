@@ -67,7 +67,7 @@ function openFilterOptions(){
             .text("Search within selection");
 
     d3.select("#filter_buttons").append("button")
-            .attr("id","filter_application_saveAll")
+            .attr("id","filter_application_save")
             .attr("class","filter_options_button")
             .text("Save currently applied filter scheme")
             .attr('disabled', true);
@@ -92,7 +92,7 @@ function remove_filter_option_inputs(level){
     
     d3.selectAll('.filter_inputs_div').remove(); 
     d3.selectAll('.filter_hints_div').remove();
-    d3.select('#filter_application_saveAll')[0][0].disabled=true;
+    d3.select('#filter_application_save')[0][0].disabled=true;
     
     d3.select('#filter_options_dropdown_4').remove();
     if(level==3){return;}
@@ -973,8 +973,8 @@ function applyFilter(option){
     	alert("Invalid input argument");
     }
     d3.select("[id=numOfSelectedArchs_inputBox]").text("" + numOfSelectedArchs());  
-    d3.select("#filter_application_saveAll")[0][0].disabled = false;
-    d3.select('#filter_application_saveAll')
+    d3.select("#filter_application_save")[0][0].disabled = false;
+    d3.select('#filter_application_save')
             .on('click',function(d){
                 save_user_defined_filter(null);
             });
@@ -1178,7 +1178,7 @@ function update_filter_application_status(inputExpression,option){
             applyComplexFilter();
         }
         if(d3.selectAll('.applied_filter')[0].length===0){
-            d3.select('#filter_application_saveAll')[0][0].disabled=true;
+            d3.select('#filter_application_save')[0][0].disabled=true;
         }
     });
     

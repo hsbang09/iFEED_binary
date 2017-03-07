@@ -72,7 +72,7 @@ function runDataMining() {
 
 function generateDrivingFeatures(selected,non_selected,
 		support_threshold,confidence_threshold,lift_threshold,
-		userDefFilters,sortBy){
+		userdef_features,sortBy){
 	
 	var output;
     $.ajax({
@@ -84,7 +84,7 @@ function generateDrivingFeatures(selected,non_selected,
         	supp:support_threshold,
         	conf:confidence_threshold,
         	lift:lift_threshold,
-        	userDefFilters:JSON.stringify(userDefFilters),
+        	userDefFilters:JSON.stringify(userdef_features),
         	sortBy:sortBy},
         async: false,
         success: function (data, textStatus, jqXHR)
