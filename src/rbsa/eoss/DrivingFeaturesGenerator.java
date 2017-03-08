@@ -244,13 +244,8 @@ public class DrivingFeaturesGenerator {
 		        if(exp.isEmpty()){
 		            continue;
 		        }
-		        feh.processFilterExpression(exp,prevMatched, prevLogic);
-		        
-		        
-		        double[] metrics = feh.processSingleFilterExpression_computeMetrics(exp);
-		        
-		        
-		        
+		        ArrayList<Integer> matchedArchIDs = feh.processFilterExpression(exp);		        
+		        double[] metrics = this.computeMetrics(matchedArchIDs);
 		        featureData_satList.add(feh.getSatisfactionArray());
 		        featureData_name.add(exp);
 		        featureData_exp.add(exp);

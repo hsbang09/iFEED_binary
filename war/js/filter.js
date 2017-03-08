@@ -837,16 +837,10 @@ function applyPresetFilter(expression,bitString,rank){
 
 
 
-
-
-
-
-
-
-
 function applyFilter(option){
 	
-	dehighlight_dots_with_feature();
+	// Remove remaining traces of actions from driving features tab
+	remove_df_application_status();
 	
     buttonClickCount_applyFilter += 1;
     
@@ -1020,7 +1014,11 @@ function applyParetoFilter(option, arg){
 
 
 function applyComplexFilter(){
-	dehighlight_dots_with_feature();
+	
+	// Remove remaining traces of actions from driving features tab
+	remove_df_application_status();
+	
+	
     var filterExpression = parse_filter_application_status();
     if(filterExpression===""){
         cancelDotSelections();
@@ -1068,16 +1066,20 @@ function applyComplexFilter(){
 
 
 function save_user_defined_filter(expression){
+	var expression_to_save;
     if(expression){
         if(expression.substring(0,1)!=="{"){
             expression = "{" + expression + "}";
         }
-        userdef_features.push(expression);
+        expression_to_save=expression;
     }else{
         var filterExpression = parse_filter_application_status();        
-        userdef_features.push(filterExpression);
+        expression_to_save=filterExpression;
     }
     
+    if(userdef_features.indexOf(expression_to_save)==-1){
+        userdef_features.push(expression_to_save);
+    }
     d3.select('#filter_application_save')
     		.attr('disabled',true)
     		.text('Current filter scheme saved');
@@ -1177,6 +1179,10 @@ function update_filter_application_status(inputExpression,option){
     }else if(option==="within"){ // and
         thisFilter.select('.filter_application_activate')[0][0].checked=true;
         thisFilter.select('.filter_application_logical_connective')[0][0].value="&&";
+    }else if(option==="deactivated"){
+        thisFilter.select('.filter_application_activate')[0][0].checked=false;
+        thisFilter.select('.filter_application_logical_connective')[0][0].value="&&";
+        thisFilter.select('.filter_application_expression').style("color","#989898"); // gray        
     }
     
     thisFilter.select(".filter_application_delete").on("click",function(d){
@@ -1273,6 +1279,9 @@ function parse_filter_application_status(){
         var level = d3.select(d).attr('level');
 
         if(activated){
+        	if(expression.indexOf('&&')!=-1 || expression.indexOf('||')!=-1){
+        		expression = '('+expression+')';
+        	}
             filter_expressions.push(expression);
             filter_logical_connective.push(logic);
         	if(level==null){

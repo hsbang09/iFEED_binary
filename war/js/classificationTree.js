@@ -359,6 +359,10 @@ function tree_node_mouse_over(d){
 		if(d.depth==0){
 			return;
 		}
+		
+		// Remove remaining traces of actions from driving features tab
+		remove_df_application_status();		
+		
 		var condition = d.cond;
 		var currentNode = d.parent;
 		var name = currentNode.name;

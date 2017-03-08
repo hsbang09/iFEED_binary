@@ -327,7 +327,8 @@ function selectArchsWithinRange() {
 }
 
 function cancelDotSelections(){
-	dehighlight_dots_with_feature();
+	remove_df_application_status();
+	
     var clickedArchs = d3.selectAll("[class=dot_highlighted]");
 
     clickedArchs.attr("class", "dot")
@@ -823,6 +824,9 @@ function initialize_tabs_driving_features(){
 	if(testType=="1"){
 		return;
 	}
+	
+	remove_df_application_status();
+	
 	
 	d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
 	var guideline = d3.select("[id=basicInfoBox_div]").select("[id=view3]")

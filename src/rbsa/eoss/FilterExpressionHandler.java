@@ -333,7 +333,9 @@ public class FilterExpressionHandler {
     
     
 
-
+    public ArrayList<Integer> processFilterExpression(String filterExpression){
+    	return processFilterExpression(filterExpression, this.population, "&&");
+    }
     
     public ArrayList<Integer> processFilterExpression(String filterExpression, ArrayList<Integer> prevMatched, String prevLogic){
         String e=filterExpression;

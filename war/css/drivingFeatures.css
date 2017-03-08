@@ -11,6 +11,7 @@
     
     
     div #df_application_status
+        div #df_application_status_title
         div .applied_driving_feature #applied_driving_feature_1
             input .driving_feature_application_activate
             div .driving_feature_application_expression
@@ -32,6 +33,12 @@
 
 */
 
+
+/*#df_application_status_title{
+    float:left;
+    margin: 90%;
+    font-size: 15px;
+}*/
 
 #df_bar_chart{
     float:left;

@@ -13,8 +13,13 @@
 function runDataMining() {
 	document.getElementById('tab3').click();
     highlight_basic_info_box()
-    dehighlight_dots_with_feature();
     
+    
+	// Remove remaining traces of previous actions from driving features tab
+	remove_df_application_status();
+	
+	
+	
 	if(selection_changed == false && sortedDFs != null){
 		display_drivingFeatures(sortedDFs,"lift");
 		if(testType=="3"){
@@ -234,8 +239,9 @@ function display_drivingFeatures(source,sortby) {
     var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
             .append("g")
 
-	infoBox.append('div')
+	var application_status = infoBox.append('div')
 		.attr('id','df_application_status');
+    
 	infoBox.append('div')
 		.attr('id','df_options');
 	
@@ -261,6 +267,12 @@ function display_drivingFeatures(source,sortby) {
 		.attr('class','df_options_button')
 		.text('Cancel current selection')
 		.on('click',remove_df_application_status);
+	d3.select('#df_options')
+		.append('button')
+		.attr('id','df_reset')
+		.attr('class','df_options_button')
+		.text('Reset data mining')
+		.on('click',initialize_tabs_driving_features)
     d3.select('#df_save_feature')[0][0].disabled= true;
     d3.select('#df_cancel_selection')[0][0].disabled=true;
 	
@@ -588,7 +600,7 @@ function display_drivingFeatures(source,sortby) {
                     		   return 3;
                     	   }
                        });                    
-                    highlight_dots_with_feature('');
+                    highlight_dots_with_feature();
 
                 });
 
@@ -640,115 +652,6 @@ function dfsort(){
 
 
 
-
-
-function dehighlight_dots_with_feature(){
-    var highlighted = d3.selectAll("[class=dot_DFhighlighted]");
-    highlighted.attr("class", "dot")
-            .style("fill", function (d) {
-                    return "#000000";
-            });     
-    d3.selectAll("[class=dot_selected_DFhighlighted]")
-    		.attr("class", "dot_highlighted")
-            .style("fill","#19BAD7");  
-    remove_df_application_status();
-}
-
-
-
-function highlight_dots_with_feature(expression){
-
-	// De-highlight all dots when no feature is selected
-	if(expression.length==0 && selected_features.length==0){
-	    var highlighted = d3.selectAll("[class=dot_DFhighlighted]")
-	    		.attr("class", "dot")
-	            .style("fill", "#000000");     
-	    d3.selectAll("[class=dot_selected_DFhighlighted]")
-	    		.attr("class", "dot_highlighted")
-	            .style("fill","#19BAD7");  
-	    return;
-	}
-
-	
-    if(selected_features.length!=0){
-        var combined = "";
-        for(var i=0;i<selected_features.length;i++){
-        	if(i>0){
-        		combined = combined + "&&";
-        	}
-        	combined = combined + selected_features_expressions[i];
-        }
-        if(expression.length!=0) {
-        	combined = combined + "&&" + expression;
-        }
-        expression = combined;
-    }
-    	
-	var ids = [];
-	var bitStrings = [];
-	var paretoRankings = [];
-    d3.selectAll('.dot')[0].forEach(function(d){
-    	ids.push(d.__data__.id);
-    	bitStrings.push(d.__data__.bitString);
-        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-    });  
-    d3.selectAll('.dot_highlighted')[0].forEach(function(d){
-    	ids.push(d.__data__.id);
-    	bitStrings.push(d.__data__.bitString);
-        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-    });  
-    d3.selectAll('.dot_DFhighlighted')[0].forEach(function(d){
-    	ids.push(d.__data__.id);
-    	bitStrings.push(d.__data__.bitString);
-        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-    });  
-    d3.selectAll('.dot_selected_DFhighlighted')[0].forEach(function(d){
-    	ids.push(d.__data__.id);
-    	bitStrings.push(d.__data__.bitString);
-        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-    });  
-    
-
-    var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
-    var indices = [];
-    for(var i=0;i<ids.length;i++){
-    	indices.push(i);
-    }
-    // Note that indices and ids are different!    
-    var matchedIndices = processFilterExpression(expression, indices, "&&", arch_info);
-    var matchedIDs = [];
-    for(var i=0;i<matchedIndices.length;i++){
-    	var index = matchedIndices[i];
-    	matchedIDs.push(ids[index]);
-    }
-
-
-    d3.selectAll("[class=dot]")[0].forEach(function (d) {
-    	if(matchedIDs.indexOf(d.__data__.id)>-1){
-    		d3.select(d).attr("class", "dot_DFhighlighted")
-			.style("fill", "#F75082");
-		}
-    });
-    d3.selectAll("[class=dot_highlighted]")[0].forEach(function (d) {
-    	if(matchedIDs.indexOf(d.__data__.id)>-1){
-			d3.select(d).attr("class", "dot_selected_DFhighlighted")
-			.style("fill", "#F75082");
-		}               	
-    });	
-
-    d3.selectAll("[class=dot_DFhighlighted]")[0].forEach(function (d) {
-    	if(matchedIDs.indexOf(d.__data__.id)==-1){
-    		d3.select(d).attr("class", "dot")
-			.style("fill", "#000000");
-		}
-    });
-    d3.selectAll("[class=dot_selected_DFhighlighted]")[0].forEach(function (d) {
-    	if(matchedIDs.indexOf(d.__data__.id)==-1){
-			d3.select(d).attr("class", "dot_highlighted")
-			.style("fill", "#19BAD7");
-		}       	
-    });	
-}
 
 
 function draw_venn_diagram(container,supp,conf,conf2){
@@ -839,6 +742,121 @@ function draw_venn_diagram(container,supp,conf,conf2){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+function highlight_dots_with_feature(expression){
+
+	// De-highlight all dots when no feature is selected
+	if(expression==null && selected_features.length==0){
+	    var highlighted = d3.selectAll("[class=dot_DFhighlighted]")
+	    		.attr("class", "dot")
+	            .style("fill", "#000000");     
+	    d3.selectAll("[class=dot_selected_DFhighlighted]")
+	    		.attr("class", "dot_highlighted")
+	            .style("fill","#19BAD7");  
+	    return;
+	}
+	
+	if(expression==null){
+		expression = "";
+	}
+
+	
+    if(selected_features.length!=0){
+        var combined = "";
+        for(var i=0;i<selected_features.length;i++){
+        	if(i>0){
+        		combined = combined + "&&";
+        	}
+        	combined = combined + selected_features_expressions[i];
+        }
+        if(expression.length!=0) {
+        	combined = combined + "&&" + expression;
+        }
+        expression = combined;
+    }
+    	
+	var ids = [];
+	var bitStrings = [];
+	var paretoRankings = [];
+    d3.selectAll('.dot')[0].forEach(function(d){
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+    });  
+    d3.selectAll('.dot_highlighted')[0].forEach(function(d){
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+    });  
+    d3.selectAll('.dot_DFhighlighted')[0].forEach(function(d){
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+    });  
+    d3.selectAll('.dot_selected_DFhighlighted')[0].forEach(function(d){
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+    });  
+    
+
+    var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
+    var indices = [];
+    for(var i=0;i<ids.length;i++){
+    	indices.push(i);
+    }
+    // Note that indices and ids are different!    
+    var matchedIndices = processFilterExpression(expression, indices, "&&", arch_info);
+    var matchedIDs = [];
+    for(var i=0;i<matchedIndices.length;i++){
+    	var index = matchedIndices[i];
+    	matchedIDs.push(ids[index]);
+    }
+
+
+    d3.selectAll("[class=dot]")[0].forEach(function (d) {
+    	if(matchedIDs.indexOf(d.__data__.id)>-1){
+    		d3.select(d).attr("class", "dot_DFhighlighted")
+			.style("fill", "#F75082");
+		}
+    });
+    d3.selectAll("[class=dot_highlighted]")[0].forEach(function (d) {
+    	if(matchedIDs.indexOf(d.__data__.id)>-1){
+			d3.select(d).attr("class", "dot_selected_DFhighlighted")
+			.style("fill", "#F75082");
+		}               	
+    });	
+
+    d3.selectAll("[class=dot_DFhighlighted]")[0].forEach(function (d) {
+    	if(matchedIDs.indexOf(d.__data__.id)==-1){
+    		d3.select(d).attr("class", "dot")
+			.style("fill", "#000000");
+		}
+    });
+    d3.selectAll("[class=dot_selected_DFhighlighted]")[0].forEach(function (d) {
+    	if(matchedIDs.indexOf(d.__data__.id)==-1){
+			d3.select(d).attr("class", "dot_highlighted")
+			.style("fill", "#19BAD7");
+		}       	
+    });	
+}
+
+
+
+
+
+
 function remove_df_application_status(expression){
 	if(expression==null){
 		d3.selectAll('.applied_driving_feature').remove();
@@ -847,6 +865,13 @@ function remove_df_application_status(expression){
 	    });
 	    selected_features=[];
 	    selected_features_expressions=[];
+	    
+	    d3.selectAll("[class=dot_DFhighlighted]")
+	    		.attr("class", "dot")
+	            .style("fill", "#000000");     
+	    d3.selectAll("[class=dot_selected_DFhighlighted]")
+	    		.attr("class", "dot_highlighted")
+	            .style("fill","#19BAD7");  
 	    return;
 	}
 	
@@ -870,6 +895,13 @@ function remove_df_application_status(expression){
 	    	selected_features_expressions.splice(i,1);
     	}
     }
+    
+    if(selected_features.length!=0){
+        d3.select('#df_save_feature')[0][0].disabled= false;
+    	d3.select('#df_save_feature').text('Save current feature')
+	}
+    
+    highlight_dots_with_feature();
     
 }
 
@@ -905,12 +937,13 @@ function update_df_application_status(expression){
             d3.select('#df_save_feature')[0][0].disabled= true;
             d3.select('#df_cancel_selection')[0][0].disabled=true;
         }else{
-        	highlight_dots_with_feature('');
+        	highlight_dots_with_feature();
         }
     });
     
 
     d3.select('#df_save_feature')[0][0].disabled= false;
+	d3.select('#df_save_feature').text('Save current feature')
     d3.select('#df_cancel_selection')[0][0].disabled=false;
 
 }
@@ -925,7 +958,10 @@ function save_selected_driving_features(){
         	combined = combined + selected_features_expressions[i];
         }
         var expression = combined;
-        update_filter_application_status(expression,'new');
+        update_filter_application_status(expression,'deactivated');
         save_user_defined_filter(expression);
+        
+        d3.select('#df_save_feature')[0][0].disabled= true;
+        d3.select('#df_save_feature').text('Current feature saved');
     }
 }
