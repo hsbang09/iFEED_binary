@@ -845,6 +845,9 @@ function applyPresetFilter(expression,bitString,rank){
 
 
 function applyFilter(option){
+	
+	dehighlight_dots_with_feature();
+	
     buttonClickCount_applyFilter += 1;
     
     var wrong_arg = false;
@@ -946,7 +949,7 @@ function applyFilter(option){
                 var bitString = d.__data__.bitString;
                 if(applyPresetFilter(filterExpression,bitString)){
                     d3.select(d).attr('class','dot_highlighted')
-                                .style("fill", "#20DCCC");
+                                .style("fill", "#19BAD7");
                 }
             });
         }else if(option==="add"){
@@ -954,7 +957,7 @@ function applyFilter(option){
                 var bitString = d.__data__.bitString;
                 if(applyPresetFilter(filterExpression,bitString)){
                     d3.select(d).attr('class','dot_highlighted')
-                                .style("fill", "#20DCCC");
+                                .style("fill", "#19BAD7");
                 }
             });
         }else if(option==="within"){
@@ -990,7 +993,7 @@ function applyParetoFilter(option, arg){
             var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +arg && rank >= 0){
                 d3.select(d).attr('class','dot_highlighted')
-                	.style("fill", "#20DCCC");
+                	.style("fill", "#19BAD7");
             }
         });  
     }else if(option==="add"){
@@ -998,7 +1001,7 @@ function applyParetoFilter(option, arg){
             var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +arg && rank >= 0){
                 d3.select(d).attr('class','dot_highlighted')
-                	.style("fill", "#20DCCC");
+                	.style("fill", "#19BAD7");
             }
         });  
     }else if(option==="within"){
@@ -1006,7 +1009,7 @@ function applyParetoFilter(option, arg){
             var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +arg && rank >= 0){
                 d3.select(d).attr('class','dot_highlighted')
-                	.style("fill", "#20DCCC");
+                	.style("fill", "#19BAD7");
             }
         }); 
     }
@@ -1017,6 +1020,7 @@ function applyParetoFilter(option, arg){
 
 
 function applyComplexFilter(){
+	dehighlight_dots_with_feature();
     var filterExpression = parse_filter_application_status();
     if(filterExpression===""){
         cancelDotSelections();
@@ -1053,7 +1057,7 @@ function applyComplexFilter(){
     d3.selectAll('.dot')[0].forEach(function(d){
     	if(matchedIDs.indexOf(d.__data__.id)>-1){
             d3.select(d).attr('class','dot_highlighted')
-        	.style("fill", "#20DCCC");
+        	.style("fill", "#19BAD7");
     	}
     });  
     
@@ -1073,6 +1077,10 @@ function save_user_defined_filter(expression){
         var filterExpression = parse_filter_application_status();        
         userdef_features.push(filterExpression);
     }
+    
+    d3.select('#filter_application_save')
+    		.attr('disabled',true)
+    		.text('Current filter scheme saved');
 }
 
 
@@ -1196,6 +1204,11 @@ function update_filter_application_status(inputExpression,option){
     thisFilter.select('.filter_application_logical_connective').on("change",function(d){
         applyComplexFilter();
     });
+    
+    
+    d3.select('#filter_application_save')
+	    .text("Save currently applied filter scheme")
+	    .attr('disabled', false);
 
 }
 

@@ -296,7 +296,7 @@ function selectArchsWithinRange() {
         }
     })
             .attr("class", "dot_highlighted")
-            .style("fill", "#20DCCC");
+            .style("fill", "#19BAD7");
 
     clickedArchs.filter(function (d) {
 
@@ -317,13 +317,7 @@ function selectArchsWithinRange() {
     })
             .attr("class", "dot")
             .style("fill", function (d) {
-                if (d.status == "added") {
-                    return "#188836";
-                } else if (d.status == "justAdded") {
-                    return "#20FE5B";
-                } else {
                     return "#000000";
-                }
             });
 
     d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
@@ -333,17 +327,12 @@ function selectArchsWithinRange() {
 }
 
 function cancelDotSelections(){
+	dehighlight_dots_with_feature();
     var clickedArchs = d3.selectAll("[class=dot_highlighted]");
 
     clickedArchs.attr("class", "dot")
             .style("fill", function (d) {
-                if (d.status == "added") {
-                    return "#188836";
-                } else if (d.status == "justAdded") {
-                    return "#20FE5B";
-                } else {
                     return "#000000";
-                }
             });
     d3.select("[id=instrumentOptions]")
             .select("table").remove();        
@@ -449,7 +438,7 @@ function dot_click(d) {
 
     } else {
         d3.select(this).attr("class", "dot_highlighted")
-                .style("fill", "#20DCCC");
+                .style("fill", "#19BAD7");
 
     }
     d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
@@ -610,7 +599,7 @@ function scatterPlot_option(selected_option){ // three options: zoom, drag_selec
                                 yCoord + margin.top >= b.y && yCoord + margin.top  <= b.y+b.height
                             ) {
                                 d3.select(d).attr("class","dot_highlighted")
-                                        .style("fill", "#20DCCC");      
+                                        .style("fill", "#19BAD7");      
                                 selection_changed = true;
                                 initialize_tabs_driving_features();
                                 initialize_tabs_classification_tree();

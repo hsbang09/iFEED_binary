@@ -77,7 +77,7 @@ function display_classificationTree(source){
 	// top  right bottem left
 	var margin_tree = [15, 120, 20, 350],
 	    width_tree = 3280 - margin_tree[1] - margin_tree[3],
-	    height_tree = 700 - margin_tree[0] - margin_tree[2];
+	    height_tree = 630 - margin_tree[0] - margin_tree[2];
 
 	tree = d3.layout.tree().size([height_tree, width_tree]);
 	
@@ -139,7 +139,7 @@ function update(source) {
                     });     
             d3.selectAll("[class=dot_selected_DFhighlighted]")
             		.attr("class", "dot_highlighted")
-                    .style("fill","#20DCCC");     
+                    .style("fill","#19BAD7");     
         });
     
     nodeEnter.append("svg:circle")

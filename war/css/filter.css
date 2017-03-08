@@ -57,6 +57,7 @@
 #filter_application_status{
     width:90%;
     margin-bottom:15px;
+    padding:15px;
 	float:left;
     background-color: #E0E0E0; 
 }

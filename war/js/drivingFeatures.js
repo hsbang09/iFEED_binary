@@ -13,6 +13,7 @@
 function runDataMining() {
 	document.getElementById('tab3').click();
     highlight_basic_info_box()
+    dehighlight_dots_with_feature();
     
 	if(selection_changed == false && sortedDFs != null){
 		display_drivingFeatures(sortedDFs,"lift");
@@ -202,6 +203,8 @@ function display_drivingFeatures(source,sortby) {
     var supps=[];
     var conf1s=[];
     var conf2s=[];
+    
+    selected_features = [];
 
     for (var i=0;i<size;i++){
         lifts.push(source[i].metrics[1]);
@@ -214,20 +217,53 @@ function display_drivingFeatures(source,sortby) {
         }
     }
 
-//                    InOrbit [orbit,inst1,inst2];
 
     var margin_df = {top: 20, right: 20, bottom: 10, left:65},
     width_df = 800 - 35 - margin_df.left - margin_df.right,
     height_df = 430 - 20 - margin_df.top - margin_df.bottom;
 
-//    xScale_df = d3.scale.ordinal()
-//            .rangeBands([0, width_df]);
     xScale_df = d3.scale.linear()
             .range([0, width_df]);
     yScale_df = d3.scale.linear().range([height_df, 0]);
     xScale_df.domain([0,drivingFeatures.length-1]);
     
     
+    
+    d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
+    
+    var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
+            .append("g")
+
+	infoBox.append('div')
+		.attr('id','df_application_status');
+	infoBox.append('div')
+		.attr('id','df_options');
+	
+	infoBox.append("div")
+		.attr('id','df_bar_chart')
+		.style("width", width_df + margin_df.left + margin_df.right)
+		.style("height", height_df + margin_df.top + margin_df.bottom);
+	infoBox.append("div")
+		.attr("id","df_venn_diagram")
+		.append('div')
+		.text('Total number of designs: ' + numOfArchs());
+    
+	
+	d3.select('#df_options')
+		.append('button')
+		.attr('id','df_save_feature')
+		.attr('class','df_options_button')
+		.text('Save current feature')
+		.on('click',save_selected_driving_features)
+	d3.select('#df_options')
+		.append('button')
+		.attr('id','df_cancel_selection')
+		.attr('class','df_options_button')
+		.text('Cancel current selection')
+		.on('click',remove_df_application_status);
+    d3.select('#df_save_feature')[0][0].disabled= true;
+    d3.select('#df_cancel_selection')[0][0].disabled=true;
+	
     var minval;
     if(sortby==="lift"){
         minval = d3.min(lifts);
@@ -256,22 +292,18 @@ function display_drivingFeatures(source,sortby) {
             .scale(yScale_df)
             .orient("left");
 
-    d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("g").remove();
-    var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
-            .append("g");
-
-    var svg_df = infoBox.append("svg")
-    		.style("float","left")
+    var svg_df = d3.select('#df_bar_chart')
+    		.append("svg")
+    		.attr('id','df_svg')
             .attr("width", width_df + margin_df.left + margin_df.right)
             .attr("height", height_df + margin_df.top + margin_df.bottom)
                 .call(
                     d3.behavior.zoom()
                     .x(xScale_df)
-                    .scaleExtent([1, 10])
+                    .scaleExtent([1, 20])
                     .on("zoom", function (d) {
 
-                        var svg = d3.select("[id=basicInfoBox_div]").select("[id=view3]")
-                                .select("svg");
+                        var svg = d3.select('#df_bar_chart').select("svg");
                         var scale = d3.event.scale;
 
                         svg.select(".x.axis").call(xAxis_df);
@@ -291,29 +323,9 @@ function display_drivingFeatures(source,sortby) {
 
     
     
+
     
-    
-    var df_explanation_box = infoBox.append("div")
-		.attr("id","df_explanation_box")
-		.style("float","left")
-		.style("background-color","#E7E7E7")
-	    .style('height','350px')
-	    .style('margin-top','15px')
-	    .style('padding','15px')
-	    .style('width','320px');
-    
-    df_explanation_box.append('div')
-		.style("font-family","sans-serif")
-		.style('margin-left','10px')
-		.style("font-size","18px")
-    	.style('width','100%')
-    	.text('Total number of designs: ' + numOfArchs());
-    
-    df_explanation_box.append("svg")
-		.style('width','320px')  			
-		.style('height','305px')
-		.style('margin-top','10px')
-		.style('margin-bottom','10px'); 
+
     
 
 ////////////////////////////////////////////////////////
@@ -357,7 +369,7 @@ function display_drivingFeatures(source,sortby) {
             .attr("class","dfbars_svg")
             .attr("width",width_df)
             .attr("height",height_df)
-            .style('margin-bottom','60px');
+            .style('margin-bottom','30px');
 
     //Create main 0,0 axis lines:
     objects.append("svg:line")
@@ -421,13 +433,49 @@ function display_drivingFeatures(source,sortby) {
     dfbar_width = d3.select("[class=bar]").attr("width");
 
     var bars = d3.selectAll("[class=bar]")
-   
+            .on("click",function(d){
+                var id = d.id;
+                var expression = d.expression;
+                //console.log(id);
+                var was_selected = false;
+                for(var i=0;i<selected_features.length;i++){
+                    if(selected_features[i]===id){
+                    	selected_features.splice(i,1);
+                    	selected_features_expressions.splice(i,1);
+                        was_selected = true;
+                    }
+                }
+                if(was_selected){
+                    d3.selectAll("[class=bar]").filter(function(d){
+                        if(d.id===id){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }).style("stroke-width",0);
+                    remove_df_application_status(expression);
+                }else{
+                    d3.selectAll("[class=bar]").filter(function(d){
+                        if(d.id===id){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }).style("stroke-width",3); 
+                    selected_features.push(id);
+                    selected_features_expressions.push(expression);
+                    update_df_application_status(expression);
+                    console.log(id+": " + expression);
+                }
+                
+            })
+
                 .on("mouseover",function(d){
 
                 	numOfDrivingFeatureViewed = numOfDrivingFeatureViewed+1;
                 	
-                    var mouseLoc_x = d3.mouse(d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]")[0][0])[0];
-                    var mouseLoc_y = d3.mouse(d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]")[0][0])[1];
+                    var mouseLoc_x = d3.mouse(d3.select("[class=dfbars_svg]")[0][0])[0];
+                    var mouseLoc_y = d3.mouse(d3.select("[class=dfbars_svg]")[0][0])[1];
                     var featureInfoLoc = {x:0,y:0};
                     var h_threshold = (width_df + margin_df.left + margin_df.right)*0.5;
                     var v_threshold = (height_df + margin_df.top + margin_df.bottom)*0.55;
@@ -443,7 +491,7 @@ function display_drivingFeatures(source,sortby) {
                     } else{
                         featureInfoLoc.y = -10 -tooltip_height;
                     }
-                    var svg_tmp = d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]");
+                    var svg_tmp = d3.select("[class=dfbars_svg]");
                     var featureInfoBox = svg_tmp.append("g")
                                                 .attr("id","featureInfo_tooltip")
                                                 .append("rect")
@@ -458,7 +506,8 @@ function display_drivingFeatures(source,sortby) {
                                                 .style("fill","#4B4B4B")
                                                 .style("opacity", 0.92);
                     
-                    var tmp= d.id;
+                    var tmp= d.id; 
+                    //console.log(tmp);
                     var name = d.name;
                     var expression = d.expression;
                     var lift = d.metrics[1];
@@ -477,50 +526,7 @@ function display_drivingFeatures(source,sortby) {
 
                  // Preset filter: {presetName[orbits;instruments;numbers]}   
            
-                    
-                	var ids = [];
-                	var bitStrings = [];
-                	var paretoRankings = [];
-                    d3.selectAll('.dot')[0].forEach(function(d){
-                    	ids.push(d.__data__.id);
-                    	bitStrings.push(d.__data__.bitString);
-                        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-                    });  
-                    d3.selectAll('.dot_highlighted')[0].forEach(function(d){
-                    	ids.push(d.__data__.id);
-                    	bitStrings.push(d.__data__.bitString);
-                        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-                    });  
-                    
-                    
-                    var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
-                    var indices = [];
-                    for(var i=0;i<ids.length;i++){
-                    	indices.push(i);
-                    }
-                    // Note that indices and ids are different!
-                    var matchedIndices = processFilterExpression(expression, indices, "&&", arch_info);
-                    var matchedIDs = [];
-                    for(var i=0;i<matchedIndices.length;i++){
-                    	var index = matchedIndices[i];
-                    	matchedIDs.push(ids[index]);
-                    }
-                    
-                    //console.log(matchedIDs.length);
-
-                    d3.selectAll("[class=dot]")[0].forEach(function (d) {
-                    	if(matchedIDs.indexOf(d.__data__.id)>-1){
-                    		d3.select(d).attr("class", "dot_DFhighlighted")
-    						.style("fill", "#F75082");
-                		}
-                    });
-                    d3.selectAll("[class=dot_highlighted]")[0].forEach(function (d) {
-                    	if(matchedIDs.indexOf(d.__data__.id)>-1){
-                			d3.select(d).attr("class", "dot_selected_DFhighlighted")
-    						.style("fill", "#F75082");
-                		}                    	
-
-                    });
+                    highlight_dots_with_feature(expression);
 
                     
                     var fo = d3.select("[id=basicInfoBox_div]").select("[id=view3]").select("[class=dfbars_svg]")
@@ -559,12 +565,15 @@ function display_drivingFeatures(source,sortby) {
                     }).style("color", "#F7FF55")
                     .style('word-wrap','break-word');                         
 
-                    draw_venn_diagram(df_explanation_box,supp,conf,conf2);
+                    var venn_diagram_container = d3.select('#df_venn_diagram').select('div');
+                    draw_venn_diagram(venn_diagram_container,supp,conf,conf2);
 
                 })
                 .on("mouseout",function(d){
                     d3.select("[id=basicInfoBox_div]").select("[id=view3]").selectAll("[id=featureInfo_tooltip]").remove();
                     d3.select("[id=basicInfoBox_div]").select("[id=view3]").selectAll("[id=foreignObject_tooltip]").remove();
+                    
+                    
                     var tmp= d.id;
                     d3.selectAll("[class=bar]").filter(function(d){
                            if(d.id===tmp){
@@ -572,23 +581,14 @@ function display_drivingFeatures(source,sortby) {
                            }else{
                                return false;
                            }
-                       }).style("stroke-width",0)
-                               .style("stroke","black");
-                    
-                    var highlighted = d3.selectAll("[class=dot_DFhighlighted]");
-                    highlighted.attr("class", "dot")
-                            .style("fill", function (d) {
-                                if (d.status == "added") {
-                                    return "#188836";
-                                } else if (d.status == "justAdded") {
-                                    return "#20FE5B";
-                                } else {
-                                    return "#000000";
-                                }
-                            });     
-                    d3.selectAll("[class=dot_selected_DFhighlighted]")
-                    		.attr("class", "dot_highlighted")
-                            .style("fill","#20DCCC");    
+                       }).style("stroke-width",function(d){
+                    	   if(selected_features.indexOf(d.id)==-1){
+                    		   return 0;
+                    	   }else{
+                    		   return 3;
+                    	   }
+                       });                    
+                    highlight_dots_with_feature('');
 
                 });
 
@@ -642,13 +642,119 @@ function dfsort(){
 
 
 
+function dehighlight_dots_with_feature(){
+    var highlighted = d3.selectAll("[class=dot_DFhighlighted]");
+    highlighted.attr("class", "dot")
+            .style("fill", function (d) {
+                    return "#000000";
+            });     
+    d3.selectAll("[class=dot_selected_DFhighlighted]")
+    		.attr("class", "dot_highlighted")
+            .style("fill","#19BAD7");  
+    remove_df_application_status();
+}
 
 
 
-function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
+function highlight_dots_with_feature(expression){
 
-	df_explanation_box.select("svg").remove();
-	var svg_venn_diag = df_explanation_box
+	// De-highlight all dots when no feature is selected
+	if(expression.length==0 && selected_features.length==0){
+	    var highlighted = d3.selectAll("[class=dot_DFhighlighted]")
+	    		.attr("class", "dot")
+	            .style("fill", "#000000");     
+	    d3.selectAll("[class=dot_selected_DFhighlighted]")
+	    		.attr("class", "dot_highlighted")
+	            .style("fill","#19BAD7");  
+	    return;
+	}
+
+	
+    if(selected_features.length!=0){
+        var combined = "";
+        for(var i=0;i<selected_features.length;i++){
+        	if(i>0){
+        		combined = combined + "&&";
+        	}
+        	combined = combined + selected_features_expressions[i];
+        }
+        if(expression.length!=0) {
+        	combined = combined + "&&" + expression;
+        }
+        expression = combined;
+    }
+    	
+	var ids = [];
+	var bitStrings = [];
+	var paretoRankings = [];
+    d3.selectAll('.dot')[0].forEach(function(d){
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+    });  
+    d3.selectAll('.dot_highlighted')[0].forEach(function(d){
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+    });  
+    d3.selectAll('.dot_DFhighlighted')[0].forEach(function(d){
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+    });  
+    d3.selectAll('.dot_selected_DFhighlighted')[0].forEach(function(d){
+    	ids.push(d.__data__.id);
+    	bitStrings.push(d.__data__.bitString);
+        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
+    });  
+    
+
+    var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
+    var indices = [];
+    for(var i=0;i<ids.length;i++){
+    	indices.push(i);
+    }
+    // Note that indices and ids are different!    
+    var matchedIndices = processFilterExpression(expression, indices, "&&", arch_info);
+    var matchedIDs = [];
+    for(var i=0;i<matchedIndices.length;i++){
+    	var index = matchedIndices[i];
+    	matchedIDs.push(ids[index]);
+    }
+
+
+    d3.selectAll("[class=dot]")[0].forEach(function (d) {
+    	if(matchedIDs.indexOf(d.__data__.id)>-1){
+    		d3.select(d).attr("class", "dot_DFhighlighted")
+			.style("fill", "#F75082");
+		}
+    });
+    d3.selectAll("[class=dot_highlighted]")[0].forEach(function (d) {
+    	if(matchedIDs.indexOf(d.__data__.id)>-1){
+			d3.select(d).attr("class", "dot_selected_DFhighlighted")
+			.style("fill", "#F75082");
+		}               	
+    });	
+
+    d3.selectAll("[class=dot_DFhighlighted]")[0].forEach(function (d) {
+    	if(matchedIDs.indexOf(d.__data__.id)==-1){
+    		d3.select(d).attr("class", "dot")
+			.style("fill", "#000000");
+		}
+    });
+    d3.selectAll("[class=dot_selected_DFhighlighted]")[0].forEach(function (d) {
+    	if(matchedIDs.indexOf(d.__data__.id)==-1){
+			d3.select(d).attr("class", "dot_highlighted")
+			.style("fill", "#19BAD7");
+		}       	
+    });	
+}
+
+
+function draw_venn_diagram(container,supp,conf,conf2){
+
+	container.select("svg").remove();
+	var svg_venn_diag = container
 								.append("svg")
 					    		.style('width','320px')  			
 								.style('border-width','3px')
@@ -733,3 +839,93 @@ function draw_venn_diagram(df_explanation_box,supp,conf,conf2){
 
 
 
+function remove_df_application_status(expression){
+	if(expression==null){
+		d3.selectAll('.applied_driving_feature').remove();
+	    d3.selectAll("[class=bar]")[0].forEach(function(d){
+        	d3.select(d).style("stroke-width",0);
+	    });
+	    selected_features=[];
+	    selected_features_expressions=[];
+	    return;
+	}
+	
+    d3.selectAll('.applied_driving_feature')[0].forEach(function(d){
+    	var exp = d3.select(d).select('.driving_feature_application_expression').attr('expression');
+    	console.log(exp);
+    	if(expression===exp){
+    		d.remove();
+    	}
+    });
+    
+    d3.selectAll("[class=bar]")[0].forEach(function(d){
+        if(d.__data__.expression===expression){
+        	d3.select(d).style("stroke-width",0);
+        }
+    });
+    
+    for(var i=0;i<selected_features.length;i++){
+    	if(selected_features_expressions[i]===expression){
+	    	selected_features.splice(i,1);
+	    	selected_features_expressions.splice(i,1);
+    	}
+    }
+    
+}
+
+function update_df_application_status(expression){    
+
+    var application_status = d3.select('#df_application_status');
+    var count = application_status.selectAll('.applied_driving_feature').size();
+    
+    var thisFilter = application_status.append('div')
+            .attr('id',function(){
+                var num = count+1;
+                return 'applied_driving_feature_' + num;
+            })
+            .attr('class','applied_driving_feature');
+    
+
+    thisFilter.append('div')
+            .attr('class','driving_feature_application_expression')
+            .attr('expression',function(d){
+            	return expression;
+            })
+            .text(ppdf(expression));
+
+    thisFilter.append('button')
+            .attr('class','driving_feature_application_delete')
+            .text('Remove');
+    
+    thisFilter.select(".driving_feature_application_delete").on("click",function(d){
+        var exp = thisFilter.select('.driving_feature_application_expression').attr('expression');
+        remove_df_application_status(exp);
+        
+        if(d3.selectAll('.applied_driving_feature')[0].length===0){
+            d3.select('#df_save_feature')[0][0].disabled= true;
+            d3.select('#df_cancel_selection')[0][0].disabled=true;
+        }else{
+        	highlight_dots_with_feature('');
+        }
+    });
+    
+
+    d3.select('#df_save_feature')[0][0].disabled= false;
+    d3.select('#df_cancel_selection')[0][0].disabled=false;
+
+}
+
+function save_selected_driving_features(){
+    if(selected_features.length!=0){
+        var combined = "";
+        for(var i=0;i<selected_features.length;i++){
+        	if(i>0){
+        		combined = combined + "&&";
+        	}
+        	combined = combined + selected_features_expressions[i];
+        }
+        var expression = combined;
+        update_filter_application_status(expression,'new');
+        save_user_defined_filter(expression);
+    }
+}
