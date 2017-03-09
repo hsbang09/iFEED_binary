@@ -28,8 +28,8 @@ function runDataMining() {
 		return;
 	}
 	
-    var selectedArchs = d3.selectAll("[class=dot_highlighted]");
-    var nonSelectedArchs = d3.selectAll("[class=dot]");
+    var selectedArchs = d3.selectAll("[status=selected]");
+    var nonSelectedArchs = d3.selectAll("[status=default]");
     var numOfSelectedArchs = selectedArchs.size();
     var numOfNonSelectedArchs = nonSelectedArchs.size();
     
@@ -272,7 +272,10 @@ function display_drivingFeatures(source,sortby) {
 		.attr('id','df_reset')
 		.attr('class','df_options_button')
 		.text('Reset data mining')
-		.on('click',initialize_tabs_driving_features)
+		.on('click',function(d){
+			initialize_tabs_driving_features();
+		    initialize_tabs_classification_tree();
+		});
     d3.select('#df_save_feature')[0][0].disabled= true;
     d3.select('#df_cancel_selection')[0][0].disabled=true;
 	
@@ -758,11 +761,11 @@ function highlight_dots_with_feature(expression){
 
 	// De-highlight all dots when no feature is selected
 	if(expression==null && selected_features.length==0){
-	    var highlighted = d3.selectAll("[class=dot_DFhighlighted]")
-	    		.attr("class", "dot")
+	    d3.selectAll("[status=highlighted]")
+	    		.attr("status", "default")
 	            .style("fill", "#000000");     
-	    d3.selectAll("[class=dot_selected_DFhighlighted]")
-	    		.attr("class", "dot_highlighted")
+	    d3.selectAll("[status=selected_and_highlighted]")
+	    		.attr("status", "selected")
 	            .style("fill","#19BAD7");  
 	    return;
 	}
@@ -794,22 +797,7 @@ function highlight_dots_with_feature(expression){
     	bitStrings.push(d.__data__.bitString);
         paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
     });  
-    d3.selectAll('.dot_highlighted')[0].forEach(function(d){
-    	ids.push(d.__data__.id);
-    	bitStrings.push(d.__data__.bitString);
-        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-    });  
-    d3.selectAll('.dot_DFhighlighted')[0].forEach(function(d){
-    	ids.push(d.__data__.id);
-    	bitStrings.push(d.__data__.bitString);
-        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-    });  
-    d3.selectAll('.dot_selected_DFhighlighted')[0].forEach(function(d){
-    	ids.push(d.__data__.id);
-    	bitStrings.push(d.__data__.bitString);
-        paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-    });  
-    
+
 
     var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
     var indices = [];
@@ -826,30 +814,27 @@ function highlight_dots_with_feature(expression){
 
 
     d3.selectAll("[class=dot]")[0].forEach(function (d) {
-    	if(matchedIDs.indexOf(d.__data__.id)>-1){
-    		d3.select(d).attr("class", "dot_DFhighlighted")
-			.style("fill", "#F75082");
-		}
-    });
-    d3.selectAll("[class=dot_highlighted]")[0].forEach(function (d) {
-    	if(matchedIDs.indexOf(d.__data__.id)>-1){
-			d3.select(d).attr("class", "dot_selected_DFhighlighted")
-			.style("fill", "#F75082");
-		}               	
-    });	
+    	var status = d3.select(d).attr('status');
+    	if(status=='default' || status=='highlighted'){
+        	if(matchedIDs.indexOf(d.__data__.id)>-1){
+        		d3.select(d).attr("status", "highlighted")
+    				.style("fill", "#F75082");
+    		}else{
+        		d3.select(d).attr("status", "default")
+    				.style("fill", "#000000");
+    		}
+    	}else if(status=='selected' || status=='selected_and_highlighted'){
+        	if(matchedIDs.indexOf(d.__data__.id)>-1){
+        		d3.select(d).attr("status", "selected_and_highlighted")
+    				.style("fill", "#F75082");
+    		}else{
+        		d3.select(d).attr("status", "selected")
+    				.style("fill", "#19BAD7");
+    		}
+    	}
 
-    d3.selectAll("[class=dot_DFhighlighted]")[0].forEach(function (d) {
-    	if(matchedIDs.indexOf(d.__data__.id)==-1){
-    		d3.select(d).attr("class", "dot")
-			.style("fill", "#000000");
-		}
     });
-    d3.selectAll("[class=dot_selected_DFhighlighted]")[0].forEach(function (d) {
-    	if(matchedIDs.indexOf(d.__data__.id)==-1){
-			d3.select(d).attr("class", "dot_highlighted")
-			.style("fill", "#19BAD7");
-		}       	
-    });	
+    
 }
 
 
@@ -866,11 +851,11 @@ function remove_df_application_status(expression){
 	    selected_features=[];
 	    selected_features_expressions=[];
 	    
-	    d3.selectAll("[class=dot_DFhighlighted]")
-	    		.attr("class", "dot")
+	    d3.selectAll("[status=highlighted]")
+	    		.attr("status", "default")
 	            .style("fill", "#000000");     
-	    d3.selectAll("[class=dot_selected_DFhighlighted]")
-	    		.attr("class", "dot_highlighted")
+	    d3.selectAll("[status=selected_and_highlighted]")
+	    		.attr("status", "selected")
 	            .style("fill","#19BAD7");  
 	    return;
 	}

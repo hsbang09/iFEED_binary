@@ -132,13 +132,13 @@ function update(source) {
         .on("click", function(d) { toggle_tree(d); update(d);})
         .on("mouseover",tree_node_mouse_over)
         .on("mouseout", function (d) {
-            var highlighted = d3.selectAll("[class=dot_DFhighlighted]");
-            highlighted.attr("class", "dot")
+            var highlighted = d3.selectAll("[status=highlighted]");
+            highlighted.attr("status", "default")
                     .style("fill", function (d) {
                             return "#000000";
                     });     
-            d3.selectAll("[class=dot_selected_DFhighlighted]")
-            		.attr("class", "dot_highlighted")
+            d3.selectAll("[status=selected_and_highlighted]")
+            		.attr("status", "selected")
                     .style("fill","#19BAD7");     
         });
     
@@ -399,11 +399,6 @@ function tree_node_mouse_over(d){
 			bitStrings.push(d.__data__.bitString);
 		    paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
 		});  
-		d3.selectAll('.dot_highlighted')[0].forEach(function(d){
-			ids.push(d.__data__.id);
-			bitStrings.push(d.__data__.bitString);
-		    paretoRankings.push(parseInt(d3.select(d).attr("paretoRank")));
-		});  
 
 		var arch_info = {bitStrings:bitStrings,paretoRankings:paretoRankings};
 		var indices = [];
@@ -419,21 +414,30 @@ function tree_node_mouse_over(d){
 		}
 		
 		
-		var highlighted = 0;
-		d3.selectAll("[class=dot]")[0].forEach(function (d) {
-			if(matchedIDs.indexOf(d.__data__.id)>-1){
-				d3.select(d).attr("class", "dot_DFhighlighted")
-				.style("fill", "#F75082");
-				highlighted++;
-			}
-		});
-		d3.selectAll("[class=dot_highlighted]")[0].forEach(function (d) {
-			if(matchedIDs.indexOf(d.__data__.id)>-1){
-				d3.select(d).attr("class", "dot_selected_DFhighlighted")
-				.style("fill", "#F75082");
-				highlighted++;
-			}          
-		});
+		
+	    d3.selectAll("[class=dot]")[0].forEach(function (d) {
+	    	var status = d3.select(d).attr('status');
+	    	if(status=='default' || status=='highlighted'){
+	        	if(matchedIDs.indexOf(d.__data__.id)>-1){
+	        		d3.select(d).attr("status", "highlighted")
+	    				.style("fill", "#F75082");
+	    		}else{
+	        		d3.select(d).attr("status", "default")
+	    				.style("fill", "#000000");
+	    		}
+	    	}else if(status=='selected' || status=='selected_and_highlighted'){
+	        	if(matchedIDs.indexOf(d.__data__.id)>-1){
+	        		d3.select(d).attr("status", "selected_and_highlighted")
+	    				.style("fill", "#F75082");
+	    		}else{
+	        		d3.select(d).attr("status", "selected")
+	    				.style("fill", "#19BAD7");
+	    		}
+	    	}
+
+	    });
+		
+		
 		
 		//console.log(highlighted);
 		

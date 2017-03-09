@@ -942,7 +942,7 @@ function applyFilter(option){
             d3.selectAll('.dot')[0].forEach(function(d){
                 var bitString = d.__data__.bitString;
                 if(applyPresetFilter(filterExpression,bitString)){
-                    d3.select(d).attr('class','dot_highlighted')
+                    d3.select(d).attr('status','selected')
                                 .style("fill", "#19BAD7");
                 }
             });
@@ -950,15 +950,15 @@ function applyFilter(option){
             d3.selectAll('.dot')[0].forEach(function(d){
                 var bitString = d.__data__.bitString;
                 if(applyPresetFilter(filterExpression,bitString)){
-                    d3.select(d).attr('class','dot_highlighted')
+                    d3.select(d).attr('status','selected')
                                 .style("fill", "#19BAD7");
                 }
             });
         }else if(option==="within"){
-            d3.selectAll('.dot_highlighted')[0].forEach(function(d){
+            d3.selectAll('[status=selected]')[0].forEach(function(d){
                 var bitString = d.__data__.bitString;
                 if(!applyPresetFilter(filterExpression,bitString)){
-                    d3.select(d).attr('class','dot')
+                    d3.select(d).attr('status','default')
                     .style("fill", function (d) {return "#000000";});   
                 }
             });     
@@ -986,7 +986,7 @@ function applyParetoFilter(option, arg){
         d3.selectAll(".dot")[0].forEach(function (d) {
             var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +arg && rank >= 0){
-                d3.select(d).attr('class','dot_highlighted')
+                d3.select(d).attr('status','selected')
                 	.style("fill", "#19BAD7");
             }
         });  
@@ -994,16 +994,16 @@ function applyParetoFilter(option, arg){
         d3.selectAll(".dot")[0].forEach(function (d) {
             var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +arg && rank >= 0){
-                d3.select(d).attr('class','dot_highlighted')
+                d3.select(d).attr('status','selected')
                 	.style("fill", "#19BAD7");
             }
         });  
     }else if(option==="within"){
-        d3.selectAll(".dot_highlighted")[0].forEach(function (d) {
+        d3.selectAll("[status=selected]")[0].forEach(function (d) {
             var rank = parseInt(d3.select(d).attr("paretoRank"));
-            if (rank <= +arg && rank >= 0){
-                d3.select(d).attr('class','dot_highlighted')
-                	.style("fill", "#19BAD7");
+            if (rank > +arg || rank < 0){
+                d3.select(d).attr('status','default')
+                	.style("fill", "#000000");
             }
         }); 
     }
@@ -1054,7 +1054,7 @@ function applyComplexFilter(){
 
     d3.selectAll('.dot')[0].forEach(function(d){
     	if(matchedIDs.indexOf(d.__data__.id)>-1){
-            d3.select(d).attr('class','dot_highlighted')
+            d3.select(d).attr('status','selected')
         	.style("fill", "#19BAD7");
     	}
     });  
