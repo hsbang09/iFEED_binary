@@ -195,10 +195,7 @@ function draw_scatterPlot(source) {
     
     
     if(testType=="1"){
-    	
-    	d3.select('#selection_option_div').select('div').remove();
-    	d3.select('#OptionsPane').select('div').select('div').remove();
-    	
+    	    	
     	d3.select("#tab3").text('-');
     	d3.select("#view3").selectAll('g').remove();
     	d3.select("#tab4").text('-');
@@ -758,6 +755,8 @@ function initialize_tabs_driving_features(){
 		return;
 	}
 	
+	
+	selection_changed=true;
 	remove_df_application_status();
 	
 	

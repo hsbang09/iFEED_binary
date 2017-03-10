@@ -435,9 +435,9 @@ and open the template in the editor.
             var color_drivingFeatures = d3.scale.category10();        
             var i_drivingFeatures=0;
 			var sortedDFs=null;
-           	var support_threshold = 0.005;
-           	var confidence_threshold = 0.15;
-           	var lift_threshold = 0.3;
+           	var support_threshold = 0.002;
+           	var confidence_threshold = 0.11;
+           	var lift_threshold = 0.2;
             var selected_features = [];
 			var selected_features_expressions = [];           	
            	
@@ -750,6 +750,7 @@ and open the template in the editor.
 
             function getTimeRemaining(endtime){
             	  var t = Date.parse(endtime) - Date.parse(new Date());
+// 				  var t = endtime - Date.parse(new Date());
             	  var seconds = Math.floor( (t/1000) % 60 );
             	  var minutes = Math.floor( (t/1000/60) % 60 );
             	  return {
@@ -770,27 +771,37 @@ and open the template in the editor.
 
 	          	    minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
 	          	  	secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
-          		  	if(t.total<=0){
-           		    	clearInterval(timeinterval);
-           		    	session_timed_out = true;
-           		    	d3.select('body').selectAll('div').remove();
-//            		    	d3.select('body').select('a').remove();
-           		    	key_number = session_timeout(account_id);
-           		    	
-       		    		var img = $('<img />', {src : 'https://brand.cornell.edu/images/cornelllogo-stacked.png'});
-       		    		img.appendTo('body');
-       		    		d3.select('body').select('img').style("width","150px").style('margin','40px');
-        	
-           		    	d3.select('body').append('h1')
-           		    		.text('The session ended').style("width","1200px").style("margin","auto");
-           		    	d3.select('body').append('h2')
-           		    		.text('IMPORTANT: Please save the key number below and insert in Mechanical Turk & Survey Monkey')
-           		    		.style("width","1200px").style("margin","auto");;
-           		    	d3.select('body').append('h2')
-           		    		.text("Key number: "+ key_number).style("width","1200px").style("margin","auto");
-           		    	d3.select('body').append('h2')
-       		    			.text("Now follow the link to solve problem: https://www.surveymonkey.com/r/P53BWX2").style("width","1200px").style("margin","auto");
-           		    	d3.select('body').append('div').style("width","100%").style("height","30px");
+          		  	
+	          	  	if(t.total<=0){
+          		  		if(task_number!=2){
+          		  			clearInterval(timeinterval);
+          		         	var startTime = Date.parse(new Date());
+          					var deadline = new Date(startTime+remainingTime);
+          		         	initializeClock('clockdiv', deadline);
+          		         	click_rightarrow();
+          		         	return;
+        		       	}
+          		  		else{
+               		    	clearInterval(timeinterval);
+               		    	session_timed_out = true;
+               		    	d3.select('body').selectAll('div').remove();
+               		    	//key_number = session_timeout(account_id);
+               		    	
+           		    		var img = $('<img />', {src : 'https://brand.cornell.edu/images/cornelllogo-stacked.png'});
+           		    		img.appendTo('body');
+           		    		d3.select('body').select('img').style("width","150px").style('margin','40px');
+            	
+               		    	d3.select('body').append('h1')
+               		    		.text('The session ended').style("width","1200px").style("margin","auto");
+//                		    	d3.select('body').append('h2')
+//                		    		.text('IMPORTANT: Please save the key number below and insert in Mechanical Turk & Survey Monkey')
+//                		    		.style("width","1200px").style("margin","auto");;
+//                		    	d3.select('body').append('h2')
+//                		    		.text("Key number: "+ key_number).style("width","1200px").style("margin","auto");
+               		    	d3.select('body').append('h2')
+           		    			.text("Now follow the link to solve problem: https://www.surveymonkey.com/r/P53BWX2").style("width","1200px").style("margin","auto");
+               		    	d3.select('body').append('div').style("width","100%").style("height","30px");          		  			
+          		  		}
           		  	}
        			}
 
@@ -804,10 +815,12 @@ and open the template in the editor.
             	d3.selectAll('.dot')
             		.attr('status','default')
             		.style('fill','#000000');
+            	initialize_tabs();
             	
             	if(task_number==0){
             		d3.select("#main_header").text("Task 1: Low-cost, low-performance designs");
-            		d3.select('#main_text').html('<p>Find as many features as possible from the selected group of designs.</p>');
+            		d3.select('#main_text').html('<p>Find as many features as possible from the selected group of designs.</p>'
+            				+'<p></p>');
             		select_archs_using_ids(low_cost_low_perf);
             	}
             	if(task_number==1){
@@ -820,13 +833,11 @@ and open the template in the editor.
             		d3.select('#main_text').html('<p>Find as many features as possible from the selected group of designs.</p>');
             		select_archs_using_ids(high_cost_high_perf);
             	}
-            	numOfSelectedArchs()
-            	
+                d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());            	
             }
             
             
-            
-            
+
             function click_leftarrow(){
             	if(task_number>0){
                 	task_number--;
@@ -903,8 +914,19 @@ and open the template in the editor.
 
 
 
-         	testType = "3";
-         	remainingTime = + 10*60*1000;
+
+
+
+
+			var cred = window.location.search;
+			if(cred){
+	       		testType = cred.substring(1);
+	       		console.log("testType:" + testType);
+			}else{
+				testType="3";
+			}
+
+         	remainingTime = + 1*60*1000;
          	var startTime = Date.parse(new Date());
 			var deadline = new Date(startTime+remainingTime);
          	initializeClock('clockdiv', deadline);

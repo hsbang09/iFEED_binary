@@ -198,7 +198,8 @@ public class DrivingFeaturesGenerator {
             // emptyOrbit
             candidate_features.add("{emptyOrbit["+i+";;]}");
             // numOrbits
-            candidate_features.add("{numOrbits[;;"+i+1+"]}");
+            int num_of_orbit = i+1;
+            candidate_features.add("{numOrbits[;;"+num_of_orbit+"]}");
             for(int j=0;j<ninstr;j++){
                 // inOrbit, notInOrbit
                 candidate_features.add("{inOrbit["+i+";"+j+";]}");

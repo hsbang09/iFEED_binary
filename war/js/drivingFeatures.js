@@ -609,30 +609,29 @@ function display_drivingFeatures(source,sortby) {
 
 
     
-    if(testType==="4"){
-    }else{
-        // draw legend
-        var legend_df = objects.selectAll(".legend")
-                        .data(color_drivingFeatures.domain())
-                        .enter().append("g")
-                        .attr("class", "legend")
-                        .attr("transform", function(d, i) { return "translate(0," + (i * 20) + ")"; });
 
-            // draw legend colored rectangles
-        legend_df.append("rect")
-                .attr("x", 655)
-                .attr("width", 18)
-                .attr("height", 18)
-                .style("fill", color_drivingFeatures);
+    // draw legend
+    var legend_df = objects.selectAll(".legend")
+                    .data(color_drivingFeatures.domain())
+                    .enter().append("g")
+                    .attr("class", "legend")
+                    .attr("transform", function(d, i) { return "translate(0," + (i * 20) + ")"; });
 
-            // draw legend text
-        legend_df.append("text")
-                .attr("x", 655)
-                .attr("y", 9)
-                .attr("dy", ".35em")
-                .style("text-anchor", "end")
-                .text(function(d) { return d;});
-    }
+        // draw legend colored rectangles
+    legend_df.append("rect")
+            .attr("x", 655)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", color_drivingFeatures);
+
+        // draw legend text
+    legend_df.append("text")
+            .attr("x", 655)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) { return d;});
+    
     
 
     d3.select("[id=instrumentOptions]")
