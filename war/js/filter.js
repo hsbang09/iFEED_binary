@@ -942,26 +942,43 @@ function applyFilter(option){
             d3.selectAll('.dot')[0].forEach(function(d){
                 var bitString = d.__data__.bitString;
                 if(applyPresetFilter(filterExpression,bitString)){
-                    d3.select(d).attr('status','selected')
-                                .style("fill", "#19BAD7");
+                	if(d3.select(d).attr('status')=='selected'){
+                        d3.select(d).attr('status','selected_and_highlighted')
+                        	.style("fill", "#F75082");
+                	}else{
+                        d3.select(d).attr('status','highlighted')
+                        .style("fill", "#F75082");
+                    }
                 }
             });
         }else if(option==="add"){
             d3.selectAll('.dot')[0].forEach(function(d){
                 var bitString = d.__data__.bitString;
                 if(applyPresetFilter(filterExpression,bitString)){
-                    d3.select(d).attr('status','selected')
-                                .style("fill", "#19BAD7");
+                	if(d3.select(d).attr('status')=='selected'){
+                        d3.select(d).attr('status','selected_and_highlighted')
+                        	.style("fill", "#F75082");
+                	}else{
+                        d3.select(d).attr('status','highlighted')
+                        .style("fill", "#F75082");
+                    }
                 }
             });
         }else if(option==="within"){
-            d3.selectAll('[status=selected]')[0].forEach(function(d){
+            d3.selectAll('[status=highlighted]')[0].forEach(function(d){
                 var bitString = d.__data__.bitString;
                 if(!applyPresetFilter(filterExpression,bitString)){
                     d3.select(d).attr('status','default')
-                    .style("fill", function (d) {return "#000000";});   
+                    	.style("fill", function (d) {return "#000000";});   
                 }
-            });     
+            }); 
+            d3.selectAll('[status=selected_and_highlighted]')[0].forEach(function(d){
+                var bitString = d.__data__.bitString;
+                if(!applyPresetFilter(filterExpression,bitString)){
+                    d3.select(d).attr('status','selected')
+                    	.style("fill", function (d) {return "#19BAD7";});   
+                }
+            });              
         }
     }
 
@@ -986,24 +1003,41 @@ function applyParetoFilter(option, arg){
         d3.selectAll(".dot")[0].forEach(function (d) {
             var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +arg && rank >= 0){
-                d3.select(d).attr('status','selected')
-                	.style("fill", "#19BAD7");
+            	if(d3.select(d).attr('status')=='selected'){
+                    d3.select(d).attr('status','selected_and_highlighted')
+                    	.style("fill", "#F75082");
+            	}else{
+                    d3.select(d).attr('status','highlighted')
+                    .style("fill", "#F75082");
+                }
             }
         });  
     }else if(option==="add"){
         d3.selectAll(".dot")[0].forEach(function (d) {
             var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank <= +arg && rank >= 0){
-                d3.select(d).attr('status','selected')
-                	.style("fill", "#19BAD7");
+            	if(d3.select(d).attr('status')=='selected'){
+                    d3.select(d).attr('status','selected_and_highlighted')
+                    	.style("fill", "#F75082");
+            	}else{
+                    d3.select(d).attr('status','highlighted')
+                    .style("fill", "#F75082");
+                }
             }
         });  
     }else if(option==="within"){
-        d3.selectAll("[status=selected]")[0].forEach(function (d) {
+        d3.selectAll("[status=highlighted]")[0].forEach(function (d) {
             var rank = parseInt(d3.select(d).attr("paretoRank"));
             if (rank > +arg || rank < 0){
                 d3.select(d).attr('status','default')
                 	.style("fill", "#000000");
+            }
+        }); 
+        d3.selectAll("[status=selected_and_highlighted]")[0].forEach(function (d) {
+            var rank = parseInt(d3.select(d).attr("paretoRank"));
+            if (rank > +arg || rank < 0){
+                d3.select(d).attr('status','selected')
+                	.style("fill", "#19BAD7");
             }
         }); 
     }
@@ -1054,8 +1088,13 @@ function applyComplexFilter(){
 
     d3.selectAll('.dot')[0].forEach(function(d){
     	if(matchedIDs.indexOf(d.__data__.id)>-1){
-            d3.select(d).attr('status','selected')
-        	.style("fill", "#19BAD7");
+    		if(d3.select(d).attr('status')=='default'){
+                d3.select(d).attr('status','highlighted')
+            		.style("fill", "#F75082");
+    		}else{
+                d3.select(d).attr('status','selected_and_highlighted')
+            		.style("fill", "#F75082");
+    		}
     	}
     });  
     

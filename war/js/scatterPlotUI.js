@@ -301,8 +301,11 @@ function selectArchsWithinRange() {
 function cancelDotSelections(){
 	remove_df_application_status();
 	
-    var clickedArchs = d3.selectAll("[status=selected]");
-    clickedArchs.attr("status", "default")
+    var selectedArchs = d3.selectAll("[status=selected_and_highlighted]");
+    selectedArchs.attr("status", "selected")
+            .style("fill","#19BAD7");
+    var highlightedArchs = d3.selectAll("[status=highlighted]");
+    highlightedArchs.attr("status", "default")
             .style("fill","#000000");
     d3.select("[id=instrumentOptions]")
             .select("table").remove();        
@@ -385,17 +388,17 @@ function dot_mouseover(d) {
 
 function dot_click(d) {
 
-    if (d3.select(this).attr("status") == "selected") {
-        d3.select(this).attr("status", "default")
-                .style("fill","#000000");
-    } else {
-        d3.select(this).attr("status", "selected")
-                .style("fill", "#19BAD7");
-    }
-    d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
-    selection_changed = true;
-    initialize_tabs_driving_features();
-    initialize_tabs_classification_tree();
+//    if (d3.select(this).attr("status") == "selected") {
+//        d3.select(this).attr("status", "default")
+//                .style("fill","#000000");
+//    } else {
+//        d3.select(this).attr("status", "selected")
+//                .style("fill", "#19BAD7");
+//    }
+//    d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
+//    selection_changed = true;
+//    initialize_tabs_driving_features();
+//    initialize_tabs_classification_tree();
 }
 
 
