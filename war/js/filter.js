@@ -1141,6 +1141,9 @@ function save_user_defined_filter(expression){
     d3.select('#filter_application_save')
     		.attr('disabled',true)
     		.text('Current filter scheme saved');
+	
+    initialize_tabs_driving_features();
+    initialize_tabs_classification_tree();
 }
 
 
