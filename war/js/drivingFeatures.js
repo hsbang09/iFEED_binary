@@ -228,7 +228,7 @@ function display_drivingFeatures(source,sortby) {
 
     xScale_df = d3.scale.linear()
             .range([0, width_df]);
-    yScale_df = d3.scale.linear().range([height_df, 0]);
+    yScale_df = d3.scale.linear().range([height_df-30, 0]);
     xScale_df.domain([0,drivingFeatures.length-1]);
     
     

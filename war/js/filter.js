@@ -432,32 +432,23 @@ function get_number_of_inputs(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function get_number_of_parentheses_of_level_1(expression){
+	var leng = expression.length;
+	var level = 0;
+	var num = 0;
+	for(var i=0;i<leng;i++){
+		if(expression[i]==="("){
+			level++;
+			if(level==1){
+				num++;
+			}
+		}
+		else if(expression[i]===")"){
+			level--;
+		}
+	}
+	return num;
+}
 
 function get_nested_parenthesis_depth(expression){
 	var leng = expression.length;
@@ -522,11 +513,21 @@ function compareMatchedIDSets(logic,set1,set2){
 
 
 
-function processFilterExpression(expression, prev_matched, prev_logic, arch_info){
+//({absent[;9;]}&&{numOfInstruments[;11;1]}&&{emptyOrbit[2;;]}&&{emptyOrbit[3;;]})
+//&&
+//({numOfInstruments[;;2]}||{numOfInstruments[;;3]}||{numOfInstruments[;;4]}||{numOfInstruments[;;5]}||{numOfInstruments[;;6]})
 
+//var cnt = 0;
+function processFilterExpression(expression, prev_matched, prev_logic, arch_info){
+	
+//	if(cnt<10){console.log(expression);cnt++;}
+//	else{return;}
+	
+	
 	var e=expression;
     // Remove outer parenthesis
-    if(e.startsWith("(") && e.endsWith(")")){
+	var num = get_number_of_parentheses_of_level_1(e);
+    if(e.startsWith("(") && e.endsWith(")") && num==1){
     	while(e.startsWith("(") && e.endsWith(")")){
     		e=e.substring(1,e.length-1);
     	}   
@@ -1044,13 +1045,20 @@ function applyParetoFilter(option, arg){
 
 
 
-function applyComplexFilter(){
+function applyComplexFilter(input_expression){
 	
 	// Remove remaining traces of actions from driving features tab
 	remove_df_application_status();
 	
 	
-    var filterExpression = parse_filter_application_status();
+    var filterExpression
+    
+    if(input_expression==null){
+    	filterExpression = parse_filter_application_status();
+    }else{
+    	filterExpression = input_expression;
+    }
+    
     if(filterExpression===""){
         cancelDotSelections();
         return;

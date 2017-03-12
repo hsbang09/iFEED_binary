@@ -436,8 +436,8 @@ and open the template in the editor.
             var i_drivingFeatures=0;
 			var sortedDFs=null;
            	var support_threshold = 0.002;
-           	var confidence_threshold = 0.11;
-           	var lift_threshold = 0.2;
+           	var confidence_threshold = 0.10;
+           	var lift_threshold = 0.1;
             var selected_features = [];
 			var selected_features_expressions = [];           	
            	
@@ -744,7 +744,9 @@ and open the template in the editor.
                 return d3.selectAll(".dot").size();
             }
             function numOfSelectedArchs(){
-                return d3.selectAll("[status=selected]").size();
+                var n1= d3.selectAll("[status=selected]").size();
+                var n2 = d3.selectAll("[status=selected_and_highlighted]").size();
+                return n1+n2;
             }
 
 
@@ -833,6 +835,8 @@ and open the template in the editor.
             		d3.select('#main_text').html('<p>Find as many features as possible from the selected group of designs.</p>');
             		select_archs_using_ids(high_cost_high_perf);
             	}
+            	userdef_features=[];
+            	color_drivingFeatures = d3.scale.category10(); 
                 d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());            	
             }
             
