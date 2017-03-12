@@ -153,6 +153,9 @@ function Name2Index(name,type){
 
 
 function ppdfType(expression){
+	if(expression.indexOf('[')==-1){
+		return expression;
+	}
 	var type='';
 	var erase = false;
 	for(var i=0;i<expression.length;i++){
