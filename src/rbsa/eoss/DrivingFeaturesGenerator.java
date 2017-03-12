@@ -162,8 +162,8 @@ public class DrivingFeaturesGenerator {
     	
     	
         // Input variables
-        // present, absent, inOrbit, notInOrbit, together2, togetherInOrbit2
-        // separate2, separate3, together3, togetherInOrbit3, emptyOrbit
+        // present, absent, inOrbit, notInOrbit, together2, 
+        // separate2, separate3, together3, emptyOrbit
         // numOrbits, numOfInstruments, subsetOfInstruments
         
         // Preset filter expression example:
@@ -198,18 +198,18 @@ public class DrivingFeaturesGenerator {
             // emptyOrbit
             candidate_features.add("{emptyOrbit["+i+";;]}");
             // numOrbits
-            int num_of_orbit = i+1;
-            candidate_features.add("{numOrbits[;;"+num_of_orbit+"]}");
+            int numOrbitsTemp = i+1;
+            candidate_features.add("{numOrbits[;;"+numOrbitsTemp+"]}");
             for(int j=0;j<ninstr;j++){
                 // inOrbit, notInOrbit
                 candidate_features.add("{inOrbit["+i+";"+j+";]}");
                 candidate_features.add("{notInOrbit["+i+";"+j+";]}");
                 for(int k=0;k<j;k++){
                     // togetherInOrbit2
-                    candidate_features.add("{togetherInOrbit["+i+";"+j+","+k+";]}");
+                    candidate_features.add("{inOrbit["+i+";"+j+","+k+";]}");
                     for(int l=0;l<k;l++){
                         // togetherInOrbit3
-                        candidate_features.add("{togetherInOrbit["+i+";"+j+","+k+","+l+";]}");
+                        candidate_features.add("{inOrbit["+i+";"+j+","+k+","+l+";]}");
                     }
                 }
             }

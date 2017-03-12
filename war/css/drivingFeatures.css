@@ -12,6 +12,7 @@
     
     div #df_application_status
         div #df_application_status_title
+            div
         div .applied_driving_feature #applied_driving_feature_1
             input .driving_feature_application_activate
             div .driving_feature_application_expression
@@ -55,6 +56,12 @@
     padding: 15px;
 	float:left;
     background-color: #E0E0E0; 
+}
+
+#df_application_status_title_div{
+    margin-bottom: 18px;
+    margin-left: 3px;
+    font-size: 20px;
 }
 
 

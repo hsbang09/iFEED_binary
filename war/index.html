@@ -915,9 +915,7 @@ and open the template in the editor.
 
 
 
-
-
-
+			
 			var cred = window.location.search;
 			if(cred){
 	       		testType = cred.substring(1);
@@ -926,7 +924,7 @@ and open the template in the editor.
 				testType="3";
 			}
 
-         	remainingTime = + 1*60*1000;
+         	remainingTime = + 100*60*1000;
          	var startTime = Date.parse(new Date());
 			var deadline = new Date(startTime+remainingTime);
          	initializeClock('clockdiv', deadline);

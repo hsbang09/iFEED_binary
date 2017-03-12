@@ -19,7 +19,6 @@ function runDataMining() {
 	remove_df_application_status();
 	
 	
-	
 	if(selection_changed == false && sortedDFs != null){
 		display_drivingFeatures(sortedDFs,"lift");
 		if(testType=="3"){
@@ -241,6 +240,8 @@ function display_drivingFeatures(source,sortby) {
 
 	var application_status = infoBox.append('div')
 		.attr('id','df_application_status');
+    application_status.append('div')
+    	.attr('id','df_application_status_title');
     
 	infoBox.append('div')
 		.attr('id','df_options');
@@ -856,6 +857,8 @@ function remove_df_application_status(expression){
 	    d3.selectAll("[status=selected_and_highlighted]")
 	    		.attr("status", "selected")
 	            .style("fill","#19BAD7");  
+		d3.select('#df_application_status_title_div').remove();
+
 	    return;
 	}
 	
@@ -883,7 +886,10 @@ function remove_df_application_status(expression){
     if(selected_features.length!=0){
         d3.select('#df_save_feature')[0][0].disabled= false;
     	d3.select('#df_save_feature').text('Save current feature')
+	}else{
+		d3.select('#df_application_status_title_div').remove();
 	}
+    
     
     highlight_dots_with_feature();
     
@@ -925,12 +931,20 @@ function update_df_application_status(expression){
         }
     });
     
-
+    
+    if(d3.select('#df_application_status_title_div')[0][0]==null){
+    	d3.select('#df_application_status_title')
+    		.append('div')
+    		.attr('id','df_application_status_title_div')
+    		.text('Features Application Status');
+	}
+    
     d3.select('#df_save_feature')[0][0].disabled= false;
 	d3.select('#df_save_feature').text('Save current feature')
     d3.select('#df_cancel_selection')[0][0].disabled=false;
 
 }
+
 
 function save_selected_driving_features(){
     if(selected_features.length!=0){

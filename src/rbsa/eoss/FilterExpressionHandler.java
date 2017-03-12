@@ -196,11 +196,14 @@ public class FilterExpressionHandler {
             }
             return true;  
         } else if(type.equalsIgnoreCase("inOrbit")){
-            
             int orbit = Integer.parseInt(orbits[0]);
-            int instrument = Integer.parseInt(instruments[0]);
-            return mat[orbit][instrument] == 1;
-            
+            boolean together = true;
+            for(int j=0;j<instruments.length;j++){
+                int instrument = Integer.parseInt(instruments[j]);
+                if(mat[orbit][instrument]==0){together=false;}
+            }
+            if(together){return true;}            
+            return false;
         } else if(type.equalsIgnoreCase("notInOrbit")){
             
             int orbit = Integer.parseInt(orbits[0]);
@@ -217,17 +220,6 @@ public class FilterExpressionHandler {
                 }
                 if(together){return true;}
             }
-            return false;
-            
-        } else if(type.equalsIgnoreCase("togetherInOrbit")){
-            
-            int orbit = Integer.parseInt(orbits[0]);
-            boolean together = true;
-            for(int j=0;j<instruments.length;j++){
-                int instrument = Integer.parseInt(instruments[j]);
-                if(mat[orbit][instrument]==0){together=false;}
-            }
-            if(together){return true;}            
             return false;
             
         } else if(type.equalsIgnoreCase("separate")){

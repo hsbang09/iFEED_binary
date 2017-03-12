@@ -85,6 +85,15 @@ function display_classificationTree(source){
     var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view4]")
             .append("g");
     
+    infoBox.append('div')
+    		.attr('id','classification_tree_message')
+    		.style('width','700px')
+			.style('margin-left','40px')
+			.style('margin-top','30px')
+			.style('height','40px')
+			.style('padding','3px')
+			.text('');
+    
 	var svg_tree = infoBox.append("svg")
     			.attr("width", width_tree + margin_tree[1] + margin_tree[3])
 				.attr("height", height_tree + margin_tree[0] + margin_tree[2])
@@ -130,6 +139,7 @@ function update(source) {
         .attr("class", "node")
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
         .on("click", function(d) { toggle_tree(d); update(d);})
+        .on('dblclick',tree_node_double_click)
         .on("mouseover",tree_node_mouse_over)
         .on("mouseout", function (d) {
             var highlighted = d3.selectAll("[status=highlighted]");
@@ -351,7 +361,34 @@ function toggle_tree(d) {
 
 
 
-
+function tree_node_double_click(d){
+		
+//	var condition = d.cond;
+//	var currentNode = d.parent;
+//	var name = currentNode.name;
+//
+//	var expression = "";
+//
+//	for(var i=0;i<d.depth;i++){
+//		if(i>0){
+//			expression = expression + "&&";
+//		}
+//		
+//		if(condition){ // true
+//			expression = expression + name;
+//		}else{ // false
+//			expression = expression + "{~" + name.substring(1,name.length);
+//		}
+//		if (currentNode.depth==0){
+//			break;
+//		}
+//		condition = currentNode.cond;
+//		currentNode = currentNode.parent;
+//		name = currentNode.name;
+//	}
+//	
+//	update_filter_application_status(expression,'deactivated');	
+}
 
 function tree_node_mouse_over(d){
 
