@@ -13,16 +13,16 @@
     div #df_application_status
         div #df_application_status_title
             div
-        div .applied_driving_feature #applied_driving_feature_1
-            input .driving_feature_application_activate
-            div .driving_feature_application_expression
-            button .driving_feature_application_button
+        div #applied_driving_feature_div
+            div .applied_driving_feature #applied_driving_feature_1
+                div .applied_driving_feature_expression
+                button .applied_driving_feature_delete_button
         div .applied_driving_feature #applied_driving_feature_2
-    
-    div #df_options
-        button .df_options_button #df_save_feature
-        button .df_options_button #df_cancel_selection
         
+        div #df_application_options
+            button .df_application_options_button #df_application_options_add
+            button .df_application_options_button #df_application_options_cancel_selection
+            button .df_application_options_button #df_application_options_reset
         
     div #df_bar_chart
         svg #df_svg
@@ -80,7 +80,7 @@
     width:100%;
 }
 
-#df_options{
+#df_application_options{
     float:left;
     width:100%;
     margin-bottom: 10px;
@@ -89,16 +89,17 @@
 
 /* Buttons */
 
-.df_options_button{
+.df_application_options_button{
     float:left;
-    margin-left: 10px;
+    margin-top: 13px;
+    margin-right: 8px;
 }
 
 
 
 /* Driving Feature Application Status */
 
-#driving_feature_application_status{
+#df_application_status{
     width:90%;
     margin-bottom:10px;
 	float:left;
@@ -111,14 +112,12 @@
 	float:left;
 }
 
-.driving_feature_application_delete{
+.applied_driving_feature_delete_button{
     background-color: #FF5151;
 	float:left;
 }
-.driving_feature_application_activate {
-	float:left;
-}
-.driving_feature_application_expression{
+
+.applied_driving_feature_expression{
 	float: left;
 	margin-right:4px;
 }

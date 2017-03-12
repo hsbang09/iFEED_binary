@@ -329,6 +329,7 @@ public class FilterExpressionHandler {
     	return processFilterExpression(filterExpression, this.population, "&&");
     }
     
+    
     public ArrayList<Integer> processFilterExpression(String filterExpression, ArrayList<Integer> prevMatched, String prevLogic){
         String e=filterExpression;
         // Remove outer parenthesis
@@ -344,6 +345,7 @@ public class FilterExpressionHandler {
             if(e.contains("&&")||e.contains("||")){
                e_collapsed=e; 
             }else{
+            	// Single filter expression
                 currMatched = this.processSingleFilterExpression(filterExpression);
                 return compareMatchedIDSets(prevLogic, currMatched, prevMatched);
             }
@@ -358,7 +360,8 @@ public class FilterExpressionHandler {
             
             if(first){
                 // The first filter in a series to be applied
-                prev = "||";
+                prev = "&&";
+                currMatched = prevMatched;
                 first = false;
             }else{
                 prev = e_collapsed.substring(0,2);
@@ -366,7 +369,7 @@ public class FilterExpressionHandler {
                 e = e.substring(2);
             }
             
-            String next; // The imediate next logical connective
+            String next; // The immediate next logical connective
             int and = e_collapsed.indexOf("&&");
             int or = e_collapsed.indexOf("||");
             if(and==-1 && or==-1){
@@ -390,13 +393,24 @@ public class FilterExpressionHandler {
                 String current = e.substring(0,current_collapsed.length());
                 e_collapsed = e_collapsed.substring(current_collapsed.length());
                 e = e.substring(current_collapsed.length());
-                currMatched = processFilterExpression(current,currMatched,prev); 
+                
+                if(prev.equals("||")){
+                    ArrayList<Integer> tempMatched = processFilterExpression(current,prevMatched,"&&");
+                    currMatched = compareMatchedIDSets(prev, currMatched, tempMatched);
+                }else{
+                	currMatched = processFilterExpression(current,currMatched,prev);
+                }                
             }else{
-                currMatched = processFilterExpression(e,currMatched,prev); 
+                if(prev.equals("||")){
+                    ArrayList<Integer> tempMatched = processFilterExpression(e,prevMatched,"&&");
+                    currMatched = compareMatchedIDSets(prev, currMatched, tempMatched);
+                }else{
+                	currMatched = processFilterExpression(e,currMatched,prev);
+                }                 	
                 break;
             }
         }
-        return compareMatchedIDSets(prevLogic, currMatched, prevMatched);
+        return currMatched;
     }
     
     

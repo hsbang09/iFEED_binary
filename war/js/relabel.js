@@ -152,6 +152,20 @@ function Name2Index(name,type){
 }
 
 
+function ppdfType(expression){
+	var type='';
+	var erase = false;
+	for(var i=0;i<expression.length;i++){
+		if(expression[i]=='['){
+			erase=true;
+		}else if(expression[i]==']'){
+			erase=false;
+		}else if(!erase){
+			type=type+expression[i];
+		}
+	}
+	return type;
+}
 
 function ppdf(expression){
 
@@ -173,6 +187,9 @@ function ppdf(expression){
 	    
 	    if(featureName==="paretoFront"){return expression;}
 	    
+	    if(featureName[0]=='~'){
+	    	featureName = 'NOT '+ featureName.substring(1);
+	    }
 	    
 	    var featureArg = exp.split("[")[1];
 	    featureArg = featureArg.substring(0,featureArg.length-1);

@@ -85,14 +85,13 @@ function display_classificationTree(source){
     var infoBox = d3.select("[id=basicInfoBox_div]").select("[id=view4]")
             .append("g");
     
-    infoBox.append('div')
-    		.attr('id','classification_tree_message')
-    		.style('width','700px')
-			.style('margin-left','40px')
-			.style('margin-top','30px')
-			.style('height','40px')
-			.style('padding','3px')
-			.text('');
+    var feature_status = infoBox.append('div')
+    		.attr('id','classification_tree_feature_status');
+    feature_status.append('div')
+    		.attr('id','classification_tree_applied_feature_div');
+    feature_status.append('div')
+    		.attr('id','classification_tree_applied_feature_options');
+
     
 	var svg_tree = infoBox.append("svg")
     			.attr("width", width_tree + margin_tree[1] + margin_tree[3])
@@ -138,8 +137,10 @@ function update(source) {
     var nodeEnter = node.enter().append("svg:g")
         .attr("class", "node")
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-        .on("click", function(d) { toggle_tree(d); update(d);})
-        .on('dblclick',tree_node_double_click)
+        .on("click", function(d) { 
+        	toggle_tree(d); 
+        	update(d);
+    	})
         .on("mouseover",tree_node_mouse_over)
         .on("mouseout", function (d) {
             var highlighted = d3.selectAll("[status=highlighted]");
@@ -426,7 +427,7 @@ function tree_node_mouse_over(d){
 		}
 		
 		console.log(expression);
-		
+		classification_tree_update_applied_feature(expression);
 
 		var ids = [];
 		var bitStrings = [];
@@ -483,6 +484,32 @@ function tree_node_mouse_over(d){
 	}
 }
 
+function classification_tree_update_applied_feature(expression){
+
+	if(d3.select('#classification_tree_applied_feature_expression')[0][0]==null){
+		d3.select('#classification_tree_applied_feature_div').append('div')
+			.attr('id','classification_tree_applied_feature_expression')
+			.attr('expression',expression)
+			.text(ppdf(expression));
+		d3.select('#classification_tree_applied_feature_options')
+			.append('button')
+			.attr('id','classification_tree_applied_feature_add_button')
+			.text('Add to filter settings')
+			.on('click',function(d){
+		        update_filter_application_status(expression,'deactivated');
+			});
+	}else{
+		d3.select('#classification_tree_applied_feature_expression')
+			.attr('expression',expression)
+			.text(ppdf(expression));
+		d3.select('#classification_tree_applied_feature_add_button')
+			.on('click',function(d){
+		        update_filter_application_status(expression,'deactivated');
+			});		
+	}
+	
+	
+}
 
 
 

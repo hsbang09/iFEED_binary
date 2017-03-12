@@ -217,7 +217,7 @@ function display_drivingFeatures(source,sortby) {
         conf2s.push(source[i].metrics[3]);
         drivingFeatures.push(source[i]);
         if(source[i].preset===true){
-            drivingFeatureTypes.push(source[i].name);
+            drivingFeatureTypes.push(ppdfType(source[i].name));
         }
     }
 
@@ -242,9 +242,11 @@ function display_drivingFeatures(source,sortby) {
 		.attr('id','df_application_status');
     application_status.append('div')
     	.attr('id','df_application_status_title');
+	application_status.append('div')
+		.attr('id','applied_driving_feature_div');
     
-	infoBox.append('div')
-		.attr('id','df_options');
+	application_status.append('div')
+		.attr('id','df_application_options');
 	
 	infoBox.append("div")
 		.attr('id','df_bar_chart')
@@ -256,29 +258,7 @@ function display_drivingFeatures(source,sortby) {
 		.text('Total number of designs: ' + numOfArchs());
     
 	
-	d3.select('#df_options')
-		.append('button')
-		.attr('id','df_save_feature')
-		.attr('class','df_options_button')
-		.text('Save current feature')
-		.on('click',save_selected_driving_features)
-	d3.select('#df_options')
-		.append('button')
-		.attr('id','df_cancel_selection')
-		.attr('class','df_options_button')
-		.text('Cancel current selection')
-		.on('click',remove_df_application_status);
-	d3.select('#df_options')
-		.append('button')
-		.attr('id','df_reset')
-		.attr('class','df_options_button')
-		.text('Reset data mining')
-		.on('click',function(d){
-			initialize_tabs_driving_features();
-		    initialize_tabs_classification_tree();
-		});
-    d3.select('#df_save_feature')[0][0].disabled= true;
-    d3.select('#df_cancel_selection')[0][0].disabled=true;
+
 	
     var minval;
     if(sortby==="lift"){
@@ -858,12 +838,12 @@ function remove_df_application_status(expression){
 	    		.attr("status", "selected")
 	            .style("fill","#19BAD7");  
 		d3.select('#df_application_status_title_div').remove();
-
+		d3.selectAll('.df_application_options_button').remove();
 	    return;
 	}
 	
     d3.selectAll('.applied_driving_feature')[0].forEach(function(d){
-    	var exp = d3.select(d).select('.driving_feature_application_expression').attr('expression');
+    	var exp = d3.select(d).select('.applied_driving_feature_expression').attr('expression');
     	console.log(exp);
     	if(expression===exp){
     		d.remove();
@@ -884,10 +864,11 @@ function remove_df_application_status(expression){
     }
     
     if(selected_features.length!=0){
-        d3.select('#df_save_feature')[0][0].disabled= false;
-    	d3.select('#df_save_feature').text('Save current feature')
+        d3.select('#df_application_options_add')[0][0].disabled= false;
+    	d3.select('#df_application_options_add').text('Add to filter settings')
 	}else{
 		d3.select('#df_application_status_title_div').remove();
+		d3.selectAll('.df_application_options_button').remove();
 	}
     
     
@@ -897,7 +878,7 @@ function remove_df_application_status(expression){
 
 function update_df_application_status(expression){    
 
-    var application_status = d3.select('#df_application_status');
+    var application_status = d3.select('#applied_driving_feature_div');
     var count = application_status.selectAll('.applied_driving_feature').size();
     
     var thisFilter = application_status.append('div')
@@ -909,23 +890,23 @@ function update_df_application_status(expression){
     
 
     thisFilter.append('div')
-            .attr('class','driving_feature_application_expression')
+            .attr('class','applied_driving_feature_expression')
             .attr('expression',function(d){
             	return expression;
             })
             .text(ppdf(expression));
 
     thisFilter.append('button')
-            .attr('class','driving_feature_application_delete')
+            .attr('class','applied_driving_feature_delete_button')
             .text('Remove');
     
-    thisFilter.select(".driving_feature_application_delete").on("click",function(d){
-        var exp = thisFilter.select('.driving_feature_application_expression').attr('expression');
+    thisFilter.select(".applied_driving_feature_delete_button").on("click",function(d){
+        var exp = thisFilter.select('.applied_driving_feature_expression').attr('expression');
         remove_df_application_status(exp);
         
         if(d3.selectAll('.applied_driving_feature')[0].length===0){
-            d3.select('#df_save_feature')[0][0].disabled= true;
-            d3.select('#df_cancel_selection')[0][0].disabled=true;
+            d3.select('#df_application_options_add')[0][0].disabled= true;
+            d3.select('#df_application_options_cancel_selection')[0][0].disabled=true;
         }else{
         	highlight_dots_with_feature();
         }
@@ -937,16 +918,37 @@ function update_df_application_status(expression){
     		.append('div')
     		.attr('id','df_application_status_title_div')
     		.text('Features Application Status');
+    	
+    	d3.select('#df_application_options')
+			.append('button')
+			.attr('id','df_application_options_add')
+			.attr('class','df_application_options_button')
+			.text('Add to filter settings')
+			.on('click',add_selected_features)
+		d3.select('#df_application_options')
+			.append('button')
+			.attr('id','df_application_options_cancel_selection')
+			.attr('class','df_application_options_button')
+			.text('Cancel current selection')
+			.on('click',remove_df_application_status);
+		d3.select('#df_application_options')
+			.append('button')
+			.attr('id','df_application_options_reset')
+			.attr('class','df_application_options_button')
+			.text('Reset data mining')
+			.on('click',function(d){
+				initialize_tabs_driving_features();
+			    initialize_tabs_classification_tree();
+			});
 	}
     
-    d3.select('#df_save_feature')[0][0].disabled= false;
-	d3.select('#df_save_feature').text('Save current feature')
-    d3.select('#df_cancel_selection')[0][0].disabled=false;
-
+    d3.select('#df_application_options_add')[0][0].disabled= false;
+	d3.select('#df_application_options_add').text('Add to filter settings')
+    d3.select('#df_application_options_cancel_selection')[0][0].disabled=false;
 }
 
 
-function save_selected_driving_features(){
+function add_selected_features(){
     if(selected_features.length!=0){
         var combined = "";
         for(var i=0;i<selected_features.length;i++){
@@ -956,10 +958,19 @@ function save_selected_driving_features(){
         	combined = combined + selected_features_expressions[i];
         }
         var expression = combined;
+            
         update_filter_application_status(expression,'deactivated');
-        save_user_defined_filter(expression);
+        //save_user_defined_filter(expression);
         
-        d3.select('#df_save_feature')[0][0].disabled= true;
-        d3.select('#df_save_feature').text('Current feature saved');
+        d3.select('#df_application_options_add')[0][0].disabled= true;
+        d3.select('#df_application_options_add').text('Feature added to filter settings');
+        
+        d3.select("#filter_application_save")
+		    .text("Save currently applied filter scheme")
+		    .on('click',function(d){
+		            save_user_defined_filter(null);
+		    });    
+		d3.select("#filter_application_save")[0][0].disabled = false;
+
     }
 }

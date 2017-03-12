@@ -63,16 +63,16 @@ function openFilterOptions(){
             .attr("id","applyFilterButton_new")
             .attr("class","filter_options_button")
             .text("Apply filter");
-    d3.select("#filter_buttons").append("button")
-            .attr("class","filter_options_button")
-            .attr("id","applyFilterButton_add")
-            .style("margin-left","6px")
-            .style("float","left")
-            .text("Add to selection");
-    d3.select("#filter_buttons").append("button")
-            .attr("id","applyFilterButton_within")
-            .attr("class","filter_options_button")
-            .text("Search within selection");
+//    d3.select("#filter_buttons").append("button")
+//            .attr("class","filter_options_button")
+//            .attr("id","applyFilterButton_add")
+//            .style("margin-left","6px")
+//            .style("float","left")
+//            .text("Add to selection");
+//    d3.select("#filter_buttons").append("button")
+//            .attr("id","applyFilterButton_within")
+//            .attr("class","filter_options_button")
+//            .text("Search within selection");
     
     d3.select("#filter_options_dropdown_1").on("change",filter_options_dropdown_preset_filters);    
 
@@ -432,23 +432,39 @@ function get_number_of_inputs(){
 
 
 
-function get_number_of_parentheses_of_level_1(expression){
-	var leng = expression.length;
-	var level = 0;
-	var num = 0;
-	for(var i=0;i<leng;i++){
-		if(expression[i]==="("){
-			level++;
-			if(level==1){
-				num++;
+
+
+
+function remove_outer_parentheses(expression){
+	
+	if(expression[0]!="(" || expression[expression.length-1]!=")"){
+		// Return if the expression does not start with "(" or ")".
+		return expression;
+	}else{
+		var leng = expression.length;
+		var level = 0;
+		var paren_end = -1;
+		for(var i=0;i<leng;i++){
+			if(expression[i]==="("){
+				level++;
+			}
+			else if(expression[i]===")"){
+				level--;
+				if(level==0){
+					paren_end = i;
+					break;
+				}
 			}
 		}
-		else if(expression[i]===")"){
-			level--;
+		if(paren_end == leng-1){
+			var new_expression = expression.substring(1,leng-1);
+			return remove_outer_parentheses(new_expression);
+		}else{
+			return expression;
 		}
 	}
-	return num;
 }
+
 
 function get_nested_parenthesis_depth(expression){
 	var leng = expression.length;
@@ -513,25 +529,14 @@ function compareMatchedIDSets(logic,set1,set2){
 
 
 
-//({absent[;9;]}&&{numOfInstruments[;11;1]}&&{emptyOrbit[2;;]}&&{emptyOrbit[3;;]})
-//&&
-//({numOfInstruments[;;2]}||{numOfInstruments[;;3]}||{numOfInstruments[;;4]}||{numOfInstruments[;;5]}||{numOfInstruments[;;6]})
+//({absent[;9;]}&&{numOfInstruments[;11;1]}&&{emptyOrbit[2;;]}&&{emptyOrbit[3;;]})&&({numOfInstruments[;;2]}||{numOfInstruments[;;3]}||{numOfInstruments[;;4]}||{numOfInstruments[;;5]}||{numOfInstruments[;;6]})
 
-//var cnt = 0;
+
 function processFilterExpression(expression, prev_matched, prev_logic, arch_info){
-	
-//	if(cnt<10){console.log(expression);cnt++;}
-//	else{return;}
-	
-	
+
 	var e=expression;
     // Remove outer parenthesis
-	var num = get_number_of_parentheses_of_level_1(e);
-    if(e.startsWith("(") && e.endsWith(")") && num==1){
-    	while(e.startsWith("(") && e.endsWith(")")){
-    		e=e.substring(1,e.length-1);
-    	}   
-    }
+	e = remove_outer_parentheses(e);
     var current_matched = [];
     var first = true;
     var e_collapsed;
@@ -598,13 +603,23 @@ function processFilterExpression(expression, prev_matched, prev_logic, arch_info
             var current = e.substring(0,current_collapsed.length);
             e_collapsed = e_collapsed.substring(current_collapsed.length);
             e = e.substring(current_collapsed.length);
-            current_matched = processFilterExpression(current,current_matched,prev,arch_info); 
+            if(prev=="||"){
+                var temp_matched = processFilterExpression(current,prev_matched,'&&',arch_info); 
+                current_matched = compareMatchedIDSets(prev, current_matched, temp_matched);
+            }else{
+                current_matched = processFilterExpression(current,current_matched,prev,arch_info); 
+            }
         }else{
-        	current_matched = processFilterExpression(e,current_matched,prev,arch_info); 
+            if(prev=="||"){
+                var temp_matched = processFilterExpression(e, prev_matched,'&&',arch_info); 
+                current_matched = compareMatchedIDSets(prev, current_matched, temp_matched);
+            }else{
+                current_matched = processFilterExpression(e,current_matched,prev,arch_info); 
+            }        	
             break;
         }
     }
-    return compareMatchedIDSets(prev_logic, current_matched, prev_matched);
+    return current_matched;
 }
  
 
@@ -813,14 +828,13 @@ function applyPresetFilter(expression,bitString,rank){
     			}
     		}
     	}
-		if(count===numb) resu= true;
+		if(count===+numb) resu= true;
         break;
     	
     default:
     	return false;
 	}
-	
-	
+
 	if(flip==true){
 		return !resu;
 	}else{
@@ -1083,7 +1097,7 @@ function applyComplexFilter(input_expression){
     }
     // Note that indices and ids are different!
     var matchedIndices = processFilterExpression(filterExpression, indices, "&&", arch_info);
-            
+                
     var matchedIDs = [];
     for(var i=0;i<matchedIndices.length;i++){
     	var index = matchedIndices[i];
@@ -1127,8 +1141,6 @@ function save_user_defined_filter(expression){
     d3.select('#filter_application_save')
     		.attr('disabled',true)
     		.text('Current filter scheme saved');
-    
-
 }
 
 
