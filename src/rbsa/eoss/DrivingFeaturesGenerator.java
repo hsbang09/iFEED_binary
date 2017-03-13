@@ -54,7 +54,7 @@ public class DrivingFeaturesGenerator {
     
     private double ninstr;
     private double norb;
-    
+    private boolean apriori;
 
     
     private ArrayList<IFEEDServlet.ArchInfo> archsInfo;
@@ -100,6 +100,8 @@ public class DrivingFeaturesGenerator {
       drivingFeatures_satList = new ArrayList<>();
       feh = new FilterExpressionHandler();
       feh.setArchs(archs,behavioral,non_behavioral,population);      
+      
+      this.apriori=false;
   }    
     
     
@@ -257,7 +259,6 @@ public class DrivingFeaturesGenerator {
 
         int iter=0;
         ArrayList<Integer> addedFeatureIndices = new ArrayList<>();
-        boolean apriori=false;
         double[] bounds = new double[2];
 		bounds[0] = 0;
 		bounds[1] = (double) behavioral.size() / population.size();
@@ -467,7 +468,9 @@ public class DrivingFeaturesGenerator {
     }    
     
     
-
+    public void turn_on_apriori(){
+    	this.apriori=true;
+    }
     
     
     public void addUserDefFeature(String expression){

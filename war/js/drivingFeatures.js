@@ -55,7 +55,7 @@ function runDataMining() {
         }
 
         sortedDFs = generateDrivingFeatures(selected,non_selected,support_threshold,confidence_threshold,lift_threshold,userdef_features,"lift");
-        if(testType=="3"){
+        if(testType=="3" && turn_on_apriori==false){
            jsonObj_tree = buildClassificationTree();
         }
         
@@ -64,7 +64,7 @@ function runDataMining() {
         }
         
         display_drivingFeatures(sortedDFs,"lift");
-        if(testType=="3"){
+        if(testType=="3" && turn_on_apriori==false){
         	display_classificationTree(jsonObj_tree);
         }
         selection_changed = false;
@@ -90,7 +90,8 @@ function generateDrivingFeatures(selected,non_selected,
         	conf:confidence_threshold,
         	lift:lift_threshold,
         	userDefFilters:JSON.stringify(userdef_features),
-        	sortBy:sortBy},
+        	sortBy:sortBy,
+        	apriori:turn_on_apriori},
         async: false,
         success: function (data, textStatus, jqXHR)
         {
@@ -432,7 +433,7 @@ function display_drivingFeatures(source,sortby) {
             .on("click",function(d){
                 var id = d.id;
                 var expression = d.expression;
-                //console.log(id);
+                console.log(expression);
                 var was_selected = false;
                 for(var i=0;i<selected_features.length;i++){
                     if(selected_features[i]===id){
@@ -461,7 +462,6 @@ function display_drivingFeatures(source,sortby) {
                     selected_features.push(id);
                     selected_features_expressions.push(expression);
                     update_df_application_status(expression);
-                    console.log(id+": " + expression);
                 }
                 
             })
@@ -844,7 +844,6 @@ function remove_df_application_status(expression){
 	
     d3.selectAll('.applied_driving_feature')[0].forEach(function(d){
     	var exp = d3.select(d).select('.applied_driving_feature_expression').attr('expression');
-    	console.log(exp);
     	if(expression===exp){
     		d.remove();
     	}
@@ -905,8 +904,8 @@ function update_df_application_status(expression){
         remove_df_application_status(exp);
         
         if(d3.selectAll('.applied_driving_feature')[0].length===0){
-            d3.select('#df_application_options_add')[0][0].disabled= true;
-            d3.select('#df_application_options_cancel_selection')[0][0].disabled=true;
+            //d3.select('#df_application_options_add')[0][0].disabled= true;
+            //d3.select('#df_application_options_cancel_selection')[0][0].disabled=true;
         }else{
         	highlight_dots_with_feature();
         }

@@ -275,6 +275,13 @@ public class IFEEDServlet extends HttpServlet {
             
             try{
             
+            String apriori = request.getParameter("apriori");
+            System.out.println(apriori);
+            
+            if(apriori.equalsIgnoreCase("true")){
+            	dfsGen.turn_on_apriori();
+            }
+
             DFs = dfsGen.getPrimitiveDrivingFeatures();
             
             Collections.sort(DFs,DrivingFeature.DrivingFeatureComparator);

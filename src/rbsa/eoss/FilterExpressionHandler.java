@@ -333,9 +333,9 @@ public class FilterExpressionHandler {
     public ArrayList<Integer> processFilterExpression(String filterExpression, ArrayList<Integer> prevMatched, String prevLogic){
         String e=filterExpression;
         // Remove outer parenthesis
-        if(e.startsWith("(") && e.endsWith(")")){
-            e=e.substring(1,e.length()-1);
-        }
+        e = remove_outer_parentheses(e);
+        
+        
         ArrayList<Integer> currMatched = new ArrayList<>();
         boolean first = true;
         
@@ -456,7 +456,33 @@ public class FilterExpressionHandler {
         return output;
     }
     
-    
+    public String remove_outer_parentheses(String expression){
+    	
+    	if(expression.startsWith("(") && expression.endsWith(")")){
+    		int l = expression.length();
+    		int level = 0;
+    		int paren_end = -1;
+    		for(int i=0;i<l;i++){
+    			if(expression.charAt(i)=='('){
+    				level++;
+    			}else if(expression.charAt(i)==')'){
+    				level--;
+    				if(level==0){
+    					paren_end = i;
+    					break;
+    				}
+    			}
+    		}
+    		if(paren_end==l-1){
+    			String new_expression = expression.substring(1, l-1);
+    			return remove_outer_parentheses(new_expression);
+    		}else{
+    			return expression;
+    		}
+    	}else{
+    		return expression;
+    	}
+    }
 
     
     
