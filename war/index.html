@@ -822,18 +822,28 @@ and open the template in the editor.
             	
             	if(task_number==0){
             		d3.select("#main_header").text("Task 1: Low-cost, low-performance designs");
-            		d3.select('#main_text').html('<p>Find as many features as possible from the selected group of designs.</p>'
-            				+'<p></p>');
+            		d3.select('#main_text').html('<p>Find as many good features as possible from the target designs. A good feature is defined'
+            				+' by the following two conditions:</p>'
+            				+'<p>1. Most of the target designs have the feature (the feature is a necessary condition).</p>'
+            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>');
             		select_archs_using_ids(low_cost_low_perf);
             	}
             	if(task_number==1){
+            		alert('The first task finished! Now starting the second task:')
             		d3.select("#main_header").text("Task 2: Medium-cost, medium-performance designs");
-            		d3.select('#main_text').html('<p>Find as many features as possible from the selected group of designs.</p>');
+            		d3.select('#main_text').html('<p>Find as many good features as possible from the target designs. A good feature is defined'
+            				+' by the following two conditions:</p>'
+            				+'<p>1. Most of the target designs have the feature (the feature is a necessary condition).</p>'
+            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>');
             		select_archs_using_ids(mid_cost_mid_perf);
             	}
             	if(task_number==2){
+            		alert('The second task finished! Now starting the third task:')
             		d3.select("#main_header").text("Task 3: High-cost, high-performance designs");
-            		d3.select('#main_text').html('<p>Find as many features as possible from the selected group of designs.</p>');
+            		d3.select('#main_text').html('<p>Find as many good features as possible from the target designs. A good feature is defined'
+            				+' by the following two conditions:</p>'
+            				+'<p>1. Most of the target designs have the feature (the feature is a necessary condition).</p>'
+            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>');
             		select_archs_using_ids(high_cost_high_perf);
             	}
             	userdef_features=[];

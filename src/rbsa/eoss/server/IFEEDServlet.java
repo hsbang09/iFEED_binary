@@ -222,6 +222,9 @@ public class IFEEDServlet extends HttpServlet {
             String jsonObj = gson.toJson(orbitList);
             outputString = jsonObj;
         }
+        
+
+        
 
         else if(requestID.equalsIgnoreCase("get_driving_features")){
         
@@ -395,19 +398,13 @@ public class IFEEDServlet extends HttpServlet {
     class instrumentsInOrbit{
         private String orbit;
         private ArrayList<String> children;
-        private ArrayList<String> filterLogic;
         
         public instrumentsInOrbit(String orbit){
             this.orbit = orbit;
             children = new ArrayList<>();
-            filterLogic = new ArrayList<>();
         }
        public void addToChildren(String instrument){
            children.add(instrument);
-       }
-       public void addToChildren(String instrument, String logic){
-           children.add(instrument);
-           filterLogic.add(logic);
        }
        
     }

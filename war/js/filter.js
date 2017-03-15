@@ -876,7 +876,9 @@ function applyFilter(option){
         var textboxObj = d3.select(d).select('.filter_inputs_textbox')[0][0];
         var selectObj = d3.select(d).select('.filter_inputs_select')[0][0];
         if(textboxObj!==null){
-            input_textbox.push(textboxObj.value);
+        	// Remove all white spaces
+        	var input = textboxObj.value.replace(/\s+/g, "");
+            input_textbox.push(input);
         }else{
             input_textbox.push(null);
         }
@@ -892,12 +894,10 @@ function applyFilter(option){
     var presetFilter = dropdown;
     if(presetFilter=="present" || presetFilter=="absent" || presetFilter=="together" || presetFilter=="separate"){
         var instrument = input_textbox[0];
-        instrument = instrument.replace(/\s+/, "");
         filterExpression = presetFilter + "[;" + DisplayName2Index(instrument.toUpperCase(),"instrument") + ";]";
     }else if(presetFilter == "inOrbit" || presetFilter == "notInOrbit"){
         var orbit = input_textbox[0].trim();
         var instrument = input_textbox[1];
-        instrument = instrument.replace(/\s+/, "");
         filterExpression = presetFilter + "["+ DisplayName2Index(orbit,"orbit") + ";" + DisplayName2Index(instrument.toUpperCase(),"instrument")+ ";]";
     }else if(presetFilter =="emptyOrbit"){
         var orbit = input_textbox[0].trim();
@@ -907,8 +907,8 @@ function applyFilter(option){
         filterExpression = presetFilter + "[;;" + number + "]";
     }else if(presetFilter=="subsetOfInstruments"){
     	var orbit = input_textbox[0].trim();
-    	var instrument = input_textbox[2].replace(/\s+/, "");
-    	var numbers = input_textbox[1].trim();
+    	var instrument = input_textbox[2];
+    	var numbers = input_textbox[1].trim().replace(/\s+/g, "");
         filterExpression = presetFilter + "["+ DisplayName2Index(orbit,"orbit") + ";" + DisplayName2Index(instrument.toUpperCase(),"instrument")+ ";"+ numbers+"]";
     }else if(presetFilter=="numOfInstruments"){
         var orbit = input_textbox[0];
@@ -930,7 +930,6 @@ function applyFilter(option){
             filterExpression=presetFilter + "[;;" + number + "]";
         }else if(orbitEmpty){
             // Count the number of specified instrument
-        	instrument = instrument.replace(/\s+/, "");
             filterExpression=presetFilter + "[;" + DisplayName2Index(instrument.toUpperCase(),"instrument") + ";" + number + "]";
         }else if(instrumentEmpty){
             // Count the number of instruments in an orbit

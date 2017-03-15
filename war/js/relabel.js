@@ -91,6 +91,10 @@ function DisplayName2Index(input, type){
 	var output='';
 	for(var i=0;i<split.length;i++){
 		var name = split[i];
+		
+		if(orbitList_displayName.indexOf(name)==-1 && instrList_displayName.indexOf(name)==-1){
+			alert('Invalid input argument');
+		}
 		if(i>0) output=output+",";
 		
 	    if(type=="orbit"){
@@ -134,7 +138,6 @@ function DisplayName2ActualName(name,type){
 	if(relabel==false){
 		return name;
 	}
-	
     var name = name.trim();
     if(type=="orbit"){
         var nth = $.inArray(name,orbitList_displayName);
@@ -165,15 +168,15 @@ function DisplayName2ActualName(name,type){
 
 
 
-function Name2Index(name,type){
-	var name = name.trim();
-    var temp = DisplayName2Index(name,type);
-    if(name!=temp+""){
-        return temp;
-    }else{
-        return ActualName2Index(name,type);
-    }
-}
+//function Name2Index(name,type){
+//	var name = name.trim();
+//    var temp = DisplayName2Index(name,type);
+//    if(name!=temp+""){
+//        return temp;
+//    }else{
+//        return ActualName2Index(name,type);
+//    }
+//}
 
 
 function ppdfType(expression){

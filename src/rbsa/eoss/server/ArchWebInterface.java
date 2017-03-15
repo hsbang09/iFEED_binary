@@ -51,12 +51,11 @@ public class ArchWebInterface {
     private ArchWebInterface(){
     
 
-        String path = "C:\\Users\\Bang\\Documents\\IDETC_2016";
+        String path = "/Users/bang/workspace/iFEED_binary_copy/war/";
         
         AE = ArchitectureEvaluator.getInstance();
         ATE = ArchTradespaceExplorer.getInstance();
         RM = ResultManager.getInstance();
-//        AEC = AgentEvaluationCounter.getInstance();
         
         Madkit kernel;
         String search_clps = "";
@@ -73,7 +72,7 @@ public class ArchWebInterface {
     }
 
     public Result evaluateArch(String bitString,int nSats){
-        AE.setSaveRete();
+        //AE.setSaveRete();
         Architecture arch = new Architecture(bitString, nSats);
         resu = AE.evaluateArchitecture(arch, "Slow");
         return resu;

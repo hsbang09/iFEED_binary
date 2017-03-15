@@ -897,3 +897,7 @@ function cancel_all_target_selection(){
 		.attr("status","default")
         .style("fill", "#000000");      
 }
+
+
+
+
