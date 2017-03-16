@@ -371,56 +371,56 @@ public class DrivingFeaturesGenerator {
     
     public ArrayList<DrivingFeature> getDrivingFeatures(){
 
-    	this.setDrivingFeatureSatisfactionData();
-    	
-    	System.out.println("higher level feature extraced");
-    	ArrayList<DrivingFeature> dfs=new ArrayList<>();
-    	
-    	int[] label_int = satisfactionArray(behavioral,population); 
-    	double[] label = new double[label_int.length];
-    	for(int i=0;i<label_int.length;i++){
-    		label[i] = (double) label_int[i];
-    	}
-
-        // Create a new instance of Apriori
-        Apriori ap = new Apriori(drivingFeatures, this.dataFeatureMat, label, thresholds);
-        
-        // Run Apriori algorithm
-        ArrayList<Apriori.Feature> new_features = ap.runApriori(2,false,100);
-
-        // Create a new list of driving features (assign new IDs)
-        int id=0;
-        for(int f=0;f<new_features.size();f++){
-            
-            Apriori.Feature feat = new_features.get(f);
-            String expression="";
-            String name="";
-            ArrayList<Integer> featureIndices = feat.getElements();
-            
-            int[] indices_array = new int[featureIndices.size()];
-            
-            for(int i=0;i<featureIndices.size();i++){
-                indices_array[i] = featureIndices.get(i);
-            }
-
-            boolean first = true;
-            for(int index:featureIndices){
-                if(first){
-                    first = false;
-                }
-                else{
-                    expression = expression + "&&";
-                    name = name + "&&";
-                }
-                DrivingFeature thisDF = this.drivingFeatures.get(index);
-                expression = expression + thisDF.getExpression();
-                name = name + thisDF.getName();
-            }
-            double[] metrics = feat.getMetrics();
-            DrivingFeature df = new DrivingFeature(id,name,expression, metrics, false);
-            id++;
-            dfs.add(df);
-        }
+//    	this.setDrivingFeatureSatisfactionData();
+//    	
+//    	System.out.println("higher level feature extraced");
+//    	ArrayList<DrivingFeature> dfs=new ArrayList<>();
+//    	
+//    	int[] label_int = satisfactionArray(behavioral,population); 
+//    	double[] label = new double[label_int.length];
+//    	for(int i=0;i<label_int.length;i++){
+//    		label[i] = (double) label_int[i];
+//    	}
+//
+//        // Create a new instance of Apriori
+//        Apriori ap = new Apriori(drivingFeatures, this.dataFeatureMat, label, thresholds);
+//        
+//        // Run Apriori algorithm
+//        ArrayList<Apriori.Feature> new_features = ap.runApriori(2,false,100);
+//
+//        // Create a new list of driving features (assign new IDs)
+//        int id=0;
+//        for(int f=0;f<new_features.size();f++){
+//            
+//            Apriori.Feature feat = new_features.get(f);
+//            String expression="";
+//            String name="";
+//            ArrayList<Integer> featureIndices = feat.getElements();
+//            
+//            int[] indices_array = new int[featureIndices.size()];
+//            
+//            for(int i=0;i<featureIndices.size();i++){
+//                indices_array[i] = featureIndices.get(i);
+//            }
+//
+//            boolean first = true;
+//            for(int index:featureIndices){
+//                if(first){
+//                    first = false;
+//                }
+//                else{
+//                    expression = expression + "&&";
+//                    name = name + "&&";
+//                }
+//                DrivingFeature thisDF = this.drivingFeatures.get(index);
+//                expression = expression + thisDF.getExpression();
+//                name = name + thisDF.getName();
+//            }
+//            double[] metrics = feat.getMetrics();
+//            DrivingFeature df = new DrivingFeature(id,name,expression, metrics, false);
+//            id++;
+//            dfs.add(df);
+//        }
         
 //        // Define the new feature satisfaction matrix       
 //        DoubleMatrix prev_sat_matrix = new DoubleMatrix(this.drivingFeaturesMatrix);
@@ -434,7 +434,7 @@ public class DrivingFeaturesGenerator {
 //        }
         
 //        this.drivingFeaturesMatrix = newDrivingFeaturesMatrix.toArray2();
-        this.drivingFeatures = dfs;
+//        this.drivingFeatures = dfs;
     	
     	return this.drivingFeatures;
     }

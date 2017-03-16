@@ -201,7 +201,6 @@ public class IFEEDServlet extends HttpServlet {
             outputString = jsonObj;
         }
         
-
         
         else if (requestID.equalsIgnoreCase("getInstrumentList")){
             ArrayList<String> instrumentList = new ArrayList<>(); 
@@ -213,6 +212,7 @@ public class IFEEDServlet extends HttpServlet {
             outputString = jsonObj;
 
         }
+        
         else if (requestID.equalsIgnoreCase("getOrbitList")){
             ArrayList<String> orbitList = new ArrayList<>(); 
             String[] orbits = Params.orbit_list;
@@ -224,8 +224,7 @@ public class IFEEDServlet extends HttpServlet {
         }
         
 
-        
-
+       
         else if(requestID.equalsIgnoreCase("get_driving_features")){
         
             long t0 = System.currentTimeMillis();

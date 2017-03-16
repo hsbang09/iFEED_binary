@@ -308,8 +308,8 @@ function cancelDotSelections(){
             .select("table").remove();        
     d3.select("[id=numOfSelectedArchs_inputBox]").text(""+numOfSelectedArchs());
     selection_changed = true;
-    initialize_tabs_driving_features();
-    initialize_tabs_classification_tree();
+    //initialize_tabs_driving_features();
+    //initialize_tabs_classification_tree();
 }
 
 function hideSelection(){
