@@ -404,7 +404,7 @@ and open the template in the editor.
             // Sign-in
             var id_token;
             var session_timed_out = false;
-            var account_id =-12345678;
+            var account_id = '';
             var testType = -1;
             var remainingTime;
             
@@ -473,34 +473,30 @@ and open the template in the editor.
             var getClassificationTree_numOfArchs = [];
             var getDrivingFeatures_thresholds = [];
 
-			var task_number = 0;
             
 
 
-			
             
-            function session_timeout(account_id){
-
+            function session_timeout(){
             	var out;
                 $.ajax(
                         {
                             url: "loginServlet",
                             type: "POST", 
-                            data: {ID: "sessionTimeout", account_id: account_id, cnt_df:buttonClickCount_drivingFeatures,
+                            data: {ID: "sessionTimeout", 
+                            	account_id: account_id, 
+                            	test_type: testType,
+                            	cnt_df:buttonClickCount_drivingFeatures,
                             	cnt_ct:buttonClickCount_classificationTree,
                             	cnt_fo:buttonClickCount_filterOptions,
                             	cnt_af:buttonClickCount_applyFilter,
                             	cnt_ud:buttonClickCount_addUserDefFilter,
                             	cnt_ar:numOfArchViewed,
                             	cnt_db:numOfDrivingFeatureViewed,
-                            	numArch_df: JSON.stringify(getDrivingFeatures_numOfArchs),
-                            	numArch_ct: JSON.stringify(getClassificationTree_numOfArchs),
-                            	threshold_df: JSON.stringify(getDrivingFeatures_thresholds),
-                            	userdef:JSON.stringify(userDefFilters)},
+                            	userdef:JSON.stringify(userdef_features)},
                             async: false,
                             success: function (data, textStatus, jqXHR)
                             {
-								out = data;
                             },
                             error: function (jqXHR, textStatus, errorThrown)
                             {
@@ -508,7 +504,7 @@ and open the template in the editor.
                             }
                         }
             	);
-                return out;
+                return;
             }
             
 
@@ -753,7 +749,6 @@ and open the template in the editor.
 
             function getTimeRemaining(endtime){
             	  var t = Date.parse(endtime) - Date.parse(new Date());
-// 				  var t = endtime - Date.parse(new Date());
             	  var seconds = Math.floor( (t/1000) % 60 );
             	  var minutes = Math.floor( (t/1000/60) % 60 );
             	  return {
@@ -776,19 +771,20 @@ and open the template in the editor.
 	          	  	secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
           		  	
 	          	  	if(t.total<=0){
-          		  		if(task_number!=2){
+          		  		if(order.indexOf(task_number)!=2){
           		  			clearInterval(timeinterval);
           		         	var startTime = Date.parse(new Date());
           					var deadline = new Date(startTime+remainingTime);
           		         	initializeClock('clockdiv', deadline);
-          		         	click_rightarrow();
+          		         	click_rightarrow(order);
           		         	return;
         		       	}
           		  		else{
                		    	clearInterval(timeinterval);
                		    	session_timed_out = true;
                		    	d3.select('body').selectAll('div').remove();
-               		    	//key_number = session_timeout(account_id);
+               		    	session_timeout();
+               		    	var key_number = account_id;
                		    	
            		    		var img = $('<img />', {src : 'https://brand.cornell.edu/images/cornelllogo-stacked.png'});
            		    		img.appendTo('body');
@@ -796,11 +792,11 @@ and open the template in the editor.
             	
                		    	d3.select('body').append('h1')
                		    		.text('The session ended').style("width","1200px").style("margin","auto");
-//                		    	d3.select('body').append('h2')
-//                		    		.text('IMPORTANT: Please save the key number below and insert in Mechanical Turk & Survey Monkey')
-//                		    		.style("width","1200px").style("margin","auto");;
-//                		    	d3.select('body').append('h2')
-//                		    		.text("Key number: "+ key_number).style("width","1200px").style("margin","auto");
+               		    	
+               		    	d3.select('body').append('h2')
+           		    			.text("IMPORTANT: Please copy the key number below and paste it into the survey page (link provided below).").style("width","1200px").style("margin","auto");
+               		    	d3.select('body').append('h2')
+               		    		.text("Key number: "+ key_number).style("width","1200px").style("margin","auto");
                		    	d3.select('body').append('h2')
            		    			.text("Now follow the link to solve problem: https://www.surveymonkey.com/r/P53BWX2").style("width","1200px").style("margin","auto");
                		    	d3.select('body').append('div').style("width","100%").style("height","30px");          		  			
@@ -825,25 +821,26 @@ and open the template in the editor.
             		d3.select('#main_text').html('<p>Find as many good features as possible from the target designs. A good feature is defined'
             				+' by the following two conditions:</p>'
             				+'<p>1. Most of the target designs have the feature (the feature is a necessary condition).</p>'
-            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>');
+            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>'
+            				+'<p>In other words, try to find a feature that maximizes the overlap between the target designs (blue) and the designs with that feature (pink)</p>');
             		select_archs_using_ids(low_cost_low_perf);
             	}
             	if(task_number==1){
-            		alert('The first task finished! Now starting the second task:')
             		d3.select("#main_header").text("Task 2: Medium-cost, medium-performance designs");
             		d3.select('#main_text').html('<p>Find as many good features as possible from the target designs. A good feature is defined'
             				+' by the following two conditions:</p>'
             				+'<p>1. Most of the target designs have the feature (the feature is a necessary condition).</p>'
-            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>');
+            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>'
+            				+'<p>In other words, try to find a feature that maximizes the overlap between the target designs (blue) and the designs with that feature (pink)</p>');
             		select_archs_using_ids(mid_cost_mid_perf);
             	}
             	if(task_number==2){
-            		alert('The second task finished! Now starting the third task:')
             		d3.select("#main_header").text("Task 3: High-cost, high-performance designs");
             		d3.select('#main_text').html('<p>Find as many good features as possible from the target designs. A good feature is defined'
             				+' by the following two conditions:</p>'
             				+'<p>1. Most of the target designs have the feature (the feature is a necessary condition).</p>'
-            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>');
+            				+'<p>2. Most of the designs that have the feature are within the target region (the feature is a sufficient condition).</p>'
+            				+'<p>In other words, try to find a feature that maximizes the overlap between the target designs (blue) and the designs with that feature (pink)</p>');
             		select_archs_using_ids(high_cost_high_perf);
             	}
             	userdef_features=[];
@@ -852,102 +849,84 @@ and open the template in the editor.
             }
             
             
+            
 
-            function click_leftarrow(){
-            	if(task_number>0){
-                	task_number--;
+
+            function click_leftarrow(order){
+            	var i = order.indexOf(task_number);
+            	if(i==0){
+            		// pass
+            	}else if(i==1){
+            		task_number = order[0];
+            	}else if(i==2){
+            		task_number = order[1];
             	}
             	update_task_direction();
            	}
-            function click_rightarrow(){
-            	if(task_number<2){
-                	task_number++;
+            
+            function click_rightarrow(order){
+            	var i = order.indexOf(task_number);
+            	if(i==0){
+            		alert('The first task finished! Now starting the second task:')
+            		task_number = order[1];
+            	}else if(i==1){
+            		alert('The second task finished! Now starting the last task:')
+            		task_number = order[2];
+            	}else if(i==2){
+            		// pass
             	}
             	update_task_direction();
             }
             
-            
-//             function deactivate_right_arrow(){
-//             	//d3.select("#rightarrow").on("click",null);
-//             	//d3.select('#rightarrow').style('opacity',0.3);
-//             }
-//             function activate_right_arrow(){
-//             	d3.select('#rightarrow').style('opacity',1);
-//             	d3.select("#rightarrow").on("click",click_rightarrow);
-//             }
-            
-            
-            
-            
-// 			var credential_verified = false;
-// 			var cred = window.location.search;
-// 			var startTime = Date.parse(new Date());
-// 			cred = cred.substring(1);
-// 			if(cred){
-// 	       		testType = cred.split("-")[0];
-// 	       		console.log(testType);
-// 	       		account_id = cred.split("-")[1];
-// 	       		console.log(account_id);
-// 	       		var access;
-// 				$.ajax(
-// 					{
-//   		                 url: "loginServlet",
-//   		                 type: "POST",
-//   		                 data: {ID: "login", account_id: account_id, testType: testType, loginTime:startTime},
-//   		                 async: false,
-//   		                 success: function (data, textStatus, jqXHR)
-//   		                 {
-//   		                	remainingTime=data; 
-//   		                 },
-//   		                 error: function (jqXHR, textStatus, errorThrown)
-//   		                 {
-//   		                     alert("Initialization error");
-//   		                 }
-//   		             });
-//       	       if(remainingTime!="accessDenied"){
-//       	    	   // Credential verified
-//       	    	   if( + remainingTime > 0){
-//       	    		   remainingTime = + remainingTime;
-//           	    	   credential_verified=true;
-//           	    	  // Positive remaining time
-//       	    	   }
-//       	       }
-// 	       }else{
-// 	    	   // signout
-// 	    	   credential_verified=false;
-// 	       }
-			
-			
-// 			if(credential_verified){
-// 				var deadline = new Date(startTime + remainingTime);
-// 	         	initializeClock('clockdiv', deadline);
-// 	         	newDataFromResultFile();
-// 			}else{
-// 				window.location.replace("session_end.html");
-// 			}
+            function randomize_task_order(){
+            	var r = Math.random();
+            	var order = [0,1,2];
+            	if(r>=1/6 && r<2/6){
+            		order = [0,2,1];
+            	}else if(r>=2/6 && r<3/6){
+            		order = [1,2,0];
+            	}else if(r>=3/6 && r<4/6){
+            		order = [1,0,2];
+            	}else if(r>=4/6 && r<5/6){
+            		order = [2,0,1];
+            	}else if(r>=5/6){
+            		order = [2,1,0];
+            	}
+            	return order;
+            }
 
+            
+            
 
-
-
-
-			
+ 
+            
 			var cred = window.location.search;
+			var order = randomize_task_order();
+			var task_number = order[0];
+
 			if(cred){
-	       		testType = cred.substring(1);
+				cred = cred.substring(1);
+	       		testType = cred.split('-')[0];
+	       		account_id = cred.split('-')[1];
 	       		console.log("testType:" + testType);
 			}else{
 				testType="3";
+				account_id = '1231231';
 			}
 
-         	remainingTime = + 100*60*1000;
+         	remainingTime = + 10*60*1000;
          	var startTime = Date.parse(new Date());
 			var deadline = new Date(startTime+remainingTime);
          	initializeClock('clockdiv', deadline);
 
             import_new_data();
             update_task_direction();
-            d3.select("#leftarrow").on("click",click_leftarrow);
-            d3.select("#rightarrow").on("click",click_rightarrow);
+            d3.select("#leftarrow").on("click",function(d){
+            	click_leftarrow(order);
+            });
+            d3.select("#rightarrow").on("click",function(d){
+            	click_rightarrow(order);
+            });
             
             
             

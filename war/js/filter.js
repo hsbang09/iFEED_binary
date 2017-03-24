@@ -9,7 +9,7 @@
 
 function openFilterOptions(){
     
-    buttonClickCount_filterOptions += 1;
+    
     
     document.getElementById('tab2').click();
     d3.select("[id=basicInfoBox_div]").select("[id=view2]").select("g").remove();
@@ -112,6 +112,7 @@ function filter_options_dropdown_preset_filters(){
     
     if (selectedOption==="not_selected"){return;}
     else{
+    	buttonClickCount_filterOptions += 1;
         filter_input_preset(selectedOption,false); 
         d3.select("[id=saveFilter]").attr('disabled', true);
     }
@@ -1123,6 +1124,9 @@ function applyComplexFilter(input_expression){
 
 
 function save_user_defined_filter(expression){
+	
+	buttonClickCount_addUserDefFilter+=1;
+	
 	var expression_to_save;
     if(expression){
         if(expression.substring(0,1)!=="{"){

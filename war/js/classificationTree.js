@@ -7,6 +7,8 @@
 
 function buildClassificationTree(){
 	
+	buttonClickCount_classificationTree += 1;
+	
 	var output;
     $.ajax({
         url: "IFEEDServlet",
